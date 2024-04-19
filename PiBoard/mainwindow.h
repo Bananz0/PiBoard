@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "sendwindow.h"
+#include "receivewindow.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -16,6 +18,13 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+private slots:
+    void on_senderButton_clicked();
+
+    void on_receiverButton_clicked();
+
+    void on_allButton_clicked();
 
 private:
     Ui::MainWindow *ui;
