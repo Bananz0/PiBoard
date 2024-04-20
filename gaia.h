@@ -6,6 +6,7 @@
 #include "hephaestus.h"
 #include <QScreen>
 #include <QString>
+#include "minerva.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -23,6 +24,7 @@ public:
     void startServer(const QString& position);
     void startClient(const QString& position);
     void movePosition(QMainWindow* window, const QString &position);
+    void selectDataPinCount(int pincount);
 
 
 private slots:

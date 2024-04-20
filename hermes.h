@@ -2,6 +2,7 @@
 #define HERMES_H
 
 #include <QMainWindow>
+#include "artemis.h"
 
 namespace Ui {
 class Hermes;
@@ -14,6 +15,9 @@ class Hermes : public QMainWindow
 public:
     explicit Hermes(QWidget *parent = nullptr);
     ~Hermes();
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    Artemis *draw = new Artemis;
 
 private:
     Ui::Hermes *ui;

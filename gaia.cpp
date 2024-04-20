@@ -14,17 +14,18 @@ Gaia::~Gaia()
     delete ui;
 }
 
+//TODO
+//Display Minerva's status
+
 void Gaia::on_senderButton_clicked()
 {
     startServer("Center");
 }
 
-
 void Gaia::on_receiverButton_clicked()
 {
     startClient("Center");
 }
-
 
 void Gaia::on_allButton_clicked()
 {
@@ -40,8 +41,6 @@ void Gaia::startServer(const QString& position){
     senderWindow->setWindowIcon(server);
     movePosition(senderWindow,position);
 };
-
-
 
 void Gaia::startClient(const QString& position){
     QIcon client(":/assets/client.png");
@@ -62,12 +61,14 @@ void Gaia::movePosition(QMainWindow* window,const QString& position){
         x = screenRect.right() - window->width();
         y = (screenRect.height() - window->height()) / 2;
     } else if (position == "Center"){
-        // Default position, middle-left
-        x = 0;
-        y = 0;
+        x = (screenRect.width() - window->width()) / 2;
+        y = (screenRect.height() - window->height()) / 2;
     }
     window->move(x, y);
 };
 
-
+void Gaia::selectDataPinCount(int pincount){
+    //TODO
+    // Add loginc for selecting the number of pins for data transfer sacrificing speed for idk anything else
+}
 

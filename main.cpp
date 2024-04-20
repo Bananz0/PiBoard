@@ -11,6 +11,7 @@ Why?
 Great question.
 Good luck future me, you'll need it.
 */
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -31,7 +32,7 @@ int main(int argc, char *argv[])
     QTimer::singleShot(2500,splash,SLOT(close()));
     QTimer::singleShot(2500,w,SLOT(show()));
 
-    w->setWindowTitle("PiBoard: Select Operating Mode:");
+    w->setWindowTitle("PiBoard: Raspberry Pi Whiteboard Knockoff");
     w->setWindowIcon(icon);
 
 
