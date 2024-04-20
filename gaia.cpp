@@ -16,37 +16,58 @@ Gaia::~Gaia()
 
 void Gaia::on_senderButton_clicked()
 {
-    QIcon server(":/assets/server.png");
-    Hermes *senderwindow = new Hermes;
-    senderwindow->show();
-    senderwindow->setWindowTitle("Server");
-    senderwindow->setWindowIcon(server);
+    startServer("Center");
 }
 
 
 void Gaia::on_receiverButton_clicked()
 {
-    QIcon client(":/assets/client.png");
-    Hephaestus *receiverwindow = new Hephaestus;
-    receiverwindow->show();
-    receiverwindow->setWindowIcon(client);
-    receiverwindow->setWindowTitle("Reciever");
+    startClient("Center");
 }
 
 
 void Gaia::on_allButton_clicked()
 {
+    startServer("Right");
+    startClient("Left");
+}
+
+void Gaia::startServer(const QString& position){
     QIcon server(":/assets/server.png");
-    Hermes *senderwindow = new Hermes;
-    senderwindow->show();
-    senderwindow->setWindowTitle("Server");
-    senderwindow->setWindowIcon(server);
+    Hermes *senderWindow = new Hermes;
+    senderWindow->show();
+    senderWindow->setWindowTitle("Server");
+    senderWindow->setWindowIcon(server);
+    movePosition(senderWindow,position);
+};
+
+
+
+void Gaia::startClient(const QString& position){
     QIcon client(":/assets/client.png");
     Hephaestus *receiverwindow = new Hephaestus;
     receiverwindow->show();
     receiverwindow->setWindowIcon(client);
     receiverwindow->setWindowTitle("Reciever");
-}
+    movePosition(receiverwindow,position);
+};
+
+void Gaia::movePosition(QMainWindow* window,const QString& position){
+    QRect screenRect = QGuiApplication::primaryScreen()->availableGeometry();
+    int x, y;
+    if (position == "Left") {
+        x = 0;
+        y = (screenRect.height() - window->height()) / 2;
+    } else if (position == "Right") {
+        x = screenRect.right() - window->width();
+        y = (screenRect.height() - window->height()) / 2;
+    } else if (position == "Center"){
+        // Default position, middle-left
+        x = 0;
+        y = 0;
+    }
+    window->move(x, y);
+};
 
 
 

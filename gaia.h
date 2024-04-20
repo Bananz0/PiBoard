@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include "hermes.h"
 #include "hephaestus.h"
+#include <QScreen>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -18,8 +20,10 @@ class Gaia : public QMainWindow
 public:
     Gaia(QWidget *parent = nullptr);
     ~Gaia();
-    void startServer();
-    void startClient();
+    void startServer(const QString& position);
+    void startClient(const QString& position);
+    void movePosition(QMainWindow* window, const QString &position);
+
 
 private slots:
     void on_senderButton_clicked();
