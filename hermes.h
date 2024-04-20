@@ -17,6 +17,7 @@ public:
     ~Hermes();
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
     Artemis *draw = new Artemis;
 
 private:

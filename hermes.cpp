@@ -1,13 +1,13 @@
 //Sender
 #include "hermes.h"
 #include "ui_hermes.h"
-#include <QDesktopServices>
 
 Hermes::Hermes(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::Hermes)
 {
     ui->setupUi(this);
+    setMouseTracking(true);
 }
 
 Hermes::~Hermes()
@@ -25,4 +25,8 @@ void Hermes::mouseReleaseEvent(QMouseEvent *event){
 
 void Hermes::mousePressEvent(QMouseEvent *event){
     qDebug() << "Mouse QPoint " << event->position();
+}
+
+void Hermes::mouseMoveEvent(QMouseEvent *event)  {
+     qDebug() << "Mouse QPoint " << event->position();
 }
