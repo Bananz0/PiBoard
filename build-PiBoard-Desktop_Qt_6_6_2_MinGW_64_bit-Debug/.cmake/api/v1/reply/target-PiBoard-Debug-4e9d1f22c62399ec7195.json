@@ -578,7 +578,7 @@
 		},
 		{
 			"backtrace" : 4,
-			"path" : "sendwindow.ui",
+			"path" : "hermes.ui",
 			"sourceGroupIndex" : 2
 		},
 		{
@@ -633,7 +633,7 @@
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "D:/source/Labs/P20/build-PiBoard-Desktop_Qt_6_6_2_MinGW_64_bit-Debug/PiBoard_autogen/include/ui_sendwindow.h",
+			"path" : "D:/source/Labs/P20/build-PiBoard-Desktop_Qt_6_6_2_MinGW_64_bit-Debug/PiBoard_autogen/include/ui_hermes.h",
 			"sourceGroupIndex" : 1
 		},
 		{

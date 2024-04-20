@@ -233,7 +233,7 @@ build PiBoard_autogen/EWIEGA46WW/qrc_resources.cpp | ${cmake_ninja_workdir}PiBoa
 #############################################
 # Phony custom command for CMakeFiles\PiBoard_autogen_timestamp_deps
 
-build CMakeFiles/PiBoard_autogen_timestamp_deps | ${cmake_ninja_workdir}CMakeFiles/PiBoard_autogen_timestamp_deps: phony Z$:/School/Qt/6.6.2/mingw_64/lib/libQt6Widgets.a Z$:/School/Qt/6.6.2/mingw_64/lib/libQt6Core.a Z$:/School/Qt/6.6.2/mingw_64/./bin/uic.exe Z$:/School/Qt/6.6.2/mingw_64/./bin/moc.exe
+build CMakeFiles/PiBoard_autogen_timestamp_deps | ${cmake_ninja_workdir}CMakeFiles/PiBoard_autogen_timestamp_deps: phony Z$:/School/Qt/6.6.2/mingw_64/./bin/uic.exe Z$:/School/Qt/6.6.2/mingw_64/./bin/moc.exe Z$:/School/Qt/6.6.2/mingw_64/lib/libQt6Widgets.a Z$:/School/Qt/6.6.2/mingw_64/lib/libQt6Core.a
 
 
 #############################################
