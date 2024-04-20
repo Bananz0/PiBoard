@@ -18,6 +18,9 @@ public:
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
+
+    QPointF startPoint, endPoint, movingPoints;
+
     Artemis *draw = new Artemis;
 
 private:

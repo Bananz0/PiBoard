@@ -16,7 +16,6 @@ class Hephaestus : public QMainWindow
 public:
     explicit Hephaestus(QWidget *parent = nullptr);
     ~Hephaestus();
-    void mouseReleaseEvent(QMouseEvent *event) override;
     Artemis *draw = new Artemis;
 
 private:

@@ -16,7 +16,3 @@ Hephaestus::~Hephaestus()
     delete ui;
 }
 
-void Hephaestus::mouseReleaseEvent(QMouseEvent *event)
-{
-    qDebug() << "Mouse x " << event->position() << " Mouse y " << event->position();
-}
