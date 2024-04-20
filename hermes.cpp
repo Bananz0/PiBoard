@@ -20,13 +20,19 @@ Hermes::~Hermes()
 //https://doc.qt.io/qt-6/eventsandfilters.html
 
 void Hermes::mouseReleaseEvent(QMouseEvent *event){
-    qDebug() << "Mouse QPoint " << event->position();
+    qDebug() << "Mouse: " << event->position();
+    endPoint = event->position();
+    update();
 }
 
 void Hermes::mousePressEvent(QMouseEvent *event){
-    qDebug() << "Mouse QPoint " << event->position();
+    startPoint = event->position();
+    qDebug() << "Mouse: " << event->position();
+    update();
 }
 
 void Hermes::mouseMoveEvent(QMouseEvent *event)  {
-     qDebug() << "Mouse QPoint " << event->position();
+    movingPoints = event->position();
+    qDebug() << "Mouse: " << event->position();
+    update();
 }
