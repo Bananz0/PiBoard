@@ -15,7 +15,7 @@ Good luck future me, you'll need it.
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    a.setApplicationName("PiBoard: Paint on Pi");
+    a.setApplicationName("PiBoard: An MS: Paint Knockoff");
     a.setApplicationVersion("0.0.1");
 
     QIcon icon(":/assets/icon-48.png");
