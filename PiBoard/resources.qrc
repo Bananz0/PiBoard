@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>assets/icon-240.png</file>
+        <file>assets/icon-48.png</file>
+        <file>assets/icon-96.png</file>
+        <file>assets/splash.png</file>
+        <file>assets/client.png</file>
+        <file>assets/server.png</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,27 @@
+{
+	"BUILD_DIR" : "D:/source/Labs/P20/build-PiBoard-Desktop_Qt_6_6_2_MinGW_64_bit-Debug/PiBoard_autogen",
+	"CMAKE_BINARY_DIR" : "D:/source/Labs/P20/build-PiBoard-Desktop_Qt_6_6_2_MinGW_64_bit-Debug",
+	"CMAKE_CURRENT_BINARY_DIR" : "D:/source/Labs/P20/build-PiBoard-Desktop_Qt_6_6_2_MinGW_64_bit-Debug",
+	"CMAKE_CURRENT_SOURCE_DIR" : "D:/source/Labs/P20/PiBoard",
+	"CMAKE_SOURCE_DIR" : "D:/source/Labs/P20/PiBoard",
+	"INCLUDE_DIR" : "D:/source/Labs/P20/build-PiBoard-Desktop_Qt_6_6_2_MinGW_64_bit-Debug/PiBoard_autogen/include",
+	"INPUTS" : 
+	[
+		"D:/source/Labs/P20/PiBoard/assets/client.png",
+		"D:/source/Labs/P20/PiBoard/assets/icon-48.png",
+		"D:/source/Labs/P20/PiBoard/assets/icon-96.png",
+		"D:/source/Labs/P20/PiBoard/assets/server.png",
+		"D:/source/Labs/P20/PiBoard/assets/splash.png",
+		"D:/source/Labs/P20/PiBoard/assets/icon-240.png"
+	],
+	"LOCK_FILE" : "D:/source/Labs/P20/build-PiBoard-Desktop_Qt_6_6_2_MinGW_64_bit-Debug/CMakeFiles/PiBoard_autogen.dir/AutoRcc_resources_EWIEGA46WW_Lock.lock",
+	"MULTI_CONFIG" : false,
+	"OPTIONS" : [ "--no-zstd", "-name", "resources" ],
+	"OUTPUT_CHECKSUM" : "EWIEGA46WW",
+	"OUTPUT_NAME" : "qrc_resources.cpp",
+	"RCC_EXECUTABLE" : "Z:/School/Qt/6.6.2/mingw_64/./bin/rcc.exe",
+	"RCC_LIST_OPTIONS" : [ "--list" ],
+	"SETTINGS_FILE" : "D:/source/Labs/P20/build-PiBoard-Desktop_Qt_6_6_2_MinGW_64_bit-Debug/CMakeFiles/PiBoard_autogen.dir/AutoRcc_resources_EWIEGA46WW_Used.txt",
+	"SOURCE" : "D:/source/Labs/P20/PiBoard/resources.qrc",
+	"VERBOSITY" : 0
+}

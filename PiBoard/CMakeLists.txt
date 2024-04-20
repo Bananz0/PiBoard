@@ -14,17 +14,20 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
         main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
+        gaia.cpp
+        gaia.h
+        gaia.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(PiBoard
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        sendwindow.h sendwindow.cpp sendwindow.ui
-        receivewindow.h receivewindow.cpp receivewindow.ui
+        hermes.h hermes.cpp hermes.ui
+        hephaestus.h hephaestus.cpp hephaestus.ui
+        resources.qrc
+        artemis.h artemis.cpp
+        minerva.h minerva.cpp
 
 
     )
