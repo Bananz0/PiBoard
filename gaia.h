@@ -6,7 +6,8 @@
 #include "hephaestus.h"
 #include <QScreen>
 #include <QString>
-#include "minerva.h"
+#include "artemis.h"
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

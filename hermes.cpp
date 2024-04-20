@@ -47,15 +47,24 @@ void Hermes::paintEvent(QPaintEvent *event){
     QPen pen;
     painter.setPen(pen);
     painter.setRenderHint(QPainter::TextAntialiasing);
-    pen.setWidth(4);
-
-    //FONT
-    QFont font;
-    font.setPixelSize(30);
-    font.setBold(1);
-    font.setFamily("Bauhaus 93");
-    painter.setFont(font);
+    pen.setWidth(60);
 
     painter.drawLine(draw->getStartPoint(), draw->getEndPoint());
+
+}
+
+//https://stackoverflow.com/questions/12828825/how-to-assign-callback-when-the-user-resizes-a-qmainwindow
+
+void Hermes::resizeEvent(QResizeEvent* event)
+{
+    QMainWindow::resizeEvent(event);
+    QSize size = this->size();
+
+
+    //TODO
+    //Syncronize window sizes
+    // minerva-> getServerWindowSize(size);
+    // qDebug() << "Height: " <<size.height() << "Width" << size.width();
+
 
 }

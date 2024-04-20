@@ -2,6 +2,7 @@
 #include "gaia.h"
 #include "./ui_gaia.h"
 
+
 Gaia::Gaia(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::Gaia)

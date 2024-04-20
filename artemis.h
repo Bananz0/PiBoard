@@ -2,7 +2,7 @@
 #define ARTEMIS_H
 #include <QImage>
 #include <QDebug>
-
+#include "minerva.h"
 
 class Artemis
 {
@@ -18,15 +18,17 @@ public:
     QPointF getEndPoint();
     QPointF getMovingPoints();
 
-    void eraseCanvas();
-
     void drawLine();
+
     class drawShapes{
         void Circle();
         void Square();
         void Triangle();
         void Squircle();
     };
+
+    void eraseCanvas();
+
 
 private:
     QPointF startPoint, endPoint, movingPoints;

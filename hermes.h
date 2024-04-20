@@ -4,6 +4,9 @@
 #include <QMainWindow>
 #include <QMouseEvent>
 #include "artemis.h"
+#include "minerva.h"
+
+
 
 namespace Ui {
 class Hermes;
@@ -22,7 +25,7 @@ public:
     void mouseMoveEvent(QMouseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
 
-
+    void resizeEvent(QResizeEvent* event) override;
 
     Artemis *draw = new Artemis;
 
