@@ -2,6 +2,9 @@
 #include "gaia.h"
 #include "./ui_gaia.h"
 
+#include <QTextBrowser>
+#include <QString>
+
 
 Gaia::Gaia(QWidget *parent)
     : QMainWindow(parent)
@@ -10,7 +13,11 @@ Gaia::Gaia(QWidget *parent)
     Minerva *minerva = new Minerva;
 
     ui->setupUi(this);
-    
+    ui->minervaStatus->setText("Minerva is ready");
+    for (int i = 0; i < 40; i++) {
+        ui->minervaStatus->append("Minerva is ready");
+	}
+
 }
 
 Gaia::~Gaia()
@@ -20,7 +27,8 @@ Gaia::~Gaia()
 
 //TODO
 //Display Minerva's status
-//https://stackoverflow.com/questions/24470519/how-to-auto-scroll-qt-text-field-widget
+//https://stackoverflow.com/questions/24470519/how-to-auto-scroll-qt-text-field-widget\
+//https://doc.qt.io/qt-5/qtextedit.html#append
 
 
 void Gaia::on_senderButton_clicked()

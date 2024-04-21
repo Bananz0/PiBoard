@@ -27,6 +27,7 @@ public:
     void startClient(const QString& position);
     void movePosition(QMainWindow* window, const QString &position);
     void selectDataPinCount(int pincount);
+    
 
 
 private slots:

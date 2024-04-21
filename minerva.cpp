@@ -1,5 +1,6 @@
 //Comms
 #include "minerva.h"
+#include <QDebug>
 
 //enable when wiringPi is installed
 //#include "wiringPi.h"
