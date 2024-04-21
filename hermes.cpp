@@ -8,9 +8,10 @@
 
 
 
-Hermes::Hermes(QWidget *parent)
+Hermes::Hermes(Minerva::drawData* drawDataPacketOut,QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::Hermes)
+    , drawDataPacket(drawDataPacketOut)
 {
     ui->setupUi(this);
     setMouseTracking(true);
@@ -20,7 +21,6 @@ Hermes::Hermes(QWidget *parent)
 
 Hermes::~Hermes()
 {
-    delete drawDataPacket;
     delete ui;
     delete draw;
 }
@@ -69,10 +69,12 @@ void Hermes::paintEvent(QPaintEvent *event){
     painter.drawImage(0, 0, *image); 
    // painter.setRenderHint(QPainter::Antialiasing);
 
+
     QPainter imagePainter(image);
     //imagePainter.setRenderHint(QPainter::Antialiasing);
 
     drawOnCanvas(imagePainter, drawDataPacket->pen, drawDataPacket->drawMode);
+    qDebug() << "Drawing on Hermes";
  }
 
 //https://stackoverflow.com/questions/12828825/how-to-assign-callback-when-the-user-resizes-a-qmainwindow

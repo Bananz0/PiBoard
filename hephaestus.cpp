@@ -7,21 +7,20 @@
 
 
 
-Hephaestus::Hephaestus(QWidget *parent)
+Hephaestus::Hephaestus(Minerva::drawData* drawDataPacketIn,QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::Hephaestus)
+    , drawDataPacket(drawDataPacketIn)
 {
     ui->setupUi(this);
     image = new QImage(800, 600, QImage::Format_RGB32);
-    image->fill(Qt::black);
-    update();
+    image->fill(Qt::white);
     
 }
 
 Hephaestus::~Hephaestus()
 {
     delete draw;
-    delete drawDataPacket;
     delete ui;
 }
 
@@ -37,18 +36,19 @@ void Hephaestus::paintEvent(QPaintEvent* event) {
     //imagePainter.setRenderHint(QPainter::Antialiasing);
 
     drawOnCanvas(imagePainter, drawDataPacket->pen, drawDataPacket->drawMode);
+    qDebug() << "Drawing on Hephaestus";
 }
 
 
 void Hephaestus::resizeEvent(QResizeEvent *event) {
     QMainWindow::resizeEvent(event);
-
+    update();
     //TODO
     //Syncronize window sizes
     // Get the server window size from Minerva
-     QSize size = drawDataPacket->windowSize;
-     qDebug() << "Height: " <<size.height() << "Width" << size.width();
-     resize(size);
+     //QSize size = drawDataPacket->windowSize;
+     //qDebug() << "Height: " <<size.height() << "Width" << size.width();
+     //resize(size);
 }
 
 void Hephaestus::drawOnCanvas(QPainter& painter, QPen& pen, int drawMode) {

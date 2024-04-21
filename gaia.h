@@ -9,6 +9,8 @@
 #include "artemis.h"
 #include "minerva.h"
 
+class Hermes;
+class Hephaestus;
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

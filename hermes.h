@@ -5,7 +5,7 @@
 #include <QMouseEvent>
 #include "artemis.h"
 #include <QImage>
-#include "gaia.h"
+#include "minerva.h"
 
 
 namespace Ui {
@@ -17,7 +17,7 @@ class Hermes : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit Hermes(QWidget *parent = nullptr);
+    explicit Hermes(Minerva::drawData* drawDataPacketOut, QWidget* parent = nullptr);
     ~Hermes();
 
     void mouseReleaseEvent(QMouseEvent *event) override;
@@ -26,27 +26,8 @@ public:
     void paintEvent(QPaintEvent *event) override;
     void resizeEvent(QResizeEvent* event) override;
     void drawOnCanvas(QPainter& painter, QPen& pen, int drawMode);
-    
-
-    class drawData {
-    public:
-        QPointF startPoint;
-        QPointF endPoint;
-        QPointF movingPoint;
-        QPen pen;
-        int drawMode = 1;
-        QSize windowSize;
-
-        drawData() {
-        }
-    };
-    
-
-    drawData* drawDataPacket = new drawData;    
-    
-
-
-
+            
+    Minerva::drawData* drawDataPacket;
 
 private:
     Ui::Hermes *ui;
