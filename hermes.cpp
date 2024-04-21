@@ -47,11 +47,13 @@ void Hermes::mouseMoveEvent(QMouseEvent *event)  {
     update();
 }
 
-void Hermes::on_clearCanvasButton_clicked()
+
+void Hermes::on_clearCanvas_clicked()
 {
     draw->clearCanvas(image);
     update();
 }
+
 
 void Hermes::paintEvent(QPaintEvent *event){
     QPainter painter(this);

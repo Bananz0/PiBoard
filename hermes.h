@@ -34,7 +34,7 @@ private:
     Ui::Hermes *ui;
 
 private slots:
-    void on_clearCanvasButton_clicked();
+    void on_clearCanvas_clicked();
 };
 
 #endif // HERMES_H
