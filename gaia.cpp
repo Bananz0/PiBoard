@@ -7,7 +7,10 @@ Gaia::Gaia(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::Gaia)
 {
+    Minerva *minerva = new Minerva;
+
     ui->setupUi(this);
+    
 }
 
 Gaia::~Gaia()
@@ -17,6 +20,8 @@ Gaia::~Gaia()
 
 //TODO
 //Display Minerva's status
+//https://stackoverflow.com/questions/24470519/how-to-auto-scroll-qt-text-field-widget
+
 
 void Gaia::on_senderButton_clicked()
 {
@@ -41,6 +46,9 @@ void Gaia::startServer(const QString& position){
     senderWindow->setWindowTitle("Server");
     senderWindow->setWindowIcon(server);
     movePosition(senderWindow,position);
+
+    minerva->serverMode();
+
 };
 
 void Gaia::startClient(const QString& position){
@@ -50,6 +58,8 @@ void Gaia::startClient(const QString& position){
     receiverwindow->setWindowIcon(client);
     receiverwindow->setWindowTitle("Reciever");
     movePosition(receiverwindow,position);
+
+    minerva->clientMode();
 };
 
 void Gaia::movePosition(QMainWindow* window,const QString& position){

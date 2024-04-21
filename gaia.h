@@ -7,6 +7,7 @@
 #include <QScreen>
 #include <QString>
 #include "artemis.h"
+#include "minerva.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -36,5 +37,6 @@ private slots:
 
 private:
     Ui::Gaia *ui;
+    Minerva* minerva = new Minerva;
 };
 #endif // GAIA_H
