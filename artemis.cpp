@@ -36,13 +36,16 @@ void Artemis::drawLine(QPainter& painter,QPen& pen) {
 }
 
 void Artemis::drawCircle(QPainter& painter, QPen& pen){
+    int radius = (endPoint.x() - startPoint.x())/2;
     painter.setPen(pen);
-	painter.drawEllipse(startPoint.x(), startPoint.y(), endPoint.x(), endPoint.y());
+	painter.drawEllipse(startPoint.x(), startPoint.y(), radius, radius);
 }
 
 void Artemis::drawRectangle(QPainter& painter, QPen& pen){
+    int rectWidth = endPoint.x() - startPoint.x();
+    int rectHeight = endPoint.y() - startPoint.y();
     painter.setPen(pen);
-	painter.drawRect(startPoint.x(), startPoint.y(), endPoint.x(), endPoint.y());
+	painter.drawRect(startPoint.x(), startPoint.y(), rectWidth, rectHeight);
 }
 
 void Artemis::erasePoint(QPainter& painter, QPen& pen) {

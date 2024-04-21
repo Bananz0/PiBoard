@@ -25,7 +25,6 @@ Hermes::~Hermes()
 
 //From QT Docs
 //https://doc.qt.io/qt-6/eventsandfilters.html
-
 void Hermes::mouseReleaseEvent(QMouseEvent *event){
     qDebug() << "Mouse: " << event->position();
     draw->setEndPoint(event->position());
