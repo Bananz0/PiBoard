@@ -21,20 +21,13 @@ public:
 
     void drawPoint(QPainter& painter, QPen& pen);
     void drawLine(QPainter& painter, QPen& pen);
-
+    void drawCircle(QPainter& painter, QPen& pen);
+    void drawRectangle(QPainter& painter, QPen& pen);
+    void erasePoint(QPainter& painter, QPen& pen);
     void clearCanvas(QImage* image);
+    QPointF onlyOnCanvas(QPointF canvasPoint);
 
-
-    class drawShapes{
-        void Circle();
-        void Square();
-        void Triangle();
-        void Squircle();
-    };
-
-
-
-private:
+ private:
     QPointF startPoint, endPoint, movingPoints;
 
 };

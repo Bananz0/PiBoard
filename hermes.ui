@@ -51,37 +51,44 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_2">
+         <widget class="QPushButton" name="drawLine">
           <property name="text">
-           <string>PushButton</string>
+           <string>Line</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_3">
+         <widget class="QPushButton" name="drawCircle">
           <property name="text">
-           <string>PushButton</string>
+           <string>Circle</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_4">
+         <widget class="QPushButton" name="drawPoint">
           <property name="text">
-           <string>PushButton</string>
+           <string>FreeForm</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_5">
+         <widget class="QPushButton" name="drawRectangle">
           <property name="text">
-           <string>PushButton</string>
+           <string>Rectangle</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_6">
+         <widget class="QPushButton" name="penProperties">
           <property name="text">
-           <string>PushButton</string>
+           <string>Properties</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="eraseButton">
+          <property name="text">
+           <string>Eraser</string>
           </property>
          </widget>
         </item>

@@ -28,7 +28,7 @@ void Hephaestus::paintEvent(QPaintEvent* event) {
     //Pen Properties
     pen.setColor(Qt::white);
     pen.setWidth(20);
-    pen.setBrush(Qt::white);
+    
 
     //Draw on the image
     painter.drawImage(0, 0, *image);

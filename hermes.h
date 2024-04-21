@@ -39,6 +39,13 @@ private:
 
 private slots:
     void on_clearCanvas_clicked();
+    void on_eraseButton_clicked();
+    void on_drawCircle_clicked();
+    void on_drawRectangle_clicked();
+    void on_drawLine_clicked();
+    void on_drawPoint_clicked();
+    void penProperties_clicked();
+
 };
 
 #endif // HERMES_H
