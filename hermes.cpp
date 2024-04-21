@@ -5,7 +5,7 @@
 #include "hermes.h"
 #include "ui_hermes.h"
 #include <QPainter>
-#include <QImage>
+
 
 
 
@@ -30,9 +30,9 @@ Hermes::~Hermes()
 //https://doc.qt.io/qt-6/eventsandfilters.html
 
 void Hermes::mouseReleaseEvent(QMouseEvent *event){
-    qDebug() << "Mouse: " << event->position();
-    draw->setEndPoint(event->position());
-    update();
+    //qDebug() << "Mouse: " << event->position();
+    //draw->setEndPoint(event->position());
+    //update();
 }
 
 void Hermes::mousePressEvent(QMouseEvent *event){
@@ -70,20 +70,29 @@ void Hermes::paintEvent(QPaintEvent *event){
 
     QPainter imagePainter(image);
     imagePainter.setRenderHint(QPainter::Antialiasing);
-
-
-    draw->drawLine(imagePainter,pen);
-   
-    
+    drawMode = 0;
+    drawOnCanvas(imagePainter, pen, drawMode);    
  }
 
 //https://stackoverflow.com/questions/12828825/how-to-assign-callback-when-the-user-resizes-a-qmainwindow
-
 void Hermes::resizeEvent(QResizeEvent* event)
 {
     QMainWindow::resizeEvent(event);
     QSize size = this->size();
     qDebug() << "Height: " <<size.height() << "Width" << size.width();
+}
 
-
+void Hermes::drawOnCanvas(QPainter& painter, QPen& pen, int drawMode) {
+    switch (drawMode) {
+    case 0:
+        draw->drawLine(painter, pen);
+        break;
+    case 1:
+        draw->drawPoint(painter, pen);
+        break;
+    default:        
+        qDebug() << "Unexpected drawMode value:" << drawMode;
+        qWarning() << "Unexpected drawMode value:" << drawMode;
+        break;
+    }
 }

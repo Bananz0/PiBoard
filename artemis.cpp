@@ -25,6 +25,12 @@ QPointF Artemis::getMovingPoints(){
     return movingPoints;
 };
 
+void Artemis::drawPoint(QPainter& painter, QPen& pen)
+{
+    painter.setPen(pen);
+    painter.drawPoint(movingPoints);
+}
+
 void Artemis::drawLine(QPainter& painter,QPen& pen) {
     painter.setPen(pen);
     painter.drawLine(startPoint, endPoint);

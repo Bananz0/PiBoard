@@ -19,6 +19,7 @@ public:
     QPointF getEndPoint();
     QPointF getMovingPoints();
 
+    void drawPoint(QPainter& painter, QPen& pen);
     void drawLine(QPainter& painter, QPen& pen);
 
     void clearCanvas(QImage* image);

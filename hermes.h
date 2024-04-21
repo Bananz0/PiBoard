@@ -5,7 +5,7 @@
 #include <QMouseEvent>
 #include "artemis.h"
 #include "minerva.h"
-#include <qimage.h>
+#include <QImage>
 
 
 
@@ -26,12 +26,16 @@ public:
     void mouseMoveEvent(QMouseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
     void resizeEvent(QResizeEvent* event) override;
+    void drawOnCanvas(QPainter& painter, QPen& pen, int drawMode);
 
-    QImage *image;
-    Artemis *draw = new Artemis;
+
+
 
 private:
+    int drawMode = 0;
     Ui::Hermes *ui;
+    QImage* image;
+    Artemis* draw = new Artemis;
 
 private slots:
     void on_clearCanvas_clicked();

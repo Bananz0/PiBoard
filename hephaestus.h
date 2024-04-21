@@ -5,6 +5,7 @@
 #include "artemis.h"
 #include "minerva.h"
 
+
 namespace Ui {
 class Hephaestus;
 }
@@ -17,10 +18,12 @@ public:
     explicit Hephaestus(QWidget *parent = nullptr);
     ~Hephaestus();
     Artemis *draw = new Artemis;
-    void resizeEvent(QResizeEvent *event) override;
+    void paintEvent(QPaintEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
 
 private:
     Ui::Hephaestus *ui;
+    QImage* image;
 };
 
 #endif // HEPHAESTUS_H
