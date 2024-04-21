@@ -30,7 +30,6 @@ public:
         int drawMode = 1;
         QSize windowSize;
         bool clearCanvasFlag = false;
-
         //https://doc.qt.io/qt-6/qpen.html#capStyle
         drawData() {}
     };
