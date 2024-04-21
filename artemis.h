@@ -21,6 +21,8 @@ public:
 
     void drawLine(QPainter& painter, QPen& pen);
 
+    void clearCanvas(QImage* image);
+
 
     class drawShapes{
         void Circle();
@@ -29,7 +31,6 @@ public:
         void Squircle();
     };
 
-    void eraseCanvas();
 
 
 private:

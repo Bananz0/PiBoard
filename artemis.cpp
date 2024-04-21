@@ -27,6 +27,9 @@ QPointF Artemis::getMovingPoints(){
 
 void Artemis::drawLine(QPainter& painter,QPen& pen) {
     painter.setPen(pen);
-
     painter.drawLine(startPoint, endPoint);
+}
+
+void Artemis::clearCanvas(QImage* image) {
+	image->fill(Qt::white);
 }

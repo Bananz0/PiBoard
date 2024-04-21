@@ -42,9 +42,15 @@ void Hermes::mousePressEvent(QMouseEvent *event){
 }
 
 void Hermes::mouseMoveEvent(QMouseEvent *event)  {
-    //draw->setMovingPoints(event->position());
-    //qDebug() << "Mouse: " << event->position();
-    //update();
+    draw->setMovingPoints(event->position());
+    qDebug() << "Mouse: " << event->position();
+    update();
+}
+
+void Hermes::on_clearCanvasButton_clicked()
+{
+    draw->clearCanvas(image);
+    update();
 }
 
 void Hermes::paintEvent(QPaintEvent *event){
@@ -62,7 +68,10 @@ void Hermes::paintEvent(QPaintEvent *event){
 
     QPainter imagePainter(image);
     imagePainter.setRenderHint(QPainter::Antialiasing);
+
+
     draw->drawLine(imagePainter,pen);
+   
     
  }
 

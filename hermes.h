@@ -25,14 +25,16 @@ public:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
-
     void resizeEvent(QResizeEvent* event) override;
-    QImage *image;
 
+    QImage *image;
     Artemis *draw = new Artemis;
 
 private:
     Ui::Hermes *ui;
+
+private slots:
+    void on_clearCanvasButton_clicked();
 };
 
 #endif // HERMES_H
