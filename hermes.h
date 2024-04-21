@@ -5,6 +5,7 @@
 #include <QMouseEvent>
 #include "artemis.h"
 #include "minerva.h"
+#include <qimage.h>
 
 
 
@@ -26,6 +27,7 @@ public:
     void paintEvent(QPaintEvent *event) override;
 
     void resizeEvent(QResizeEvent* event) override;
+    QImage *image;
 
     Artemis *draw = new Artemis;
 

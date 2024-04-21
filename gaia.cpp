@@ -4,19 +4,21 @@
 
 #include <QTextBrowser>
 #include <QString>
+#include <QTimer>
 
-
-Gaia::Gaia(QWidget *parent)
+Gaia::Gaia(QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::Gaia)
 {
-    Minerva *minerva = new Minerva;
+      
+
 
     ui->setupUi(this);
-    ui->minervaStatus->setText("Minerva is ready");
-    for (int i = 0; i < 40; i++) {
-        ui->minervaStatus->append("Minerva is ready");
-	}
+    ui->minervaStatus->setText("Welcome to PiBoard");
+    minerva->initializeGPIO();
+
+
+    ui->minervaStatus->append(minerva->testConnection());
 
 }
 
@@ -33,21 +35,21 @@ Gaia::~Gaia()
 
 void Gaia::on_senderButton_clicked()
 {
-    startServer("Center");
+    startServer("Center",1);
 }
 
 void Gaia::on_receiverButton_clicked()
 {
-    startClient("Center");
+    startClient("Center",1);
 }
 
 void Gaia::on_allButton_clicked()
 {
-    startServer("Right");
-    startClient("Left");
+    startServer("Left",0);
+    startClient("Right",0);
 }
 
-void Gaia::startServer(const QString& position){
+void Gaia::startServer(const QString& position,int localMode){
     QIcon server(":/assets/server.png");
     Hermes *senderWindow = new Hermes;
     senderWindow->show();
@@ -55,11 +57,18 @@ void Gaia::startServer(const QString& position){
     senderWindow->setWindowIcon(server);
     movePosition(senderWindow,position);
 
-    minerva->serverMode();
+    //localMode ? minerva->serverMode() : ui->minervaStatus->append("PiBoard Server is running locally");
+    if (localMode) {
+		minerva->serverMode();
+        ui->minervaStatus->append("PiBoard Server has started");
+    }
+    else {
+		ui->minervaStatus->append("PiBoard Server is running locally");
+    }
 
 };
 
-void Gaia::startClient(const QString& position){
+void Gaia::startClient(const QString& position, int localMode){
     QIcon client(":/assets/client.png");
     Hephaestus *receiverwindow = new Hephaestus;
     receiverwindow->show();
@@ -67,7 +76,14 @@ void Gaia::startClient(const QString& position){
     receiverwindow->setWindowTitle("Reciever");
     movePosition(receiverwindow,position);
 
-    minerva->clientMode();
+    //localMode ? minerva->serverMode() : ui->minervaStatus->append("PiBoard Client is running locally");
+    if (localMode) {
+        minerva->clientMode();
+        ui->minervaStatus->append("PiBoard Client has started");
+    }
+    else {
+		ui->minervaStatus->append("PiBoard Client is running locally");
+	}
 };
 
 void Gaia::movePosition(QMainWindow* window,const QString& position){
@@ -89,5 +105,6 @@ void Gaia::movePosition(QMainWindow* window,const QString& position){
 void Gaia::selectDataPinCount(int pincount){
     //TODO
     // Add loginc for selecting the number of pins for data transfer sacrificing speed for idk anything else
+    // minerva->selectDataPin(pincount);
 }
 

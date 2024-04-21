@@ -19,7 +19,8 @@ public:
     QPointF getEndPoint();
     QPointF getMovingPoints();
 
-    void drawLine(QPainter& painter);
+    void drawLine(QPainter& painter, QPen& pen);
+
 
     class drawShapes{
         void Circle();

@@ -22,13 +22,21 @@ QSize Minerva::setClentWindowSize(){
     return winSize;
 }
 
-void Minerva::testConnection(){
-    if (/*Implement Test Connection*/ 1) {
-		qDebug() << "Connection failed";
+QString Minerva::testConnection(){
+    QString connectionStatus;
+    int connectionStatusNum;
+    
+    //generate either 0 or 1
+    connectionStatusNum = rand() % 2;
+
+    if (connectionStatusNum) {
+		connectionStatus = "Connection failed";
     }
     else {
-		qDebug() << "Connection successful";
+        connectionStatus = "Connection successful";
 	}
+    qDebug() << connectionStatus;
+    return connectionStatus;
 };
 
 void Minerva::selectDataPin(int pinNumber,int dataModeNum){
@@ -40,13 +48,38 @@ void Minerva::initializeGPIO() {
 }
 
 void Minerva::serverMode() {
-    pinMode(18, OUTPUT);
-	digitalWrite(18, HIGH);
+    Minerva::selectDataPin(0, 1);
+	Minerva::selectDataPin(1, 1);
+	Minerva::selectDataPin(2, 1);
+	Minerva::selectDataPin(3, 1);
+
+	Minerva::selectDataPin(4, 0);
+	Minerva::selectDataPin(5, 0);
+	Minerva::selectDataPin(6, 0);
+	Minerva::selectDataPin(7, 0);
+
+	//Reserved for common ground
+	Minerva::selectDataPin(8, 0);
+	Minerva::selectDataPin(9, 0);
+
 }
 
 
 void Minerva::clientMode() {
     Minerva::selectDataPin(0, 0);
+    Minerva::selectDataPin(1, 0);
+    Minerva::selectDataPin(2, 0);
+    Minerva::selectDataPin(3, 0);
+
+    Minerva::selectDataPin(4, 1);
+    Minerva::selectDataPin(5, 1);
+    Minerva::selectDataPin(6, 1);
+    Minerva::selectDataPin(7, 1);
+
+    //Reserved for common ground
+    Minerva::selectDataPin(8, 0);
+    Minerva::selectDataPin(9, 0);
+    
 }
 
 //dummy function to comly with wiringPi

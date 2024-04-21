@@ -1,7 +1,12 @@
 //Sender
+//https://doc.qt.io/qt-6/qimage.html
+//https://doc.qt.io/qt-6/qpainter.html
+
 #include "hermes.h"
 #include "ui_hermes.h"
 #include <QPainter>
+#include <QImage>
+
 
 
 Hermes::Hermes(QWidget *parent)
@@ -10,12 +15,15 @@ Hermes::Hermes(QWidget *parent)
 {
     ui->setupUi(this);
     setMouseTracking(true);
+
+    image = new QImage(800, 600, QImage::Format_RGB32);
+    image->fill(Qt::white);
 }
 
 Hermes::~Hermes()
 {
-    free(draw);
     delete ui;
+    delete draw;
 }
 
 //From QT Docs
@@ -34,20 +42,29 @@ void Hermes::mousePressEvent(QMouseEvent *event){
 }
 
 void Hermes::mouseMoveEvent(QMouseEvent *event)  {
-    draw->setMovingPoints(event->position());
-    qDebug() << "Mouse: " << event->position();
-    update();
+    //draw->setMovingPoints(event->position());
+    //qDebug() << "Mouse: " << event->position();
+    //update();
 }
 
 void Hermes::paintEvent(QPaintEvent *event){
     QPainter painter(this);
+    QPen pen;
+
+    //Pen Properties
+    pen.setColor(Qt::black);
+    pen.setWidth(20);
+    pen.setBrush(Qt::black);
+
+    //Draw on the image
+    painter.drawImage(0, 0, *image); 
     painter.setRenderHint(QPainter::Antialiasing);
 
-
-
-    draw->drawLine(painter);
-
-}
+    QPainter imagePainter(image);
+    imagePainter.setRenderHint(QPainter::Antialiasing);
+    draw->drawLine(imagePainter,pen);
+    
+ }
 
 //https://stackoverflow.com/questions/12828825/how-to-assign-callback-when-the-user-resizes-a-qmainwindow
 

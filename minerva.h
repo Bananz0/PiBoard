@@ -2,6 +2,7 @@
 #define MINERVA_H
 
 #include <QSize>
+#include <QString>
 
 class Minerva
 {
@@ -10,7 +11,7 @@ private:
 public:
     QSize winSize;
     Minerva();
-    void testConnection();
+    QString testConnection();
     void selectDataPin(int pinNumber, int dataModeNum);
     void getServerWindowSize(QSize hermesSize);
     QSize setClentWindowSize();

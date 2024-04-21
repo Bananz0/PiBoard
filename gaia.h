@@ -23,18 +23,15 @@ class Gaia : public QMainWindow
 public:
     Gaia(QWidget *parent = nullptr);
     ~Gaia();
-    void startServer(const QString& position);
-    void startClient(const QString& position);
+    void startServer(const QString& position, int localMode);
+    void startClient(const QString& position, int localMode);
     void movePosition(QMainWindow* window, const QString &position);
     void selectDataPinCount(int pincount);
-    
-
 
 private slots:
     void on_senderButton_clicked();
     void on_receiverButton_clicked();
     void on_allButton_clicked();
-
 
 private:
     Ui::Gaia *ui;
