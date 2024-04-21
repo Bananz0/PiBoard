@@ -3,6 +3,8 @@
 #include "ui_hephaestus.h"
 #include <QDebug>
 #include <QImage>
+#include "gaia.h"
+
 
 Hephaestus::Hephaestus(QWidget *parent)
     : QMainWindow(parent)
@@ -23,20 +25,16 @@ Hephaestus::~Hephaestus()
 
 void Hephaestus::paintEvent(QPaintEvent* event) {
     QPainter painter(this);
-    QPen pen;
-
-    //Pen Properties
-    pen.setColor(Qt::white);
-    pen.setWidth(20);
-    
+       
 
     //Draw on the image
     painter.drawImage(0, 0, *image);
-    painter.setRenderHint(QPainter::Antialiasing);
+    // painter.setRenderHint(QPainter::Antialiasing);
 
     QPainter imagePainter(image);
-    imagePainter.setRenderHint(QPainter::Antialiasing);
+    //imagePainter.setRenderHint(QPainter::Antialiasing);
 
+    drawOnCanvas(imagePainter, drawDataPacket->pen, drawDataPacket->drawMode);
 }
 
 
@@ -49,4 +47,29 @@ void Hephaestus::resizeEvent(QResizeEvent *event) {
     // QSize size = draw->minerva->setClentWindowSize();
     //qDebug() << "Height: " <<size.height() << "Width" << size.width();
     // resize(size);
+}
+
+void Hephaestus::drawOnCanvas(QPainter& painter, QPen& pen, int drawMode) {
+    switch (drawMode) {
+    case 0:
+        draw->drawLine(painter, pen);
+        break;
+    case 1:
+        draw->drawPoint(painter, pen);
+        break;
+    case 2:
+        draw->drawCircle(painter, pen);
+        break;
+    case 3:
+        draw->drawRectangle(painter, pen);
+        break;
+    case 8:
+        pen.setColor(Qt::white);
+        draw->erasePoint(painter, pen);
+        break;
+    default:
+        qDebug() << "Unexpected drawMode value:" << drawMode;
+        qWarning() << "Unexpected drawMode value:" << drawMode;
+        break;
+    }
 }

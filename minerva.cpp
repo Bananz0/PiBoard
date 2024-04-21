@@ -82,6 +82,31 @@ void Minerva::clientMode() {
     
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //dummy function to comly with wiringPi
 void Minerva::digitalWrite(int pin, int value) {
 	//dummy function

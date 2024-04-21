@@ -5,6 +5,7 @@
 #include "hermes.h"
 #include "ui_hermes.h"
 #include <QPainter>
+#include "gaia.h"
 
 Hermes::Hermes(QWidget *parent)
     : QMainWindow(parent)
@@ -12,13 +13,13 @@ Hermes::Hermes(QWidget *parent)
 {
     ui->setupUi(this);
     setMouseTracking(true);
-
     image = new QImage(800, 600, QImage::Format_RGB32);
     image->fill(Qt::white);
 }
 
 Hermes::~Hermes()
 {
+    delete drawDataPacket;
     delete ui;
     delete draw;
 }
@@ -27,18 +28,21 @@ Hermes::~Hermes()
 //https://doc.qt.io/qt-6/eventsandfilters.html
 void Hermes::mouseReleaseEvent(QMouseEvent *event){
     qDebug() << "Mouse: " << event->position();
-    draw->setEndPoint(event->position());
+    drawDataPacket->endPoint = event->position();
+    draw->setEndPoint(drawDataPacket->endPoint);
     update();
 }
 
 void Hermes::mousePressEvent(QMouseEvent *event){
-    draw->setStartPoint(event->position());
+    drawDataPacket->startPoint = event->position();
+    draw->setStartPoint(drawDataPacket->startPoint);
     qDebug() << "Mouse: " << event->position();
     update();
 }
 
 void Hermes::mouseMoveEvent(QMouseEvent *event)  {
-    draw->setMovingPoints(event->position());
+    drawDataPacket->movingPoint = event->position();
+    draw->setMovingPoints(drawDataPacket->movingPoint);
     qDebug() << "Mouse: " << event->position();
     update();
 }
@@ -53,12 +57,12 @@ void Hermes::on_clearCanvas_clicked()
 
 void Hermes::paintEvent(QPaintEvent *event){
     QPainter painter(this);
-    QPen pen;
+
 
     //Pen Properties
-    pen.setColor(Qt::black);
-    pen.setWidth(20);
-    pen.setBrush(Qt::black);
+    drawDataPacket->pen.setColor(Qt::black);
+    drawDataPacket->pen.setWidth(20);
+    drawDataPacket->pen.setBrush(Qt::black);
 
     //Draw on the image
     painter.drawImage(0, 0, *image); 
@@ -66,15 +70,16 @@ void Hermes::paintEvent(QPaintEvent *event){
 
     QPainter imagePainter(image);
     //imagePainter.setRenderHint(QPainter::Antialiasing);
-    drawOnCanvas(imagePainter, pen, drawMode);    
+
+    drawOnCanvas(imagePainter, drawDataPacket->pen, drawDataPacket->drawMode);
  }
 
 //https://stackoverflow.com/questions/12828825/how-to-assign-callback-when-the-user-resizes-a-qmainwindow
 void Hermes::resizeEvent(QResizeEvent* event)
 {
     QMainWindow::resizeEvent(event);
-    QSize size = this->size();
-    qDebug() << "Height: " <<size.height() << "Width" << size.width();
+    drawDataPacket->windowSize = this->size();
+    qDebug() << "Height: " << drawDataPacket->windowSize.height() << "Width" << drawDataPacket->windowSize.width();
 }
 
 void Hermes::drawOnCanvas(QPainter& painter, QPen& pen, int drawMode) {
@@ -103,31 +108,31 @@ void Hermes::drawOnCanvas(QPainter& painter, QPen& pen, int drawMode) {
 }
 
 void Hermes::on_eraseButton_clicked(){
-    drawMode = 8;
+    drawDataPacket->drawMode = 8;
 	qDebug() << "Erase Button Clicked";
 	update();
 }
 
 void Hermes::on_drawCircle_clicked(){
-    drawMode = 2;
+    drawDataPacket->drawMode = 2;
 	qDebug() << "Draw Circle Button Clicked";
 	update();
 }
 
 void Hermes::on_drawRectangle_clicked(){
-    drawMode = 3;
+    drawDataPacket->drawMode = 3;
 	qDebug() << "Draw Rectangle Button Clicked";
 	update();
 }
 
 void Hermes::on_drawLine_clicked(){
-	drawMode = 0;
+	drawDataPacket->drawMode = 0;
 	qDebug() << "Draw Line Button Clicked";
 	update();
 }
 
 void Hermes::on_drawPoint_clicked(){
-    drawMode = 1;
+    drawDataPacket->drawMode = 1;
 	qDebug() << "Draw Point Button Clicked";
 	update();
 }

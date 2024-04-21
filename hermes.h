@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include <QMouseEvent>
 #include "artemis.h"
-#include "minerva.h"
 #include <QImage>
 
 
@@ -27,12 +26,23 @@ public:
     void paintEvent(QPaintEvent *event) override;
     void resizeEvent(QResizeEvent* event) override;
     void drawOnCanvas(QPainter& painter, QPen& pen, int drawMode);
+    
 
+    class drawData {
+    public:
+		QPointF startPoint;
+		QPointF endPoint;
+		QPointF movingPoint;
+        QPen pen;
+        int drawMode = 1;
+        QSize windowSize;
+    };
+    
+    drawData* drawDataPacket = new drawData;    
 
 
 
 private:
-    int drawMode = 0;
     Ui::Hermes *ui;
     QImage* image;
     Artemis* draw = new Artemis;

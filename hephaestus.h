@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include "artemis.h"
-#include "minerva.h"
+
 
 
 namespace Ui {
@@ -20,6 +20,20 @@ public:
     Artemis *draw = new Artemis;
     void paintEvent(QPaintEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
+
+    class drawData {
+    public:
+        QPointF startPoint;
+        QPointF endPoint;
+        QPointF movingPoint;
+        QPen pen;
+        int drawMode = 1;
+        QSize windowSize;
+    };
+
+    drawData* drawDataPacket = new drawData;
+
+    void drawOnCanvas(QPainter& painter, QPen& pen, int drawMode);
 
 private:
     Ui::Hephaestus *ui;
