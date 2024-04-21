@@ -56,8 +56,7 @@ jobs:
           cp ./build/PiBoard package/
           zip -r PiBoard.zip package
 
-      - name: Create Release
-        id: create_release
+      - name: Update Release and Upload Asset
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
@@ -65,18 +64,11 @@ jobs:
           release_name="${release_tag}"
           echo "Release tag: $release_tag"
           echo "Release name: $release_name"
-          echo "release_tag=$release_tag" >> $GITHUB_OUTPUT
-          echo "release_id=$release_id" >> $GITHUB_OUTPUT
-
-          release_id=$(gh release create "$release_tag" --name "$release_name" --generate-notes --output tailed | tail -n 1 | cut -d' ' -f3)
-          echo "release_name=$release_name" >> $GITHUB_OUTPUT
-
-      - name: Create Release and Upload Asset
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-        run: |
-          release_tag="${GITHUB_REF##*/}"
-          release_name="${release_tag}"
-          echo "Release tag: $release_tag"
-          echo "Release name: $release_name"
-          gh release create "$release_tag" ./PiBoard.zip -t "$release_name" -n ""
+          release_id=$(gh release list --json tagName --jq ".[] | select(.tagName==\"$release_tag\") | .id")
+          if [ -z "$release_id" ]; then
+            echo "No existing release found with tag $release_tag. Creating a new release."
+            release_id=$(gh release create "$release_tag" --name "$release_name" --generate-notes --output tailed | tail -n 1 | cut -d' ' -f3)
+          else
+            echo "Updating existing release with id $release_id."
+          fi
+          gh release upload "$release_id" ./PiBoard.zip
