@@ -14,10 +14,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-
+      - uses: actions/checkout@v4
+    
       - name: Install Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
           version: '6.4.2'
           host: 'linux'
@@ -25,6 +25,7 @@ jobs:
           arch: 'gcc_64'
           dir: '${{github.workspace}}/qt/'
           install-deps: 'true'
+
 
       - name: List files in Qt
         run: find ${{env.Qt6_Dir}}
@@ -36,8 +37,8 @@ jobs:
           git clone https://github.com/WiringPi/WiringPi.git
           cd WiringPi
           ./build debian
-          mv debian-template/wiringpi-3.2.deb .
-          sudo apt install ./wiringpi-3.2.deb
+          mv debian-template/wiringpi.deb .
+          sudo apt install ./wiringpi.deb
 
       - name: Configure CMake
         run: cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_PREFIX_PATH="${{env.Qt6_Dir}}/lib/cmake/" -DQt6_DIR=${{env.Qt6_Dir}}/lib/cmake/Qt6/ -G "Unix Makefiles" -B '${{github.workspace}}'/build
@@ -60,10 +61,11 @@ jobs:
           release_name="${release_tag}"
           echo "Release tag: $release_tag"
           echo "Release name: $release_name"
-          echo "::set-output name=release_tag::$release_tag"
-          echo "::set-output name=release_name::$release_name"
+          echo "release_tag=$release_tag" >> $GITHUB_OUTPUT
+          echo "release_id=$release_id" >> $GITHUB_OUTPUT
+
           release_id=$(gh release create "$release_tag" --name "$release_name" --generate-notes --output tailed | tail -n 1 | cut -d' ' -f3)
-          echo "::set-output name=release_id::$release_id"
+          echo "release_name=$release_name" >> $GITHUB_OUTPUT
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
