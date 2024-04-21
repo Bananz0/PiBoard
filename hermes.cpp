@@ -64,7 +64,6 @@ void Hermes::paintEvent(QPaintEvent *event){
     drawDataPacket->pen.setColor(Qt::black);
     drawDataPacket->pen.setWidth(20);
     drawDataPacket->pen.setBrush(Qt::black);
-
     //Draw on the image
     painter.drawImage(0, 0, *image); 
    // painter.setRenderHint(QPainter::Antialiasing);

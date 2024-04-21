@@ -9,6 +9,7 @@ class Artemis
 {
 public:
     QImage *backG = new QImage(":/assets/background.png");
+    QPointF startPoint, endPoint, movingPoints;
 
     Artemis();    
     void setStartPoint(QPointF start);
@@ -28,7 +29,7 @@ public:
     QPointF onlyOnCanvas(QPointF canvasPoint);
 
  private:
-    QPointF startPoint, endPoint, movingPoints;
+    
 
 };
 

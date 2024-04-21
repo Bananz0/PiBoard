@@ -3,7 +3,7 @@
 #include "ui_hephaestus.h"
 #include <QDebug>
 #include <QImage>
-
+#include <QTimer>
 
 
 
@@ -15,6 +15,11 @@ Hephaestus::Hephaestus(Minerva::drawData* drawDataPacketIn,QWidget *parent)
     ui->setupUi(this);
     image = new QImage(800, 600, QImage::Format_RGB32);
     image->fill(Qt::white);
+
+    //https://surfer.nmr.mgh.harvard.edu/ftp/dist/freesurfer/tutorial_versions/freesurfer/lib/qt/qt_doc/html/qtimer.html#:~:text=Example%20for%20a,called%20every%20second.
+    QTimer* timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, QOverload<>::of(&QWidget::update));
+    timer->start(10);
     
 }
 
@@ -36,7 +41,19 @@ void Hephaestus::paintEvent(QPaintEvent* event) {
     //imagePainter.setRenderHint(QPainter::Antialiasing);
 
     drawOnCanvas(imagePainter, drawDataPacket->pen, drawDataPacket->drawMode);
-    qDebug() << "Drawing on Hephaestus";
+
+    ////imagePainter.drawLine(drawDataPacket->startPoint, drawDataPacket->endPoint);
+    //QPointF point, point2;
+    //point.setX(322);
+    //point.setY(422);
+    //point2.setX(100);
+    //point2.setY(100);
+    //imagePainter.drawLine(point, point2);
+    //imagePainter.drawPoint(drawDataPacket->startPoint);
+    //imagePainter.drawLine(drawDataPacket->startPoint, drawDataPacket->endPoint);
+    //imagePainter.drawPoint(drawDataPacket->movingPoint);
+
+   // qDebug() << "Drawing on Hephaestus";
 }
 
 
@@ -52,6 +69,9 @@ void Hephaestus::resizeEvent(QResizeEvent *event) {
 }
 
 void Hephaestus::drawOnCanvas(QPainter& painter, QPen& pen, int drawMode) {
+    draw->startPoint = drawDataPacket->startPoint;
+    draw->endPoint = drawDataPacket->endPoint;
+    draw->movingPoints = drawDataPacket->movingPoint;
     switch (drawMode) {
     case 0:
         draw->drawLine(painter, pen);
