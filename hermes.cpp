@@ -51,6 +51,7 @@ void Hermes::mouseMoveEvent(QMouseEvent *event)  {
 
 void Hermes::on_clearCanvas_clicked()
 {
+    drawDataPacket->clearCanvasFlag = true;
     draw->clearCanvas(image);
     update();
 }
@@ -61,9 +62,12 @@ void Hermes::paintEvent(QPaintEvent *event){
 
 
     //Pen Properties
-    drawDataPacket->pen.setColor(Qt::black);
-    drawDataPacket->pen.setWidth(20);
     drawDataPacket->pen.setBrush(Qt::black);
+    drawDataPacket->pen.setWidth(15);
+    drawDataPacket->pen.setCapStyle(Qt::RoundCap);
+    drawDataPacket->pen.setJoinStyle(Qt::RoundJoin);
+
+
     //Draw on the image
     painter.drawImage(0, 0, *image); 
    // painter.setRenderHint(QPainter::Antialiasing);

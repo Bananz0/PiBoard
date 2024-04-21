@@ -29,13 +29,10 @@ public:
         QPen pen;
         int drawMode = 1;
         QSize windowSize;
+        bool clearCanvasFlag = false;
 
         //https://doc.qt.io/qt-6/qpen.html#capStyle
-        drawData() {
-           pen.setWidth(15);
-           pen.setCapStyle(Qt::RoundCap);
-           pen.setJoinStyle(Qt::RoundJoin);
-        }
+        drawData() {}
     };
 
     drawData* drawDataPacket = new drawData;

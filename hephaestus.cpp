@@ -42,16 +42,10 @@ void Hephaestus::paintEvent(QPaintEvent* event) {
 
     drawOnCanvas(imagePainter, drawDataPacket->pen, drawDataPacket->drawMode);
 
-    ////imagePainter.drawLine(drawDataPacket->startPoint, drawDataPacket->endPoint);
-    //QPointF point, point2;
-    //point.setX(322);
-    //point.setY(422);
-    //point2.setX(100);
-    //point2.setY(100);
-    //imagePainter.drawLine(point, point2);
-    //imagePainter.drawPoint(drawDataPacket->startPoint);
-    //imagePainter.drawLine(drawDataPacket->startPoint, drawDataPacket->endPoint);
-    //imagePainter.drawPoint(drawDataPacket->movingPoint);
+    if (drawDataPacket->clearCanvasFlag) {
+        draw->clearCanvas(image);
+        drawDataPacket->clearCanvasFlag = false;
+    }
 
    // qDebug() << "Drawing on Hephaestus";
 }

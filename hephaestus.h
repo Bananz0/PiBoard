@@ -22,21 +22,6 @@ public:
     void paintEvent(QPaintEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
 
-    //class drawData {
-    //public:
-    //    QPointF startPoint;
-    //    QPointF endPoint;
-    //    QPointF movingPoint;
-    //    QPen pen;
-    //    int drawMode = 1;
-    //    QSize windowSize;
-
-    //    drawData() {
-    //    }
-    //};
-
-    //drawData* drawDataPacket = new drawData;
-
     Minerva::drawData* drawDataPacket;
 
     void drawOnCanvas(QPainter& painter, QPen& pen, int drawMode);
