@@ -59,7 +59,7 @@ jobs:
       - name: Create Release
         id: create_release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
           release_tag="${GITHUB_REF##*/}"
           release_name="${release_tag}"
@@ -73,7 +73,7 @@ jobs:
 
       - name: Create Release and Upload Asset
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
           release_tag="${GITHUB_REF##*/}"
           release_name="${release_tag}"
