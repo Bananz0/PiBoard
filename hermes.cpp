@@ -43,13 +43,9 @@ void Hermes::paintEvent(QPaintEvent *event){
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    //PEN
-    QPen pen;
-    painter.setPen(pen);
-    painter.setRenderHint(QPainter::TextAntialiasing);
-    pen.setWidth(60);
 
-    painter.drawLine(draw->getStartPoint(), draw->getEndPoint());
+
+    draw->drawLine(painter);
 
 }
 
@@ -59,12 +55,7 @@ void Hermes::resizeEvent(QResizeEvent* event)
 {
     QMainWindow::resizeEvent(event);
     QSize size = this->size();
-
-
-    //TODO
-    //Syncronize window sizes
-    // minerva-> getServerWindowSize(size);
-    // qDebug() << "Height: " <<size.height() << "Width" << size.width();
+    qDebug() << "Height: " <<size.height() << "Width" << size.width();
 
 
 }

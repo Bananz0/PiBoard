@@ -2,14 +2,15 @@
 #define ARTEMIS_H
 #include <QImage>
 #include <QDebug>
-#include "minerva.h"
+#include <QImage>
+#include <QPainter>
 
 class Artemis
 {
 public:
+    QImage *backG = new QImage(":/assets/background.png");
 
-
-    Artemis();
+    Artemis();    
     void setStartPoint(QPointF start);
     void setEndPoint(QPointF end);
     void setMovingPoints(QPointF move);
@@ -18,7 +19,7 @@ public:
     QPointF getEndPoint();
     QPointF getMovingPoints();
 
-    void drawLine();
+    void drawLine(QPainter& painter);
 
     class drawShapes{
         void Circle();

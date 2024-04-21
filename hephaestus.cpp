@@ -23,6 +23,6 @@ void Hephaestus::resizeEvent(QResizeEvent *event) {
     //Syncronize window sizes
     // Get the server window size from Minerva
     // QSize size = draw->minerva->setClentWindowSize();
-    // qDebug() << "Height: " <<size.height() << "Width" << size.width();
+    //qDebug() << "Height: " <<size.height() << "Width" << size.width();
     // resize(size);
 }

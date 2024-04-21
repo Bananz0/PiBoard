@@ -6,5 +6,6 @@
         <file>assets/splash.png</file>
         <file>assets/client.png</file>
         <file>assets/server.png</file>
+        <file>assets/background.png</file>
     </qresource>
 </RCC>
