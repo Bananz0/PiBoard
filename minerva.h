@@ -3,6 +3,8 @@
 
 #include <QSize>
 #include <QString>
+#include <QPointF>
+#include <QPen>
 
 class Minerva
 {
@@ -19,6 +21,20 @@ public:
     void serverMode();
     void clientMode();
 
+    class drawData {
+    public:
+        QPointF startPoint;
+        QPointF endPoint;
+        QPointF movingPoint;
+        QPen pen;
+        int drawMode = 1;
+        QSize windowSize;
+
+        drawData() {
+        }
+    };
+
+    drawData* drawDataPacket = new drawData;
     
 
     //dummy function to comly with wiringPi

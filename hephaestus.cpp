@@ -3,7 +3,8 @@
 #include "ui_hephaestus.h"
 #include <QDebug>
 #include <QImage>
-#include "gaia.h"
+
+
 
 
 Hephaestus::Hephaestus(QWidget *parent)
@@ -20,6 +21,7 @@ Hephaestus::Hephaestus(QWidget *parent)
 Hephaestus::~Hephaestus()
 {
     delete draw;
+    delete drawDataPacket;
     delete ui;
 }
 
@@ -44,9 +46,9 @@ void Hephaestus::resizeEvent(QResizeEvent *event) {
     //TODO
     //Syncronize window sizes
     // Get the server window size from Minerva
-    // QSize size = draw->minerva->setClentWindowSize();
-    //qDebug() << "Height: " <<size.height() << "Width" << size.width();
-    // resize(size);
+     QSize size = drawDataPacket->windowSize;
+     qDebug() << "Height: " <<size.height() << "Width" << size.width();
+     resize(size);
 }
 
 void Hephaestus::drawOnCanvas(QPainter& painter, QPen& pen, int drawMode) {

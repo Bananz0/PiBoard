@@ -70,7 +70,7 @@ void Gaia::startServer(const QString& position,int localMode){
 
 void Gaia::startClient(const QString& position, int localMode){
     QIcon client(":/assets/client.png");
-    Hephaestus *receiverwindow = new Hephaestus;
+    Hephaestus *receiverwindow = new Hephaestus();
     receiverwindow->show();
     receiverwindow->setWindowIcon(client);
     receiverwindow->setWindowTitle("Reciever");

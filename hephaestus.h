@@ -29,7 +29,11 @@ public:
         QPen pen;
         int drawMode = 1;
         QSize windowSize;
+
+        drawData() {
+        }
     };
+
 
     drawData* drawDataPacket = new drawData;
 

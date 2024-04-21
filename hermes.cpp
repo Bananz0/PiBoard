@@ -5,7 +5,8 @@
 #include "hermes.h"
 #include "ui_hermes.h"
 #include <QPainter>
-#include "gaia.h"
+
+
 
 Hermes::Hermes(QWidget *parent)
     : QMainWindow(parent)

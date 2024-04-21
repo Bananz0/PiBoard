@@ -5,7 +5,7 @@
 #include <QMouseEvent>
 #include "artemis.h"
 #include <QImage>
-
+#include "gaia.h"
 
 
 namespace Ui {
@@ -30,15 +30,21 @@ public:
 
     class drawData {
     public:
-		QPointF startPoint;
-		QPointF endPoint;
-		QPointF movingPoint;
+        QPointF startPoint;
+        QPointF endPoint;
+        QPointF movingPoint;
         QPen pen;
         int drawMode = 1;
         QSize windowSize;
+
+        drawData() {
+        }
     };
     
+
     drawData* drawDataPacket = new drawData;    
+    
+
 
 
 
