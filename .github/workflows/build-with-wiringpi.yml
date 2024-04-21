@@ -37,8 +37,7 @@ jobs:
           git clone https://github.com/WiringPi/WiringPi.git
           cd WiringPi
           ./build debian
-          mv debian-template/wiringpi.deb .
-          sudo apt install ./wiringpi.deb
+          sudo apt install ./wiringpi_3.2_amd64.deb
 
       - name: Configure CMake
         run: cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_PREFIX_PATH="${{env.Qt6_Dir}}/lib/cmake/" -DQt6_DIR=${{env.Qt6_Dir}}/lib/cmake/Qt6/ -G "Unix Makefiles" -B '${{github.workspace}}'/build
