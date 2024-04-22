@@ -6,7 +6,7 @@
 #include <QPointF>
 #include <QPen>
 #include <QDataStream>
-
+#include <QFile>
 class Minerva
 {
 private:
@@ -37,14 +37,26 @@ public:
         drawData() {}
     };
 
+
+
     drawData* drawDataPacket = new drawData;
     drawData* drawDataPacket2 = new drawData;
     
+
+    void sendBit(uint pinNumber, bool bitData);
+
+    void receiveBit(uint pinNumber);
+
+    void sendData(QByteArray data, uint pinNumber);
+
+    QByteArray receiveData(uint pinNumber);
+
 
     //dummy function to comly with wiringPi
     void digitalWrite(int pin, int value);
     void pinMode(int pin, int mode);
     void wiringPiSetupGpio();
+    int digitalRead(int pinNumber);
 };
 
 #endif // MINERVA_H

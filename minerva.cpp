@@ -9,6 +9,8 @@
 
 //enable when wiringPi is installed
 //#include "wiringPi.h"
+
+//dummy defines for wiringPi
 #define OUTPUT 1
 #define INPUT 0
 #define HIGH 1
@@ -66,7 +68,6 @@ void Minerva::serverMode() {
 	//Reserved for common ground
 	Minerva::selectDataPin(8, 0);
 	Minerva::selectDataPin(9, 0);
-
 }
 
 
@@ -83,48 +84,120 @@ void Minerva::clientMode() {
 
     //Reserved for common ground
     Minerva::selectDataPin(8, 0);
-    Minerva::selectDataPin(9, 0);
-    
+    Minerva::selectDataPin(9, 0);    
 }
 
 
 //https://doc.qt.io/qt-6/qdatastream.html
 void Minerva::encodeData(){
-    QFile file("file.dat");
-    if (!file.exists()) {
-        qDebug() << "File does not exist";
-    }
-    file.open(QIODevice::WriteOnly);
+    QByteArray posData;
+    QByteArray penData;
+    QByteArray flagsData;
+    QByteArray sizeData;
 
-    QDataStream out(&file);  
+    QDataStream posStream(&posData, QDataStream::WriteOnly);
+    QDataStream penStream(&penData, QDataStream::WriteOnly);
+    QDataStream flagsStream(&flagsData, QDataStream::WriteOnly);
+    QDataStream sizeStream(&sizeData, QDataStream::WriteOnly);
 
-    out << drawDataPacket->startPoint;
-    out << drawDataPacket->endPoint;
-    out << drawDataPacket->movingPoint;
-    out << drawDataPacket->pen;
-    out << drawDataPacket->drawMode;
-    out << drawDataPacket->windowSize;
-    out << drawDataPacket->clearCanvasFlag;
+
+    posStream << drawDataPacket->startPoint;
+    posStream << drawDataPacket->endPoint;
+    posStream << drawDataPacket->movingPoint;
+    penStream << drawDataPacket->pen;
+    flagsStream << drawDataPacket->drawMode;
+    flagsStream << drawDataPacket->clearCanvasFlag;
+    sizeStream << drawDataPacket->windowSize;
+    
+    qDebug() << "posData: " << posData;
+    qDebug() << "penData: " << penData;
+    qDebug() << "flagsData: " << flagsData;
+    qDebug() << "sizeData: " << sizeData;
 }
 
 void Minerva::decodeData(){
-	QFile file("file.dat");
-    if (!file.exists()) {
-        qDebug() << "File does not exist";
-    }
-	file.open(QIODevice::ReadOnly);
+    QByteArray posData;
+    QByteArray penData;
+    QByteArray flagsData;
+    QByteArray sizeData;
 
-	QDataStream in(&file);  
+    QDataStream posStream(&posData, QDataStream::WriteOnly);
+    QDataStream penStream(&penData, QDataStream::WriteOnly);
+    QDataStream flagsStream(&flagsData, QDataStream::WriteOnly);
+    QDataStream sizeStream(&sizeData, QDataStream::WriteOnly);
 
-	in >> drawDataPacket2->startPoint;
-	in >> drawDataPacket2->endPoint;
-	in >> drawDataPacket2->movingPoint;
-	in >> drawDataPacket2->pen;
-	in >> drawDataPacket2->drawMode;
-	in >> drawDataPacket2->windowSize;
-	in >> drawDataPacket2->clearCanvasFlag;
 
+    posStream << drawDataPacket->startPoint;
+    posStream << drawDataPacket->endPoint;
+    posStream << drawDataPacket->movingPoint;
+    penStream << drawDataPacket->pen;
+    flagsStream << drawDataPacket->drawMode;
+    flagsStream << drawDataPacket->clearCanvasFlag;
+    sizeStream << drawDataPacket->windowSize;
+
+    qDebug() << "Received posData: " << posData;
+    qDebug() << "Received penData: " << penData;
+    qDebug() << "Received flagsData: " << flagsData;
+    qDebug() << "Received sizeData: " << sizeData;
 }
+
+
+
+void Minerva::sendBit(uint pinNumber,bool bitData) {
+
+    if (bitData) {
+		digitalWrite(dataPins[pinNumber], HIGH);
+	}
+    else {
+		digitalWrite(dataPins[pinNumber], LOW);
+	}
+
+
+    digitalWrite(dataPins[pinNumber],LOW);
+    digitalWrite(dataPins[pinNumber], HIGH);
+	digitalWrite(dataPins[pinNumber], LOW);    
+}
+
+void Minerva::receiveBit(uint pinNumber) {
+	int bitValue;
+	bitValue = digitalRead(dataPins[pinNumber]);
+	qDebug() << "Received bit: " << bitValue;
+}
+
+void Minerva::sendData(QByteArray data, uint pinNumber) {
+    for (int i = 0; i < data.size(); i++) {
+        for (int j = 0; j < 8; j++) {
+            if (data[i] & (1 << j)) {
+				sendBit(pinNumber,0);
+			}
+            else {
+				sendBit(pinNumber,1);
+			}
+		}
+	}
+}
+
+QByteArray Minerva::receiveData(uint pinNumber) {
+	QByteArray receivedData;
+	int bitValue;
+	int byteValue = 0;
+	int bitCount = 0;
+
+    while (true) {
+		bitValue = digitalRead(dataPins[pinNumber]);
+        if (bitValue == 1) {
+			byteValue |= (1 << bitCount);
+		}
+		bitCount++;
+        if (bitCount == 8) {
+			receivedData.append(byteValue);
+			byteValue = 0;
+			bitCount = 0;
+		}
+	}
+	return receivedData;
+}
+
 
 //dummy function to comly with wiringPi not being present in windows
 void Minerva::digitalWrite(int pin, int value) {
@@ -135,4 +208,8 @@ void Minerva::pinMode(int pin, int mode) {
 }
 void Minerva::wiringPiSetupGpio() {
 
+}
+int Minerva::digitalRead(int pinNumber) {
+	//dummy function
+    return 0;
 }
