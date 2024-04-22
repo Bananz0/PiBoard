@@ -10,7 +10,9 @@
 class Minerva
 {
 private:
-    int dataPins[10] = {25,28,24,27,22,26,30,31,14,10};
+    int dataPins[10] = {25,28,24,27,
+                        22,26,30,31,
+                        14,10};
 public:
     QSize winSize;
     Minerva();

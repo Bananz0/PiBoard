@@ -60,10 +60,10 @@ void Minerva::serverMode() {
 	Minerva::selectDataPin(2, 1);
 	Minerva::selectDataPin(3, 1);
 
-	Minerva::selectDataPin(4, 0);
-	Minerva::selectDataPin(5, 0);
-	Minerva::selectDataPin(6, 0);
-	Minerva::selectDataPin(7, 0);
+	//Minerva::selectDataPin(4, 0);
+	//Minerva::selectDataPin(5, 0);
+	//Minerva::selectDataPin(6, 0);
+	//Minerva::selectDataPin(7, 0);
 
 	//Reserved for common ground
 	Minerva::selectDataPin(8, 0);
@@ -72,15 +72,20 @@ void Minerva::serverMode() {
 
 
 void Minerva::clientMode() {
-    Minerva::selectDataPin(0, 0);
-    Minerva::selectDataPin(1, 0);
-    Minerva::selectDataPin(2, 0);
-    Minerva::selectDataPin(3, 0);
+    //Minerva::selectDataPin(0, 0);
+    //Minerva::selectDataPin(1, 0);
+    //Minerva::selectDataPin(2, 0);
+    //Minerva::selectDataPin(3, 0);
 
-    Minerva::selectDataPin(4, 1);
-    Minerva::selectDataPin(5, 1);
-    Minerva::selectDataPin(6, 1);
-    Minerva::selectDataPin(7, 1);
+    //Minerva::selectDataPin(4, 1);
+    //Minerva::selectDataPin(5, 1);
+    //Minerva::selectDataPin(6, 1);
+    //Minerva::selectDataPin(7, 1);
+
+    Minerva::selectDataPin(4, 0);
+    Minerva::selectDataPin(5, 0);
+    Minerva::selectDataPin(6, 0);
+    Minerva::selectDataPin(7, 0);
 
     //Reserved for common ground
     Minerva::selectDataPin(8, 0);
@@ -113,13 +118,18 @@ void Minerva::encodeData(){
     qDebug() << "penData: " << penData;
     qDebug() << "flagsData: " << flagsData;
     qDebug() << "sizeData: " << sizeData;
+
+    sendData(posData, 0);
+    sendData(penData, 1);
+    sendData(flagsData, 2);
+    sendData(sizeData, 3);
 }
 
 void Minerva::decodeData(){
-    QByteArray posData;
-    QByteArray penData;
-    QByteArray flagsData;
-    QByteArray sizeData;
+    QByteArray posData = receiveData(4);
+    QByteArray penData = receiveData(5);
+    QByteArray flagsData = receiveData(6);
+    QByteArray sizeData = receiveData(7);
 
     QDataStream posStream(&posData, QDataStream::WriteOnly);
     QDataStream penStream(&penData, QDataStream::WriteOnly);
@@ -139,6 +149,8 @@ void Minerva::decodeData(){
     qDebug() << "Received penData: " << penData;
     qDebug() << "Received flagsData: " << flagsData;
     qDebug() << "Received sizeData: " << sizeData;
+
+
 }
 
 
