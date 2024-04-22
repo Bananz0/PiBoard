@@ -1,6 +1,11 @@
 //Comms
 #include "minerva.h"
 #include <QDebug>
+#include <QFile>
+#include <condition_variable> 
+#include <QMutex> 
+#include <QQueue> 
+#include <QThread>
 
 //enable when wiringPi is installed
 //#include "wiringPi.h"
@@ -83,31 +88,45 @@ void Minerva::clientMode() {
 }
 
 
+//https://doc.qt.io/qt-6/qdatastream.html
+void Minerva::encodeData(){
+    QFile file("file.dat");
+    if (!file.exists()) {
+        qDebug() << "File does not exist";
+    }
+    file.open(QIODevice::WriteOnly);
 
+    QDataStream out(&file);  
 
+    out << drawDataPacket->startPoint;
+    out << drawDataPacket->endPoint;
+    out << drawDataPacket->movingPoint;
+    out << drawDataPacket->pen;
+    out << drawDataPacket->drawMode;
+    out << drawDataPacket->windowSize;
+    out << drawDataPacket->clearCanvasFlag;
+}
 
+void Minerva::decodeData(){
+	QFile file("file.dat");
+    if (!file.exists()) {
+        qDebug() << "File does not exist";
+    }
+	file.open(QIODevice::ReadOnly);
 
+	QDataStream in(&file);  
 
+	in >> drawDataPacket2->startPoint;
+	in >> drawDataPacket2->endPoint;
+	in >> drawDataPacket2->movingPoint;
+	in >> drawDataPacket2->pen;
+	in >> drawDataPacket2->drawMode;
+	in >> drawDataPacket2->windowSize;
+	in >> drawDataPacket2->clearCanvasFlag;
 
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//dummy function to comly with wiringPi
+//dummy function to comly with wiringPi not being present in windows
 void Minerva::digitalWrite(int pin, int value) {
 	//dummy function
 }

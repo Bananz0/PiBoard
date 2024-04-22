@@ -50,7 +50,7 @@ void Gaia::on_allButton_clicked()
 
 void Gaia::startServer(const QString& position,int localMode){
     QIcon server(":/assets/server.png");
-    Hermes *senderWindow = new Hermes(minerva->drawDataPacket);
+    Hermes *senderWindow = new Hermes(minerva);
     senderWindow->show();
     senderWindow->setWindowTitle("Server");
     senderWindow->setWindowIcon(server);
@@ -70,8 +70,8 @@ void Gaia::startServer(const QString& position,int localMode){
 void Gaia::startClient(const QString& position, int localMode){
     QIcon client(":/assets/client.png");
     minerva->drawDataPacket->drawMode=0;
-
-    Hephaestus *receiverwindow = new Hephaestus(minerva->drawDataPacket);
+    minerva->decodeData();
+    Hephaestus *receiverwindow = new Hephaestus(minerva);
     receiverwindow->show();
     receiverwindow->setWindowIcon(client);
     receiverwindow->setWindowTitle("Reciever");

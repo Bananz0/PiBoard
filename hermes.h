@@ -17,7 +17,7 @@ class Hermes : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit Hermes(Minerva::drawData* drawDataPacketOut, QWidget* parent = nullptr);
+    explicit Hermes(Minerva* minerva, QWidget* parent = nullptr);
     ~Hermes();
 
     void mouseReleaseEvent(QMouseEvent *event) override;
@@ -26,8 +26,9 @@ public:
     void paintEvent(QPaintEvent *event) override;
     void resizeEvent(QResizeEvent* event) override;
     void drawOnCanvas(QPainter& painter, QPen& pen, int drawMode);
-            
-    Minerva::drawData* drawDataPacket;
+    
+    Minerva* minervaOut;
+    
 
 private:
     Ui::Hermes *ui;

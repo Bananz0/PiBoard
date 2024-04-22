@@ -7,10 +7,10 @@
 
 
 
-Hephaestus::Hephaestus(Minerva::drawData* drawDataPacketIn,QWidget *parent)
+Hephaestus::Hephaestus(Minerva* minerva,QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::Hephaestus)
-    , drawDataPacket(drawDataPacketIn)
+    , minervaIn(minerva)
 {
     ui->setupUi(this);
     image = new QImage(800, 600, QImage::Format_RGB32);
@@ -40,13 +40,18 @@ void Hephaestus::paintEvent(QPaintEvent* event) {
     QPainter imagePainter(image);
     //imagePainter.setRenderHint(QPainter::Antialiasing);
 
-    drawOnCanvas(imagePainter, drawDataPacket->pen, drawDataPacket->drawMode);
+    drawOnCanvas(imagePainter, minervaIn->drawDataPacket2->pen, minervaIn->drawDataPacket2->drawMode);
 
-    if (drawDataPacket->clearCanvasFlag) {
+    if (minervaIn->drawDataPacket2->clearCanvasFlag) {
         draw->clearCanvas(image);
-        drawDataPacket->clearCanvasFlag = false;
+        minervaIn->drawDataPacket2->clearCanvasFlag = false;
     }
 
+    //https://doc.qt.io/qt-6/qthread.html
+    //https://www.geeksforgeeks.org/implement-thread-safe-queue-in-c/
+    minervaIn->decodeData();
+   
+    
    // qDebug() << "Drawing on Hephaestus";
 }
 
@@ -57,15 +62,15 @@ void Hephaestus::resizeEvent(QResizeEvent *event) {
     //TODO
     //Syncronize window sizes
     // Get the server window size from Minerva
-     //QSize size = drawDataPacket->windowSize;
+     //QSize size = drawDataPacket2->windowSize;
      //qDebug() << "Height: " <<size.height() << "Width" << size.width();
      //resize(size);
 }
 
 void Hephaestus::drawOnCanvas(QPainter& painter, QPen& pen, int drawMode) {
-    draw->startPoint = drawDataPacket->startPoint;
-    draw->endPoint = drawDataPacket->endPoint;
-    draw->movingPoints = drawDataPacket->movingPoint;
+    draw->startPoint = minervaIn->drawDataPacket2->startPoint;
+    draw->endPoint = minervaIn->drawDataPacket2->endPoint;
+    draw->movingPoints = minervaIn->drawDataPacket2->movingPoint;
     switch (drawMode) {
     case 0:
         draw->drawLine(painter, pen);

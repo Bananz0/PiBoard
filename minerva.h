@@ -5,6 +5,7 @@
 #include <QString>
 #include <QPointF>
 #include <QPen>
+#include <QDataStream>
 
 class Minerva
 {
@@ -20,6 +21,8 @@ public:
     void initializeGPIO();
     void serverMode();
     void clientMode();
+    void encodeData();
+    void decodeData();
 
     class drawData {
     public:
@@ -35,6 +38,7 @@ public:
     };
 
     drawData* drawDataPacket = new drawData;
+    drawData* drawDataPacket2 = new drawData;
     
 
     //dummy function to comly with wiringPi

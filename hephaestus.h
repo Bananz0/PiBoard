@@ -16,7 +16,8 @@ class Hephaestus : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit Hephaestus(Minerva::drawData* drawDataPacketIn,QWidget *parent = nullptr);
+    Minerva* minervaIn;
+    explicit Hephaestus(Minerva* minerva,QWidget *parent = nullptr);
     ~Hephaestus();
     Artemis *draw = new Artemis;
     void paintEvent(QPaintEvent* event) override;
