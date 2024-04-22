@@ -1,10 +1,10 @@
 name: Build
 
+
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    tags:
+      - '*'
 
 env:
   BUILD_TYPE: Release
@@ -63,10 +63,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         with:
-          tag_name: ${{ steps.get_version.outputs.VERSION }}
-          release_name: Release ${{ steps.get_version.outputs.VERSION }}
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
+
           
       - name: Upload Release Asset
         id: upload-release-asset 
