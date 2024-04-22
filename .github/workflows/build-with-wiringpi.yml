@@ -51,10 +51,11 @@ jobs:
           mkdir PiBoard
           cp ./build/PiBoard PiBoard/
           zip -r PiBoard.zip PiBoard
-
+  
       - name: Get Version
         id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+        run: echo ::set-output name=VERSION::${GITHUB_SHA}
+
       
       - name: Create Release
         id: create_release
