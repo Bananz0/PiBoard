@@ -44,7 +44,6 @@ void Hephaestus::paintEvent(QPaintEvent* event) {
 
     if (minervaIn->drawDataPacket2->clearCanvasFlag) {
         draw->clearCanvas(image);
-        minervaIn->drawDataPacket2->clearCanvasFlag = false;
     }
 
     //https://doc.qt.io/qt-6/qthread.html

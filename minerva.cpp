@@ -92,63 +92,88 @@ void Minerva::clientMode() {
     Minerva::selectDataPin(9, 0);    
 }
 
-
 //https://doc.qt.io/qt-6/qdatastream.html
-void Minerva::encodeData(){
-    QByteArray posData;
-    QByteArray penData;
-    QByteArray flagsData;
-    QByteArray sizeData;
+void Minerva::encodeData() {
 
+    //Using IO for data transfer (i thnk)
+    //Open file
+    QFile file("file.dat");
+    if (!file.exists()) {
+        qDebug() << "File does not exist";
+    }
+    file.open(QIODevice::WriteOnly);
+
+    QDataStream out(&data, QDataStream::WriteOnly);
+
+    out << drawDataPacket->startPoint;
+    out << drawDataPacket->endPoint;
+    out << drawDataPacket->movingPoint;
+    out << drawDataPacket->pen;
+    out << drawDataPacket->drawMode;
+    out << drawDataPacket->windowSize;
+    out << drawDataPacket->clearCanvasFlag;
+
+    //qDebug() << data.size();
+    //Write data to file
+    file.write(data);
+    //qInfo() << data.toHex();
+
+
+    //Sending Individual Packets
     QDataStream posStream(&posData, QDataStream::WriteOnly);
-    QDataStream penStream(&penData, QDataStream::WriteOnly);
     QDataStream flagsStream(&flagsData, QDataStream::WriteOnly);
+    QDataStream penStream(&penData, QDataStream::WriteOnly);
     QDataStream sizeStream(&sizeData, QDataStream::WriteOnly);
 
-
     posStream << drawDataPacket->startPoint;
-    posStream << drawDataPacket->endPoint;
     posStream << drawDataPacket->movingPoint;
-    penStream << drawDataPacket->pen;
-    flagsStream << drawDataPacket->drawMode;
+    posStream << drawDataPacket->endPoint;
     flagsStream << drawDataPacket->clearCanvasFlag;
+    flagsStream << drawDataPacket->drawMode;
+    penStream << drawDataPacket->pen;
     sizeStream << drawDataPacket->windowSize;
-    
-    qDebug() << "posData: " << posData;
-    qDebug() << "penData: " << penData;
-    qDebug() << "flagsData: " << flagsData;
-    qDebug() << "sizeData: " << sizeData;
 
-    sendData(posData, 0);
-    sendData(penData, 1);
-    sendData(flagsData, 2);
-    sendData(sizeData, 3);
+    qDebug() << posData + flagsData + penData + sizeData;
+
 }
 
-void Minerva::decodeData(){
-    QByteArray posData = receiveData(4);
-    QByteArray penData = receiveData(5);
-    QByteArray flagsData = receiveData(6);
-    QByteArray sizeData = receiveData(7);
+void Minerva::decodeData() {
+    //Open file
+    QFile file("file.dat");
+    if (!file.exists()) {
+        qDebug() << "File does not exist";
+    }
+    file.open(QIODevice::ReadOnly);
 
-    QDataStream posStream(&posData, QDataStream::WriteOnly);
-    QDataStream penStream(&penData, QDataStream::WriteOnly);
-    QDataStream flagsStream(&flagsData, QDataStream::WriteOnly);
-    QDataStream sizeStream(&sizeData, QDataStream::WriteOnly);
+    //Store data from file in QByteArray
+    QByteArray data;
+    QDataStream in(&data, QDataStream::ReadOnly);
+
+    data = file.readAll();
+    //QDataStream in(&file);  
+
+    in >> drawDataPacket2->startPoint;
+    in >> drawDataPacket2->endPoint;
+    in >> drawDataPacket2->movingPoint;
+    in >> drawDataPacket2->pen;
+    in >> drawDataPacket2->drawMode;
+    in >> drawDataPacket2->windowSize;
+    in >> drawDataPacket2->clearCanvasFlag;
 
 
-    posStream << drawDataPacket->startPoint;
-    posStream << drawDataPacket->endPoint;
-    posStream << drawDataPacket->movingPoint;
-    penStream << drawDataPacket->pen;
-    flagsStream << drawDataPacket->drawMode;
-    flagsStream << drawDataPacket->clearCanvasFlag;
-    sizeStream << drawDataPacket->windowSize;
+    //Receiving Individual Packets
+    QDataStream posStream(&posData, QDataStream::ReadOnly);
+    QDataStream flagsStream(&flagsData, QDataStream::ReadOnly);
+    QDataStream penStream(&penData, QDataStream::ReadOnly);
+    QDataStream sizeStream(&sizeData, QDataStream::ReadOnly);
 
-    qDebug() << "Received posData: " << posData;
-    qDebug() << "Received penData: " << penData;
-    qDebug() << "Received flagsData: " << flagsData;
-    qDebug() << "Received sizeData: " << sizeData;
+    posStream >> drawDataPacket2->startPoint;
+    posStream >> drawDataPacket2->movingPoint;
+    posStream >> drawDataPacket2->endPoint;
+    flagsStream >> drawDataPacket2->clearCanvasFlag;
+    flagsStream >> drawDataPacket2->drawMode;
+    penStream >> drawDataPacket2->pen;
+    sizeStream >> drawDataPacket2->windowSize;
 
 
 }

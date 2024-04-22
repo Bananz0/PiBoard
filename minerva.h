@@ -43,17 +43,14 @@ public:
 
     drawData* drawDataPacket = new drawData;
     drawData* drawDataPacket2 = new drawData;
-    
+
+    QByteArray data;
+    QByteArray posData, penData, flagsData, sizeData;
 
     void sendBit(uint pinNumber, bool bitData);
-
     void receiveBit(uint pinNumber);
-
     void sendData(QByteArray data, uint pinNumber);
-
     QByteArray receiveData(uint pinNumber);
-
-
     //dummy function to comly with wiringPi
     void digitalWrite(int pin, int value);
     void pinMode(int pin, int mode);

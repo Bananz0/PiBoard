@@ -52,7 +52,7 @@ void Hermes::mouseMoveEvent(QMouseEvent *event)  {
 
 void Hermes::on_clearCanvas_clicked()
 {
-    minervaOut->drawDataPacket->clearCanvasFlag = true;
+    minervaOut->drawDataPacket->clearCanvasFlag = !minervaOut->drawDataPacket->clearCanvasFlag;
     draw->clearCanvas(image);
     update();
 }
