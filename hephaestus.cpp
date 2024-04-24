@@ -45,11 +45,7 @@ void Hephaestus::paintEvent(QPaintEvent* event) {
         draw->clearCanvas(image);
     }
 
-    //https://doc.qt.io/qt-6/qthread.html
-    //https://www.geeksforgeeks.org/implement-thread-safe-queue-in-c/
-    minervaIn->decodeData();
-   
-    
+    minervaIn->decodeData();  
    // qDebug() << "Drawing on Hephaestus";
 }
 

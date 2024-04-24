@@ -92,49 +92,53 @@ void Minerva::clientMode() {
 
 //https://doc.qt.io/qt-6/qdatastream.html
 void Minerva::encodeData() {
+    ////Using IO for data transfer (i thnk)
+    ////Open file
+    //QFile file("file.dat");
+    //if (!file.exists()) {
+    //    qDebug() << "File does not exist";
+    //}
+    //file.open(QIODevice::WriteOnly);
 
-    //Using IO for data transfer (i thnk)
-    //Open file
-    QFile file("file.dat");
-    if (!file.exists()) {
-        qDebug() << "File does not exist";
-    }
-    file.open(QIODevice::WriteOnly);
+    //QDataStream out(&data, QDataStream::WriteOnly);
 
-    QDataStream out(&data, QDataStream::WriteOnly);
+    //out << drawDataPacket->startPoint;
+    //out << drawDataPacket->endPoint;
+    //out << drawDataPacket->movingPoint;
+    //out << drawDataPacket->pen;
+    //out << drawDataPacket->drawMode;
+    //out << drawDataPacket->windowSize;
+    //out << drawDataPacket->clearCanvasFlag;
 
-    out << drawDataPacket->startPoint;
-    out << drawDataPacket->endPoint;
-    out << drawDataPacket->movingPoint;
-    out << drawDataPacket->pen;
-    out << drawDataPacket->drawMode;
-    out << drawDataPacket->windowSize;
-    out << drawDataPacket->clearCanvasFlag;
-
-    //qDebug() << data.size();
-    //Write data to file
-    file.write(data);
-    //qInfo() << data.toHex();
+    ////qDebug() << data.size();
+    ////Write data to file
+    //file.write(data);
+    ////qInfo() << data.toHex();
 
     //simulation of sending data through individual packets through GPIO
 
-    QFile posFile("posData.dat");
-    posFile.open(QIODevice::WriteOnly);
+    //QFile posFile("posData.dat");
+    //posFile.open(QIODevice::WriteOnly);
 
-    QFile flagsFile("flagsData.dat");
-    flagsFile.open(QIODevice::WriteOnly);
+    //QFile flagsFile("flagsData.dat");
+    //flagsFile.open(QIODevice::WriteOnly);
 
-    QFile penFile("penData.dat");
-    penFile.open(QIODevice::WriteOnly);
+    //QFile penFile("penData.dat");
+    //penFile.open(QIODevice::WriteOnly);
 
-    QFile sizeFile("sizeData.dat");
-    sizeFile.open(QIODevice::WriteOnly);
+    //QFile sizeFile("sizeData.dat");
+    //sizeFile.open(QIODevice::WriteOnly);
 
-    posFile.write(posData);
-    flagsFile.write(flagsData);
-    penFile.write(penData);
-    sizeFile.write(sizeData);
+    //posFile.write(posData);
+    //flagsFile.write(flagsData);
+    //penFile.write(penData);
+    //sizeFile.write(sizeData);
 
+    //Sending data (gpio)
+    sendData(posData, 0);
+    sendData(flagsData, 1);
+    sendData(penData, 2);
+    sendData(sizeData, 3);
 
 
     //Sending Individual Packets
@@ -155,17 +159,17 @@ void Minerva::encodeData() {
 
 void Minerva::decodeData() {
     //Open file
-    QFile file("file.dat");
-    if (!file.exists()) {
-        qDebug() << "File does not exist";
-    }
-    file.open(QIODevice::ReadOnly);
+    //QFile file("file.dat");
+    //if (!file.exists()) {
+    //    qDebug() << "File does not exist";
+    //}
+    //file.open(QIODevice::ReadOnly);
 
-    //Store data from file in QByteArray
-    QByteArray data;
-    QDataStream in(&data, QDataStream::ReadOnly);
+    ////Store data from file in QByteArray
+    //QByteArray data;
+    //QDataStream in(&data, QDataStream::ReadOnly);
 
-    data = file.readAll();
+    //data = file.readAll();
     //QDataStream in(&file);  
 
     //in >> drawDataPacket2->startPoint;
@@ -177,23 +181,30 @@ void Minerva::decodeData() {
     //in >> drawDataPacket2->clearCanvasFlag;
 
 
-    //simulation of receiving data through individual packets through GPIO
-    QFile posFile("posData.dat");
-    posFile.open(QIODevice::ReadOnly);
+    ////simulation of receiving data through individual packets through GPIO
+    //QFile posFile("posData.dat");
+    //posFile.open(QIODevice::ReadOnly);
 
-    QFile flagsFile("flagsData.dat");
-    flagsFile.open(QIODevice::ReadOnly);
+    //QFile flagsFile("flagsData.dat");
+    //flagsFile.open(QIODevice::ReadOnly);
 
-    QFile penFile("penData.dat");
-    penFile.open(QIODevice::ReadOnly);
+    //QFile penFile("penData.dat");
+    //penFile.open(QIODevice::ReadOnly);
 
-    QFile sizeFile("sizeData.dat");
-    sizeFile.open(QIODevice::ReadOnly);
+    //QFile sizeFile("sizeData.dat");
+    //sizeFile.open(QIODevice::ReadOnly);
 
-    posData = posFile.readAll();
-    flagsData = flagsFile.readAll();
-    penData = penFile.readAll();
-    sizeData = sizeFile.readAll();
+    //posData = posFile.readAll();
+    //flagsData = flagsFile.readAll();
+    //penData = penFile.readAll();
+    //sizeData = sizeFile.readAll();
+
+
+    //Receiving data (gpio)
+    posData = receiveData(4);
+    flagsData = receiveData(5);
+    penData = receiveData(6);
+    sizeData = receiveData(7);
 
 
     //Receiving Individual Packets
