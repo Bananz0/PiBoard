@@ -5,8 +5,6 @@
 #include <QImage>
 #include <QTimer>
 
-
-
 Hephaestus::Hephaestus(Minerva* minerva,QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::Hephaestus)
@@ -16,17 +14,18 @@ Hephaestus::Hephaestus(Minerva* minerva,QWidget *parent)
     image = new QImage(800, 600, QImage::Format_RGB32);
     image->fill(Qt::white);
 
-    //https://surfer.nmr.mgh.harvard.edu/ftp/dist/freesurfer/tutorial_versions/freesurfer/lib/qt/qt_doc/html/qtimer.html#:~:text=Example%20for%20a,called%20every%20second.
-    QTimer* timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, QOverload<>::of(&QWidget::update));
-    timer->start(10);
-    
+    //Update the image every 10ms
+    int timerId = startTimer(10);
 }
 
 Hephaestus::~Hephaestus()
 {
     delete draw;
     delete ui;
+}
+
+void Hephaestus::timerEvent(QTimerEvent* event){
+    	update();
 }
 
 void Hephaestus::paintEvent(QPaintEvent* event) {

@@ -2,10 +2,8 @@
 #include "minerva.h"
 #include <QDebug>
 #include <QFile>
-#include <condition_variable> 
-#include <QMutex> 
-#include <QQueue> 
 #include <QThread>
+
 
 //enable when wiringPi is installed
 //#include "wiringPi.h"
@@ -32,7 +30,7 @@ QSize Minerva::setClentWindowSize(){
 QString Minerva::testConnection(){
     QString connectionStatus;
     int connectionStatusNum;
-    
+    //TODO: Implement actual connection test
     //generate either 0 or 1
     connectionStatusNum = rand() % 2;
 
@@ -118,6 +116,26 @@ void Minerva::encodeData() {
     file.write(data);
     //qInfo() << data.toHex();
 
+    //simulation of sending data through individual packets through GPIO
+
+    QFile posFile("posData.dat");
+    posFile.open(QIODevice::WriteOnly);
+
+    QFile flagsFile("flagsData.dat");
+    flagsFile.open(QIODevice::WriteOnly);
+
+    QFile penFile("penData.dat");
+    penFile.open(QIODevice::WriteOnly);
+
+    QFile sizeFile("sizeData.dat");
+    sizeFile.open(QIODevice::WriteOnly);
+
+    posFile.write(posData);
+    flagsFile.write(flagsData);
+    penFile.write(penData);
+    sizeFile.write(sizeData);
+
+
 
     //Sending Individual Packets
     QDataStream posStream(&posData, QDataStream::WriteOnly);
@@ -132,8 +150,6 @@ void Minerva::encodeData() {
     flagsStream << drawDataPacket->drawMode;
     penStream << drawDataPacket->pen;
     sizeStream << drawDataPacket->windowSize;
-
-    qDebug() << posData + flagsData + penData + sizeData;
 
 }
 
@@ -174,8 +190,6 @@ void Minerva::decodeData() {
     flagsStream >> drawDataPacket2->drawMode;
     penStream >> drawDataPacket2->pen;
     sizeStream >> drawDataPacket2->windowSize;
-
-
 }
 
 

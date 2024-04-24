@@ -5,11 +5,13 @@
 #include "hermes.h"
 #include "ui_hermes.h"
 #include <QPainter>
+#include <QThread>
+#include <QTimer>
 
 
 
 Hermes::Hermes(Minerva* minerva,QWidget *parent)
-    : QMainWindow(parent)
+    : QMainWindow(parent)   
     , ui(new Ui::Hermes)
     //, drawDataPacket(minerva->drawDataPacket)
     , minervaOut(minerva)
@@ -18,6 +20,12 @@ Hermes::Hermes(Minerva* minerva,QWidget *parent)
     setMouseTracking(true);
     image = new QImage(800, 600, QImage::Format_RGB32);
     image->fill(Qt::white);
+
+    initializePenProperties();
+
+    //https://stackoverflow.com/questions/11651852/how-to-use-qtimer
+    //Send Data through Minerva every 1ms
+    timerId = startTimer(1);
 }
 
 Hermes::~Hermes()
@@ -32,21 +40,18 @@ void Hermes::mouseReleaseEvent(QMouseEvent *event){
     qDebug() << "Mouse: " << event->position();
     minervaOut->drawDataPacket->endPoint = event->position();
     draw->setEndPoint(minervaOut->drawDataPacket->endPoint);
-    update();
 }
 
 void Hermes::mousePressEvent(QMouseEvent *event){
     minervaOut->drawDataPacket->startPoint = event->position();
     draw->setStartPoint(minervaOut->drawDataPacket->startPoint);
     qDebug() << "Mouse: " << event->position();
-    update();
 }
 
 void Hermes::mouseMoveEvent(QMouseEvent *event)  {
     minervaOut->drawDataPacket->movingPoint = event->position();
     draw->setMovingPoints(minervaOut->drawDataPacket->movingPoint);
     qDebug() << "Mouse: " << event->position();
-    update();
 }
 
 
@@ -54,34 +59,20 @@ void Hermes::on_clearCanvas_clicked()
 {
     minervaOut->drawDataPacket->clearCanvasFlag = !minervaOut->drawDataPacket->clearCanvasFlag;
     draw->clearCanvas(image);
-    update();
 }
 
 
 void Hermes::paintEvent(QPaintEvent *event){
     QPainter painter(this);
 
-
-    //Pen Properties
-    minervaOut->drawDataPacket->pen.setBrush(Qt::black);
-    minervaOut->drawDataPacket->pen.setWidth(15);
-    minervaOut->drawDataPacket->pen.setCapStyle(Qt::RoundCap);
-    minervaOut->drawDataPacket->pen.setJoinStyle(Qt::RoundJoin);
-
-
     //Draw on the image
     painter.drawImage(0, 0, *image); 
-   // painter.setRenderHint(QPainter::Antialiasing);
-
+    painter.setRenderHint(QPainter::Antialiasing);
 
     QPainter imagePainter(image);
-    //imagePainter.setRenderHint(QPainter::Antialiasing);
+    imagePainter.setRenderHint(QPainter::Antialiasing);
 
     drawOnCanvas(imagePainter, minervaOut->drawDataPacket->pen, minervaOut->drawDataPacket->drawMode);
-    minervaOut->encodeData();
-    qDebug() << "Drawing on Hermes";
-
-
  }
 
 //https://stackoverflow.com/questions/12828825/how-to-assign-callback-when-the-user-resizes-a-qmainwindow
@@ -90,6 +81,15 @@ void Hermes::resizeEvent(QResizeEvent* event)
     QMainWindow::resizeEvent(event);
     minervaOut->drawDataPacket->windowSize = this->size();
     qDebug() << "Height: " << minervaOut->drawDataPacket->windowSize.height() << "Width" << minervaOut->drawDataPacket->windowSize.width();
+}
+
+void Hermes::initializePenProperties() {
+	//Pen Properties
+	minervaOut->drawDataPacket->pen.setColor(Qt::black);
+	minervaOut->drawDataPacket->pen.setWidth(15);
+	minervaOut->drawDataPacket->pen.setBrush(Qt::black);
+	minervaOut->drawDataPacket->pen.setCapStyle(Qt::RoundCap);
+	minervaOut->drawDataPacket->pen.setJoinStyle(Qt::RoundJoin);
 }
 
 void Hermes::drawOnCanvas(QPainter& painter, QPen& pen, int drawMode) {
@@ -156,4 +156,24 @@ void Hermes::penProperties_clicked(){
 	//pen.setWidth(20);
 	//pen.setBrush(Qt::black);
 	//update();
+
+    //temporary pen settings set here
+    //Pen Properties
+    minervaOut->drawDataPacket->pen.setBrush(Qt::black);
+    minervaOut->drawDataPacket->pen.setWidth(15);
+    minervaOut->drawDataPacket->pen.setCapStyle(Qt::RoundCap);
+    minervaOut->drawDataPacket->pen.setJoinStyle(Qt::RoundJoin);
+
+}
+
+
+//Send Data through Minerva every 10ms and update the canvas
+void Hermes::timerEvent(QTimerEvent* event){
+    minervaOut->encodeData();
+    update();
+}
+
+
+void Hermes::setPenProperties(QPen& pen){
+    //Implement this function in a new window or class for setting pen properties
 }
