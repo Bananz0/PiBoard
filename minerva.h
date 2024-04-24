@@ -48,9 +48,9 @@ public:
     QByteArray posData, penData, flagsData, sizeData;
 
     void sendBit(uint pinNumber, bool bitData);
-    void receiveBit(uint pinNumber);
+    int receiveBit(uint pinNumber);
     void sendData(QByteArray data, uint pinNumber);
-    QByteArray receiveData(uint pinNumber);
+    QByteArray receiveData(uint pinNumber,int expectedByteSize);
     //dummy function to comly with wiringPi
     void digitalWrite(int pin, int value);
     void pinMode(int pin, int mode);

@@ -37,7 +37,7 @@ Hermes::~Hermes()
 //From QT Docs
 //https://doc.qt.io/qt-6/eventsandfilters.html
 void Hermes::mouseReleaseEvent(QMouseEvent *event){
-    qDebug() << "Mouse: " << event->position();
+    //qDebug() << "Mouse: " << event->position();
     minervaOut->drawDataPacket->endPoint = event->position();
     draw->setEndPoint(minervaOut->drawDataPacket->endPoint);
 }
@@ -45,13 +45,13 @@ void Hermes::mouseReleaseEvent(QMouseEvent *event){
 void Hermes::mousePressEvent(QMouseEvent *event){
     minervaOut->drawDataPacket->startPoint = event->position();
     draw->setStartPoint(minervaOut->drawDataPacket->startPoint);
-    qDebug() << "Mouse: " << event->position();
+    //qDebug() << "Mouse: " << event->position();
 }
 
 void Hermes::mouseMoveEvent(QMouseEvent *event)  {
     minervaOut->drawDataPacket->movingPoint = event->position();
     draw->setMovingPoints(minervaOut->drawDataPacket->movingPoint);
-    qDebug() << "Mouse: " << event->position();
+    //qDebug() << "Mouse: " << event->position();
 }
 
 

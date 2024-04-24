@@ -117,22 +117,22 @@ void Minerva::encodeData() {
 
     //simulation of sending data through individual packets through GPIO
 
-    //QFile posFile("posData.dat");
-    //posFile.open(QIODevice::WriteOnly);
+    QFile posFile("posData.dat");
+    posFile.open(QIODevice::WriteOnly);
 
-    //QFile flagsFile("flagsData.dat");
-    //flagsFile.open(QIODevice::WriteOnly);
+    QFile flagsFile("flagsData.dat");
+    flagsFile.open(QIODevice::WriteOnly);
 
-    //QFile penFile("penData.dat");
-    //penFile.open(QIODevice::WriteOnly);
+    QFile penFile("penData.dat");
+    penFile.open(QIODevice::WriteOnly);
 
-    //QFile sizeFile("sizeData.dat");
-    //sizeFile.open(QIODevice::WriteOnly);
+    QFile sizeFile("sizeData.dat");
+    sizeFile.open(QIODevice::WriteOnly);
 
-    //posFile.write(posData);
-    //flagsFile.write(flagsData);
-    //penFile.write(penData);
-    //sizeFile.write(sizeData);
+    posFile.write(posData);
+    flagsFile.write(flagsData);
+    penFile.write(penData);
+    sizeFile.write(sizeData);
 
     //Sending data (gpio)
     sendData(posData, 0);
@@ -154,6 +154,13 @@ void Minerva::encodeData() {
     flagsStream << drawDataPacket->drawMode;
     penStream << drawDataPacket->pen;
     sizeStream << drawDataPacket->windowSize;
+
+    //Finding out the data size for transmission
+    qDebug() << posData.size() << " Position Data";
+    qDebug() << flagsData.size() << " Flags Data";
+    qDebug() << penData.size() << " Pen Data";
+    qDebug() << sizeData.size() << " Size Data";
+
 
 }
 
@@ -181,30 +188,30 @@ void Minerva::decodeData() {
     //in >> drawDataPacket2->clearCanvasFlag;
 
 
-    ////simulation of receiving data through individual packets through GPIO
-    //QFile posFile("posData.dat");
-    //posFile.open(QIODevice::ReadOnly);
+    //simulation of receiving data through individual packets through GPIO
+    QFile posFile("posData.dat");
+    posFile.open(QIODevice::ReadOnly);
 
-    //QFile flagsFile("flagsData.dat");
-    //flagsFile.open(QIODevice::ReadOnly);
+    QFile flagsFile("flagsData.dat");
+    flagsFile.open(QIODevice::ReadOnly);
 
-    //QFile penFile("penData.dat");
-    //penFile.open(QIODevice::ReadOnly);
+    QFile penFile("penData.dat");
+    penFile.open(QIODevice::ReadOnly);
 
-    //QFile sizeFile("sizeData.dat");
-    //sizeFile.open(QIODevice::ReadOnly);
+    QFile sizeFile("sizeData.dat");
+    sizeFile.open(QIODevice::ReadOnly);
 
-    //posData = posFile.readAll();
-    //flagsData = flagsFile.readAll();
-    //penData = penFile.readAll();
-    //sizeData = sizeFile.readAll();
+    posData = posFile.readAll();
+    flagsData = flagsFile.readAll();
+    penData = penFile.readAll();
+    sizeData = sizeFile.readAll();
 
 
     //Receiving data (gpio)
-    posData = receiveData(4);
-    flagsData = receiveData(5);
-    penData = receiveData(6);
-    sizeData = receiveData(7);
+    posData = receiveData(4,48);
+    flagsData = receiveData(5,5);
+    penData = receiveData(6,116);
+    sizeData = receiveData(7,8);
 
 
     //Receiving Individual Packets
@@ -225,24 +232,19 @@ void Minerva::decodeData() {
 
 
 void Minerva::sendBit(uint pinNumber,bool bitData) {
-
     if (bitData) {
 		digitalWrite(dataPins[pinNumber], HIGH);
 	}
     else {
 		digitalWrite(dataPins[pinNumber], LOW);
 	}
-
-
-    digitalWrite(dataPins[pinNumber],LOW);
-    digitalWrite(dataPins[pinNumber], HIGH);
-	digitalWrite(dataPins[pinNumber], LOW);    
 }
 
-void Minerva::receiveBit(uint pinNumber) {
+int Minerva::receiveBit(uint pinNumber) {
 	int bitValue;
 	bitValue = digitalRead(dataPins[pinNumber]);
 	qDebug() << "Received bit: " << bitValue;
+    return bitValue;
 }
 
 void Minerva::sendData(QByteArray data, uint pinNumber) {
@@ -258,26 +260,31 @@ void Minerva::sendData(QByteArray data, uint pinNumber) {
 	}
 }
 
-QByteArray Minerva::receiveData(uint pinNumber) {
-	QByteArray receivedData;
-	int bitValue;
-	int byteValue = 0;
-	int bitCount = 0;
+QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize)
+{
+    QByteArray receivedData;
+    int bitValue;
+    int byteValue = 0;
+    int bitCount = 0;
 
     while (true) {
-		bitValue = digitalRead(dataPins[pinNumber]);
+        bitValue = digitalRead(dataPins[pinNumber]);
         if (bitValue == 1) {
-			byteValue |= (1 << bitCount);
-		}
-		bitCount++;
+            byteValue |= (1 << bitCount);
+        }
+        bitCount++;
         if (bitCount == 8) {
-			receivedData.append(byteValue);
-			byteValue = 0;
-			bitCount = 0;
-		}
-	}
-	return receivedData;
+            receivedData.append(byteValue);
+            byteValue = 0;
+            bitCount = 0;
+        }
+        if (receivedData.size() == expectedByteSize) {
+            break;
+        }
+    }
+    return receivedData;
 }
+
 
 
 //dummy function to comly with wiringPi not being present in windows
