@@ -18,22 +18,25 @@ class Hermes : public QMainWindow
 
 public:
     explicit Hermes(Minerva* minerva, QWidget* parent = nullptr);
-    ~Hermes();
-
-    void mouseReleaseEvent(QMouseEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-    void paintEvent(QPaintEvent *event) override;
-    void resizeEvent(QResizeEvent* event) override;
-    void drawOnCanvas(QPainter& painter, QPen& pen, int drawMode);
-    
-    Minerva* minervaOut;
-    
+    ~Hermes();    
 
 private:
     Ui::Hermes *ui;
     QImage* image;
     Artemis* draw = new Artemis;
+    Minerva* minervaOut;
+
+    int timerId = 0;
+
+    void mouseReleaseEvent(QMouseEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void paintEvent(QPaintEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
+    void initializePenProperties();
+    void drawOnCanvas(QPainter& painter, QPen& pen, int drawMode);
+    void setPenProperties(QPen& pen);
+
 
 private slots:
     void on_clearCanvas_clicked();
@@ -44,6 +47,8 @@ private slots:
     void on_drawPoint_clicked();
     void penProperties_clicked();
 
+protected: 
+    void timerEvent(QTimerEvent* event) override;
 };
 
 #endif // HERMES_H

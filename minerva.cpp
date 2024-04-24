@@ -168,13 +168,32 @@ void Minerva::decodeData() {
     data = file.readAll();
     //QDataStream in(&file);  
 
-    in >> drawDataPacket2->startPoint;
-    in >> drawDataPacket2->endPoint;
-    in >> drawDataPacket2->movingPoint;
-    in >> drawDataPacket2->pen;
-    in >> drawDataPacket2->drawMode;
-    in >> drawDataPacket2->windowSize;
-    in >> drawDataPacket2->clearCanvasFlag;
+    //in >> drawDataPacket2->startPoint;
+    //in >> drawDataPacket2->endPoint;
+    //in >> drawDataPacket2->movingPoint;
+    //in >> drawDataPacket2->pen;
+    //in >> drawDataPacket2->drawMode;
+    //in >> drawDataPacket2->windowSize;
+    //in >> drawDataPacket2->clearCanvasFlag;
+
+
+    //simulation of receiving data through individual packets through GPIO
+    QFile posFile("posData.dat");
+    posFile.open(QIODevice::ReadOnly);
+
+    QFile flagsFile("flagsData.dat");
+    flagsFile.open(QIODevice::ReadOnly);
+
+    QFile penFile("penData.dat");
+    penFile.open(QIODevice::ReadOnly);
+
+    QFile sizeFile("sizeData.dat");
+    sizeFile.open(QIODevice::ReadOnly);
+
+    posData = posFile.readAll();
+    flagsData = flagsFile.readAll();
+    penData = penFile.readAll();
+    sizeData = sizeFile.readAll();
 
 
     //Receiving Individual Packets
