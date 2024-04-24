@@ -117,17 +117,19 @@ void Minerva::encodeData() {
 
     //simulation of sending data through individual packets through GPIO
 
-    QFile posFile("posData.dat");
-    posFile.open(QIODevice::WriteOnly);
+//    QFile posFile("posData.dat");
+//    posFile.open(QIODevice::WriteOnly);
 
-    QFile flagsFile("flagsData.dat");
-    flagsFile.open(QIODevice::WriteOnly);
+//    QFile flagsFile("flagsData.dat");
+//    flagsFile.open(QIODevice::WriteOnly);
 
-    QFile penFile("penData.dat");
-    penFile.open(QIODevice::WriteOnly);
+//    QFile penFile("penData.dat");
+//    penFile.open(QIODevice::WriteOnly);
 
-    QFile sizeFile("sizeData.dat");
-    sizeFile.open(QIODevice::WriteOnly);
+//    QFile sizeFile("sizeData.dat");
+//    sizeFile.open(QIODevice::WriteOnly);
+
+
 
     //Sending Individual Packets
     QDataStream posStream(&posData, QDataStream::WriteOnly);
@@ -149,18 +151,16 @@ void Minerva::encodeData() {
 //    qDebug() << penData.size() << " Pen Data";
 //    qDebug() << sizeData.size() << " Size Data";
 
-    posFile.write(posData);
-    flagsFile.write(flagsData);
-    penFile.write(penData);
-    sizeFile.write(sizeData);
+//    posFile.write(posData);
+//    flagsFile.write(flagsData);
+//    penFile.write(penData);
+//    sizeFile.write(sizeData);
 
-//    //Sending data (gpio)
-//    sendData(posData, 0);
-//    sendData(flagsData, 1);
-//    sendData(penData, 2);
-//    sendData(sizeData, 3);
-
-
+    //Sending data (gpio)
+    sendData(posData, 0);
+    sendData(flagsData, 1);
+    sendData(penData, 2);
+    sendData(sizeData, 3);
 }
 
 void Minerva::decodeData() {
@@ -187,33 +187,34 @@ void Minerva::decodeData() {
     //in >> drawDataPacket2->clearCanvasFlag;
 
 
-    //simulation of receiving data through individual packets through GPIO
-    QFile posFile("posData.dat");
-    posFile.open(QIODevice::ReadOnly);
+//    //simulation of receiving data through individual packets through GPIO
+//    QFile posFile("posData.dat");
+//    posFile.open(QIODevice::ReadOnly);
 
-    QFile flagsFile("flagsData.dat");
-    flagsFile.open(QIODevice::ReadOnly);
+//    QFile flagsFile("flagsData.dat");
+//    flagsFile.open(QIODevice::ReadOnly);
 
-    QFile penFile("penData.dat");
-    penFile.open(QIODevice::ReadOnly);
+//    QFile penFile("penData.dat");
+//    penFile.open(QIODevice::ReadOnly);
 
-    QFile sizeFile("sizeData.dat");
-    sizeFile.open(QIODevice::ReadOnly);
+//    QFile sizeFile("sizeData.dat");
+//    sizeFile.open(QIODevice::ReadOnly);
 
-    posData = posFile.readAll();
-    flagsData = flagsFile.readAll();
-    penData = penFile.readAll();
-    sizeData = sizeFile.readAll();
+//    posData = posFile.readAll();
+//    flagsData = flagsFile.readAll();
+//    penData = penFile.readAll();
+//    sizeData = sizeFile.readAll();
 
 
-//    //Receiving data (gpio)
-//    posData = receiveData(4,48);
-//    flagsData = receiveData(5,5);
-//    penData = receiveData(6,116);
-//    sizeData = receiveData(7,8);
+    //Receiving data (gpio)
+    posData = receiveData(4,48);
+    flagsData = receiveData(5,5);
+    penData = receiveData(6,116);
+    sizeData = receiveData(7,8);
+
+    //qDebug() << posData + flagsData + penData + sizeData;
 
     QByteArray arrayData = posData + flagsData + penData + sizeData;
-    qDebug() << "Size of received data is: " << arrayData.size();
 
     //Receiving Individual Packets
     QDataStream posStream(&posData, QDataStream::ReadOnly);
@@ -228,9 +229,6 @@ void Minerva::decodeData() {
     flagsStream >> drawDataPacket2->drawMode;
     penStream >> drawDataPacket2->pen;
     sizeStream >> drawDataPacket2->windowSize;
-
-
-
 }
 
 
@@ -267,12 +265,16 @@ void Minerva::sendData(QByteArray data, uint pinNumber) {
 QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize)
 {
     QByteArray receivedData;
-    int bitValue;
+    int bitValue = 0;
     int byteValue = 0;
     int bitCount = 0;
-
+    int currentBitValue = 0;
     while (true) {
         bitValue = digitalRead(dataPins[pinNumber]);
+        if (bitValue != currentBitValue){
+             qDebug() << "Bit has changed from " << currentBitValue << " to " <<bitValue;
+        }
+        currentBitValue = bitValue;
         if (bitValue == 1) {
             byteValue |= (1 << bitCount);
         }
