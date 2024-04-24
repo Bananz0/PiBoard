@@ -52,10 +52,10 @@ public:
     void sendData(QByteArray data, uint pinNumber);
     QByteArray receiveData(uint pinNumber,int expectedByteSize);
     //dummy function to comly with wiringPi
-    void digitalWrite(int pin, int value);
-    void pinMode(int pin, int mode);
-    void wiringPiSetupGpio();
-    int digitalRead(int pinNumber);
+//    void digitalWrite(int pin, int value);
+//    void pinMode(int pin, int mode);
+//    void wiringPiSetupGpio();
+//    int digitalRead(int pinNumber);
 };
 
 #endif // MINERVA_H

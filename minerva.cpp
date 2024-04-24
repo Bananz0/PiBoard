@@ -6,13 +6,13 @@
 
 
 //enable when wiringPi is installed
-//#include "wiringPi.h"
+#include "wiringPi.h"
 
 //dummy defines for wiringPi
-#define OUTPUT 1
-#define INPUT 0
-#define HIGH 1
-#define LOW 0
+//#define OUTPUT 1
+//#define INPUT 0
+//#define HIGH 1
+//#define LOW 0
 
 
 Minerva::Minerva() {
@@ -53,41 +53,41 @@ void Minerva::initializeGPIO() {
 }
 
 void Minerva::serverMode() {
-    Minerva::selectDataPin(0, 1);
-	Minerva::selectDataPin(1, 1);
-	Minerva::selectDataPin(2, 1);
-	Minerva::selectDataPin(3, 1);
+    selectDataPin(0, 1);
+    selectDataPin(1, 1);
+    selectDataPin(2, 1);
+    selectDataPin(3, 1);
 
-	//Minerva::selectDataPin(4, 0);
-	//Minerva::selectDataPin(5, 0);
-	//Minerva::selectDataPin(6, 0);
-	//Minerva::selectDataPin(7, 0);
+    //selectDataPin(4, 0);
+    //selectDataPin(5, 0);
+    //selectDataPin(6, 0);
+    //selectDataPin(7, 0);
 
 	//Reserved for common ground
-	Minerva::selectDataPin(8, 0);
-	Minerva::selectDataPin(9, 0);
+    selectDataPin(8, 0);
+    selectDataPin(9, 0);
 }
 
 
 void Minerva::clientMode() {
-    //Minerva::selectDataPin(0, 0);
-    //Minerva::selectDataPin(1, 0);
-    //Minerva::selectDataPin(2, 0);
-    //Minerva::selectDataPin(3, 0);
+    //selectDataPin(0, 0);
+    //selectDataPin(1, 0);
+    //selectDataPin(2, 0);
+    //selectDataPin(3, 0);
 
-    //Minerva::selectDataPin(4, 1);
-    //Minerva::selectDataPin(5, 1);
-    //Minerva::selectDataPin(6, 1);
-    //Minerva::selectDataPin(7, 1);
+    //selectDataPin(4, 1);
+    //selectDataPin(5, 1);
+    //selectDataPin(6, 1);
+    //selectDataPin(7, 1);
 
-    Minerva::selectDataPin(4, 0);
-    Minerva::selectDataPin(5, 0);
-    Minerva::selectDataPin(6, 0);
-    Minerva::selectDataPin(7, 0);
+    selectDataPin(4, 0);
+    selectDataPin(5, 0);
+    selectDataPin(6, 0);
+    selectDataPin(7, 0);
 
     //Reserved for common ground
-    Minerva::selectDataPin(8, 0);
-    Minerva::selectDataPin(9, 0);    
+    selectDataPin(8, 0);
+    selectDataPin(9, 0);
 }
 
 //https://doc.qt.io/qt-6/qdatastream.html
@@ -129,18 +129,6 @@ void Minerva::encodeData() {
     QFile sizeFile("sizeData.dat");
     sizeFile.open(QIODevice::WriteOnly);
 
-    posFile.write(posData);
-    flagsFile.write(flagsData);
-    penFile.write(penData);
-    sizeFile.write(sizeData);
-
-    //Sending data (gpio)
-    sendData(posData, 0);
-    sendData(flagsData, 1);
-    sendData(penData, 2);
-    sendData(sizeData, 3);
-
-
     //Sending Individual Packets
     QDataStream posStream(&posData, QDataStream::WriteOnly);
     QDataStream flagsStream(&flagsData, QDataStream::WriteOnly);
@@ -155,11 +143,22 @@ void Minerva::encodeData() {
     penStream << drawDataPacket->pen;
     sizeStream << drawDataPacket->windowSize;
 
-    //Finding out the data size for transmission
-    qDebug() << posData.size() << " Position Data";
-    qDebug() << flagsData.size() << " Flags Data";
-    qDebug() << penData.size() << " Pen Data";
-    qDebug() << sizeData.size() << " Size Data";
+//    //Finding out the data size for transmission
+//    qDebug() << posData.size() << " Position Data";
+//    qDebug() << flagsData.size() << " Flags Data";
+//    qDebug() << penData.size() << " Pen Data";
+//    qDebug() << sizeData.size() << " Size Data";
+
+    posFile.write(posData);
+    flagsFile.write(flagsData);
+    penFile.write(penData);
+    sizeFile.write(sizeData);
+
+//    //Sending data (gpio)
+//    sendData(posData, 0);
+//    sendData(flagsData, 1);
+//    sendData(penData, 2);
+//    sendData(sizeData, 3);
 
 
 }
@@ -207,12 +206,14 @@ void Minerva::decodeData() {
     sizeData = sizeFile.readAll();
 
 
-    //Receiving data (gpio)
-    posData = receiveData(4,48);
-    flagsData = receiveData(5,5);
-    penData = receiveData(6,116);
-    sizeData = receiveData(7,8);
+//    //Receiving data (gpio)
+//    posData = receiveData(4,48);
+//    flagsData = receiveData(5,5);
+//    penData = receiveData(6,116);
+//    sizeData = receiveData(7,8);
 
+    QByteArray arrayData = posData + flagsData + penData + sizeData;
+    qDebug() << "Size of received data is: " << arrayData.size();
 
     //Receiving Individual Packets
     QDataStream posStream(&posData, QDataStream::ReadOnly);
@@ -227,6 +228,9 @@ void Minerva::decodeData() {
     flagsStream >> drawDataPacket2->drawMode;
     penStream >> drawDataPacket2->pen;
     sizeStream >> drawDataPacket2->windowSize;
+
+
+
 }
 
 
@@ -288,16 +292,16 @@ QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize)
 
 
 //dummy function to comly with wiringPi not being present in windows
-void Minerva::digitalWrite(int pin, int value) {
-	//dummy function
-}
-void Minerva::pinMode(int pin, int mode) {
-	//dummy function
-}
-void Minerva::wiringPiSetupGpio() {
+//void Minerva::digitalWrite(int pin, int value) {
+//	//dummy function
+//}
+//void Minerva::pinMode(int pin, int mode) {
+//	//dummy function
+//}
+//void Minerva::wiringPiSetupGpio() {
 
-}
-int Minerva::digitalRead(int pinNumber) {
-	//dummy function
-    return 0;
-}
+//}
+//int Minerva::digitalRead(int pinNumber) {
+//	//dummy function
+//    return 0;
+//}
