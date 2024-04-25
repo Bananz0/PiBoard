@@ -6,7 +6,7 @@
 
 
 //enable when wiringPi is installed
-#include "wiringPi.h"
+#include "wiringPiFake.h"
 
 //dummy defines for wiringPi
 //#define OUTPUT 1
@@ -27,35 +27,27 @@ QSize Minerva::setClentWindowSize(){
     return winSize;
 }
 
-QString Minerva::testConnection(){
+QString Minerva::testConnection() {
+    int outputPin = dataPins[0]; 
+    int inputPin = dataPins[4];   
+
+    pinMode(outputPin, OUTPUT);
+    pinMode(inputPin, INPUT);
+
+    // Set output pin HIGH
+    digitalWrite(outputPin, HIGH);
+    delay(100); 
+
+    int inputValue = digitalRead(inputPin);
 
 
-    pinMode(dataPins[0], OUTPUT);
-    pinMode(dataPins[4], INPUT);
-
-
-    QString connectionStatus;
-    int connectionStatusNum = 0;
-    int connectionStatusNumSent = 0;
-
-    for (int i = 0; i < 4; i++){
-    delay(100);
-    digitalWrite(dataPins[0],1);
-    delay(100);
-    connectionStatusNum += digitalRead(dataPins[4]);
-    qDebug() << connectionStatusNum << "Round" << i;
-    }
-
-
-    if (connectionStatusNum) {
-		connectionStatus = "Connection failed";
+    if (inputValue == HIGH) {
+        return "Connection successful";
     }
     else {
-        connectionStatus = "Connection successful";
-	}
-    qDebug() << connectionStatus;
-    return connectionStatus;
-};
+        return "Connection failed";
+    }
+}
 
 void Minerva::selectDataPin(int pinNumber,int dataModeNum){
     pinMode(dataPins[pinNumber], dataModeNum);

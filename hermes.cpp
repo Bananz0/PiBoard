@@ -163,7 +163,6 @@ void Hermes::penProperties_clicked(){
     minervaOut->drawDataPacket->pen.setWidth(15);
     minervaOut->drawDataPacket->pen.setCapStyle(Qt::RoundCap);
     minervaOut->drawDataPacket->pen.setJoinStyle(Qt::RoundJoin);
-
 }
 
 
