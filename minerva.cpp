@@ -28,11 +28,24 @@ QSize Minerva::setClentWindowSize(){
 }
 
 QString Minerva::testConnection(){
+
+
+    pinMode(dataPins[0], OUTPUT);
+    pinMode(dataPins[4], INPUT);
+
+
     QString connectionStatus;
-    int connectionStatusNum;
-    //TODO: Implement actual connection test
-    //generate either 0 or 1
-    connectionStatusNum = rand() % 2;
+    int connectionStatusNum = 0;
+    int connectionStatusNumSent = 0;
+
+    for (int i = 0; i < 4; i++){
+    delay(100);
+    digitalWrite(dataPins[0],1);
+    delay(100);
+    connectionStatusNum += digitalRead(dataPins[4]);
+    qDebug() << connectionStatusNum << "Round" << i;
+    }
+
 
     if (connectionStatusNum) {
 		connectionStatus = "Connection failed";
@@ -57,37 +70,14 @@ void Minerva::serverMode() {
     selectDataPin(1, 1);
     selectDataPin(2, 1);
     selectDataPin(3, 1);
-
-    //selectDataPin(4, 0);
-    //selectDataPin(5, 0);
-    //selectDataPin(6, 0);
-    //selectDataPin(7, 0);
-
-	//Reserved for common ground
-    selectDataPin(8, 0);
-    selectDataPin(9, 0);
 }
 
 
 void Minerva::clientMode() {
-    //selectDataPin(0, 0);
-    //selectDataPin(1, 0);
-    //selectDataPin(2, 0);
-    //selectDataPin(3, 0);
-
-    //selectDataPin(4, 1);
-    //selectDataPin(5, 1);
-    //selectDataPin(6, 1);
-    //selectDataPin(7, 1);
-
     selectDataPin(4, 0);
     selectDataPin(5, 0);
     selectDataPin(6, 0);
     selectDataPin(7, 0);
-
-    //Reserved for common ground
-    selectDataPin(8, 0);
-    selectDataPin(9, 0);
 }
 
 //https://doc.qt.io/qt-6/qdatastream.html

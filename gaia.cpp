@@ -10,12 +10,9 @@ Gaia::Gaia(QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::Gaia)
 {   
-
-
     ui->setupUi(this);
     ui->minervaStatus->setText("Welcome to PiBoard");
     minerva->initializeGPIO();
-
 
     ui->minervaStatus->append(minerva->testConnection());
 
