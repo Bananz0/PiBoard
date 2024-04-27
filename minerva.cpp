@@ -6,7 +6,7 @@
 
 
 //enable when wiringPi is installed
-#include "wiringPiFake.h"
+#include "wiringPi.h"
 
 //dummy defines for wiringPi
 //#define OUTPUT 1
@@ -27,26 +27,32 @@ QSize Minerva::setClentWindowSize(){
     return winSize;
 }
 
-QString Minerva::testConnection() {
-    int outputPin = dataPins[0]; 
-    int inputPin = dataPins[4];   
+QString Minerva::testConnection(){
+    pinMode(dataPins[0], OUTPUT);
+    pinMode(dataPins[4], INPUT);
 
-    pinMode(outputPin, OUTPUT);
-    pinMode(inputPin, INPUT);
+    QString connectionStatus;
+    int connectionStatusNum = 0;
+    int connectionStatusNumSent = 0;
 
-    // Set output pin HIGH
-    digitalWrite(outputPin, HIGH);
-    delay(100); 
+    for (int i = 0; i < 4; i++){
+        delay(100);
+        digitalWrite(dataPins[i],1);
+        delay(100);
 
-    int inputValue = digitalRead(inputPin);
+        connectionStatusNum += digitalRead(dataPins[i+4]);
+        connectionStatusNumSent += receiveBit(dataPins[i+4]);
+        qDebug() << connectionStatusNum << "Send Pin: "<< i << "Receive Pin: " << i+4;
+    }
 
-
-    if (inputValue == HIGH) {
-        return "Connection successful";
+    if (connectionStatusNum != 4) {
+        connectionStatus = "Connection failed";
     }
     else {
-        return "Connection failed";
+        connectionStatus = "Connection successful";
     }
+    qDebug() << connectionStatus;
+    return connectionStatus;
 }
 
 void Minerva::selectDataPin(int pinNumber,int dataModeNum){
@@ -225,51 +231,58 @@ void Minerva::sendBit(uint pinNumber,bool bitData) {
 }
 
 int Minerva::receiveBit(uint pinNumber) {
-	int bitValue;
-	bitValue = digitalRead(dataPins[pinNumber]);
-	qDebug() << "Received bit: " << bitValue;
+    int bitValue = digitalRead(dataPins[pinNumber]);
+    delayMicroseconds(1000);
     return bitValue;
 }
 
 void Minerva::sendData(QByteArray data, uint pinNumber) {
     for (int i = 0; i < data.size(); i++) {
+        uint8_t byte = static_cast<uint8_t>(data[i]);
         for (int j = 0; j < 8; j++) {
-            if (data[i] & (1 << j)) {
-				sendBit(pinNumber,0);
-			}
-            else {
-				sendBit(pinNumber,1);
-			}
-		}
-	}
+            bool bit = (byte & (1 << (7 - j))) != 0;
+            sendBit(pinNumber, bit);
+            delayMicroseconds(1000);
+        }
+        delayMicroseconds(10000);
+    }
 }
 
-QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize)
-{
+QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
     QByteArray receivedData;
-    int bitValue = 0;
-    int byteValue = 0;
+    uint8_t byteValue = 0;
     int bitCount = 0;
-    int currentBitValue = 0;
-    while (true) {
-        bitValue = digitalRead(dataPins[pinNumber]);
-        if (bitValue != currentBitValue){
-             qDebug() << "Bit has changed from " << currentBitValue << " to " <<bitValue;
+    bool byteStarted = false;
+    unsigned long byteStartTime = 0;
+
+    for (int i = 0; i < expectedByteSize * 8; i++) {
+        int bitValue = receiveBit(pinNumber);
+
+        if (bitValue == 1 && !byteStarted) {
+            byteStarted = true;
+            byteStartTime = micros(); // Record the start time of the byte
         }
-        currentBitValue = bitValue;
-        if (bitValue == 1) {
-            byteValue |= (1 << bitCount);
+
+        if (byteStarted) {
+            unsigned long currentTime = micros();
+            if (currentTime - byteStartTime > 10000) { // Adjust this value to match the delay between bytes on the sender side
+                byteValue = (byteValue << 1) | bitValue;
+                bitCount++;
+
+                if (bitCount == 8) {
+                    receivedData.append(byteValue);
+                    byteValue = 0;
+                    bitCount = 0;
+                    byteStarted = false;
+                }
+            }
         }
-        bitCount++;
-        if (bitCount == 8) {
-            receivedData.append(byteValue);
-            byteValue = 0;
-            bitCount = 0;
-        }
+
         if (receivedData.size() == expectedByteSize) {
             break;
         }
     }
+    qDebug() << receivedData;
     return receivedData;
 }
 
