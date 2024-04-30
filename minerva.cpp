@@ -12,9 +12,6 @@
  
 #include "wiringPiFake.h"
 
-
-
-
 Minerva::Minerva() {
     //initialize GPIO
 	initializeGPIO();
@@ -67,10 +64,8 @@ QString Minerva::testConnection(){
     int connectionStatusNumSent = 0;
 
     for (int i = 0; i < 4; i++){
-        delay(100);
         digitalWrite(dataPins[i],1);
-        delay(100);
-
+        delay(BITSENDDELAY);
         connectionStatusNum += digitalRead(dataPins[i+4]);
         connectionStatusNumSent += receiveBit(dataPins[i+4]);
         qDebug() << connectionStatusNum << "Send Pin: "<< i << "Receive Pin: " << i+4;
@@ -100,7 +95,6 @@ void Minerva::serverMode() {
     selectDataPin(2, 1);
     selectDataPin(3, 1);
 }
-
 
 void Minerva::clientMode() {
     selectDataPin(4, 0);
@@ -205,8 +199,13 @@ void Minerva::decodeData() {
     //in >> drawDataPacket2->windowSize;
     //in >> drawDataPacket2->clearCanvasFlag;
 
+    //Receiving data (gpio)
+    //posData = receiveData(4,48);
+    //flagsData = receiveData(5,5);
+    //penData = receiveData(6,116);
+    //sizeData = receiveData(7,8);
 
-//    //simulation of receiving data through individual packets through GPIO
+    //simulation of receiving data through individual packets through GPIO
     QFile posFile("posData.dat");
     posFile.open(QIODevice::ReadOnly);
 
@@ -223,13 +222,6 @@ void Minerva::decodeData() {
     flagsData = flagsFile.readAll();
     penData = penFile.readAll();
     sizeData = sizeFile.readAll();
-
-
-    //Receiving data (gpio)
-    //posData = receiveData(4,48);
-    //flagsData = receiveData(5,5);
-    //penData = receiveData(6,116);
-    //sizeData = receiveData(7,8);
 
     //qDebug() << posData + flagsData + penData + sizeData;
 
@@ -249,8 +241,6 @@ void Minerva::decodeData() {
     sizeStream >> receiveDataPacket->windowSize;
 }
 
-
-
 void Minerva::sendBit(uint pinNumber,bool bitData) {
     if (bitData) {
 		digitalWrite(dataPins[pinNumber], HIGH);
@@ -268,18 +258,35 @@ int Minerva::receiveBit(uint pinNumber) {
 }
 
 void Minerva::sendData(QByteArray data, uint pinNumber) {
-
-
+    for (int i = 0; i < data.size(); i++) {
+        char byte = data[i]; // Get the byte at index i
+        for (int j = 0; j < 8; j++) {
+            bool bit = (byte >> j) & 0x01; // Extract the j-th bit from the byte
+            sendBit(pinNumber, bit); // Send the bit using the sendBit function
+        }
+    }
 }
 
 QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
     QByteArray receivedData;
+    char currentByte = 0;
+    int bitCount = 0;
 
+    for (int i = 0; i < expectedByteSize * 8; i++) {
+        bool bit = receiveBit(pinNumber);
+        currentByte = (currentByte << 1) | bit;
+        bitCount++;
 
-    qDebug() << receivedData;
+        if (bitCount == 8) {
+            receivedData.append(currentByte);
+            currentByte = 0;
+            bitCount = 0;
+        }
+    }
+
+    qDebug() << "Received data:" << receivedData;
     return receivedData;
 }
-
 
 
 //dummy function to comly with wiringPi not being present in windows
@@ -290,7 +297,6 @@ QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
 //	//dummy function
 //}
 //void Minerva::wiringPiSetupGpio() {
-
 //}
 //int Minerva::digitalRead(int pinNumber) {
 //	//dummy function
