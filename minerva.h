@@ -12,8 +12,6 @@ class Minerva
 private:
     int dataPins[10];
 public:
-
-
     Minerva();
     ~Minerva();
     QString testConnection();

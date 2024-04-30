@@ -10,14 +10,9 @@
 #define BYTESENDDELAY 20
 #define BYTERECEIVEDELAY 20
  
-//enable when wiringPi is installed
 #include "wiringPiFake.h"
 
-//dummy defines for wiringPi
-//#define OUTPUT 1
-//#define INPUT 0
-//#define HIGH 1
-//#define LOW 0
+
 
 
 Minerva::Minerva() {
