@@ -11,17 +11,19 @@ Gaia::Gaia(QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::Gaia)
 {   
-    minerva = new Minerva();
+    minervaOut = new Minerva();
+    minervaIn = new Minerva();
     ui->setupUi(this);
     ui->minervaStatus->setText("Welcome to PiBoard");
-    ui->minervaStatus->append(minerva->testConnection());
+    ui->minervaStatus->append(minervaIn->testConnection());
 }
 
 Gaia::~Gaia()
 {
     delete senderWindow;
     delete receiverWindow;
-    delete minerva;
+    delete minervaOut;
+    delete minervaIn;
     delete ui;
 }
 
@@ -49,7 +51,7 @@ void Gaia::on_allButton_clicked()
 
 void Gaia::startServer(const QString& position,int localMode){
     QIcon server(":/assets/server.png");
-    senderWindow = new Hermes(minerva);
+    senderWindow = new Hermes(minervaOut);
     senderWindow->show();
     senderWindow->setWindowTitle("Server");
     senderWindow->setWindowIcon(server);
@@ -57,7 +59,7 @@ void Gaia::startServer(const QString& position,int localMode){
 
     //localMode ? minerva->serverMode() : ui->minervaStatus->append("PiBoard Server is running locally");
     if (localMode) {
-		minerva->serverMode();
+		minervaOut->serverMode();
         ui->minervaStatus->append("PiBoard Server has started");
     }
     else {
@@ -68,9 +70,9 @@ void Gaia::startServer(const QString& position,int localMode){
 
 void Gaia::startClient(const QString& position, int localMode){
     QIcon client(":/assets/client.png");
-    minerva->sendDataPacket->drawMode=0;
-    minerva->decodeData();
-    receiverWindow = new Hephaestus(minerva);
+    minervaIn->sendDataPacket->drawMode=0;
+    minervaIn->decodeData();
+    receiverWindow = new Hephaestus(minervaIn);
     receiverWindow->show();
     receiverWindow->setWindowIcon(client);
     receiverWindow->setWindowTitle("Reciever");
@@ -78,7 +80,7 @@ void Gaia::startClient(const QString& position, int localMode){
 
     //localMode ? minerva->serverMode() : ui->minervaStatus->append("PiBoard Client is running locally");
     if (localMode) {
-        minerva->clientMode();
+        minervaIn->clientMode();
         ui->minervaStatus->append("PiBoard Client has started");
     }
     else {

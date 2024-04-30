@@ -7,10 +7,12 @@
 #include <QPen>
 #include <QDataStream>
 #include <QFile>
+
 class Minerva
 {
 private:
     int dataPins[10];
+
 public:
     Minerva();
     ~Minerva();

@@ -37,8 +37,10 @@ private slots:
 
 private:
     Ui::Gaia *ui;
-    Minerva* minerva;
     Hermes* senderWindow;
     Hephaestus* receiverWindow;
+
+    Minerva* minervaOut;
+    Minerva* minervaIn;
 };
 #endif // GAIA_H
