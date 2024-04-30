@@ -38,26 +38,26 @@ Hermes::~Hermes()
 //https://doc.qt.io/qt-6/eventsandfilters.html
 void Hermes::mouseReleaseEvent(QMouseEvent *event){
     //qDebug() << "Mouse: " << event->position();
-    minervaOut->drawDataPacket->endPoint = event->position();
-    draw->setEndPoint(minervaOut->drawDataPacket->endPoint);
+    minervaOut->sendDataPacket->endPoint = event->position();
+    draw->setEndPoint(minervaOut->sendDataPacket->endPoint);
 }
 
 void Hermes::mousePressEvent(QMouseEvent *event){
-    minervaOut->drawDataPacket->startPoint = event->position();
-    draw->setStartPoint(minervaOut->drawDataPacket->startPoint);
+    minervaOut->sendDataPacket->startPoint = event->position();
+    draw->setStartPoint(minervaOut->sendDataPacket->startPoint);
     //qDebug() << "Mouse: " << event->position();
 }
 
 void Hermes::mouseMoveEvent(QMouseEvent *event)  {
-    minervaOut->drawDataPacket->movingPoint = event->position();
-    draw->setMovingPoints(minervaOut->drawDataPacket->movingPoint);
+    minervaOut->sendDataPacket->movingPoint = event->position();
+    draw->setMovingPoints(minervaOut->sendDataPacket->movingPoint);
     //qDebug() << "Mouse: " << event->position();
 }
 
 
 void Hermes::on_clearCanvas_clicked()
 {
-    minervaOut->drawDataPacket->clearCanvasFlag = !minervaOut->drawDataPacket->clearCanvasFlag;
+    minervaOut->sendDataPacket->clearCanvasFlag = !minervaOut->sendDataPacket->clearCanvasFlag;
     draw->clearCanvas(image);
 }
 
@@ -72,24 +72,24 @@ void Hermes::paintEvent(QPaintEvent *event){
     QPainter imagePainter(image);
     imagePainter.setRenderHint(QPainter::Antialiasing);
 
-    drawOnCanvas(imagePainter, minervaOut->drawDataPacket->pen, minervaOut->drawDataPacket->drawMode);
+    drawOnCanvas(imagePainter, minervaOut->sendDataPacket->pen, minervaOut->sendDataPacket->drawMode);
  }
 
 //https://stackoverflow.com/questions/12828825/how-to-assign-callback-when-the-user-resizes-a-qmainwindow
 void Hermes::resizeEvent(QResizeEvent* event)
 {
     QMainWindow::resizeEvent(event);
-    minervaOut->drawDataPacket->windowSize = this->size();
-    qDebug() << "Height: " << minervaOut->drawDataPacket->windowSize.height() << "Width" << minervaOut->drawDataPacket->windowSize.width();
+    minervaOut->sendDataPacket->windowSize = this->size();
+    qDebug() << "Height: " << minervaOut->sendDataPacket->windowSize.height() << "Width" << minervaOut->sendDataPacket->windowSize.width();
 }
 
 void Hermes::initializePenProperties() {
 	//Pen Properties
-	minervaOut->drawDataPacket->pen.setColor(Qt::black);
-	minervaOut->drawDataPacket->pen.setWidth(15);
-	minervaOut->drawDataPacket->pen.setBrush(Qt::black);
-	minervaOut->drawDataPacket->pen.setCapStyle(Qt::RoundCap);
-	minervaOut->drawDataPacket->pen.setJoinStyle(Qt::RoundJoin);
+	minervaOut->sendDataPacket->pen.setColor(Qt::black);
+	minervaOut->sendDataPacket->pen.setWidth(15);
+	minervaOut->sendDataPacket->pen.setBrush(Qt::black);
+	minervaOut->sendDataPacket->pen.setCapStyle(Qt::RoundCap);
+	minervaOut->sendDataPacket->pen.setJoinStyle(Qt::RoundJoin);
 }
 
 void Hermes::drawOnCanvas(QPainter& painter, QPen& pen, int drawMode) {
@@ -118,31 +118,31 @@ void Hermes::drawOnCanvas(QPainter& painter, QPen& pen, int drawMode) {
 }
 
 void Hermes::on_eraseButton_clicked(){
-    minervaOut->drawDataPacket->drawMode = 8;
+    minervaOut->sendDataPacket->drawMode = 8;
 	qDebug() << "Erase Button Clicked";
 	update();
 }
 
 void Hermes::on_drawCircle_clicked(){
-    minervaOut->drawDataPacket->drawMode = 2;
+    minervaOut->sendDataPacket->drawMode = 2;
 	qDebug() << "Draw Circle Button Clicked";
 	update();
 }
 
 void Hermes::on_drawRectangle_clicked(){
-    minervaOut->drawDataPacket->drawMode = 3;
+    minervaOut->sendDataPacket->drawMode = 3;
 	qDebug() << "Draw Rectangle Button Clicked";
 	update();
 }
 
 void Hermes::on_drawLine_clicked(){
-    minervaOut->drawDataPacket->drawMode = 0;
+    minervaOut->sendDataPacket->drawMode = 0;
 	qDebug() << "Draw Line Button Clicked";
 	update();
 }
 
 void Hermes::on_drawPoint_clicked(){
-    minervaOut->drawDataPacket->drawMode = 1;
+    minervaOut->sendDataPacket->drawMode = 1;
 	qDebug() << "Draw Point Button Clicked";
 	update();
 }
@@ -159,10 +159,10 @@ void Hermes::penProperties_clicked(){
 
     //temporary pen settings set here
     //Pen Properties
-    minervaOut->drawDataPacket->pen.setBrush(Qt::black);
-    minervaOut->drawDataPacket->pen.setWidth(15);
-    minervaOut->drawDataPacket->pen.setCapStyle(Qt::RoundCap);
-    minervaOut->drawDataPacket->pen.setJoinStyle(Qt::RoundJoin);
+    minervaOut->sendDataPacket->pen.setBrush(Qt::black);
+    minervaOut->sendDataPacket->pen.setWidth(15);
+    minervaOut->sendDataPacket->pen.setCapStyle(Qt::RoundCap);
+    minervaOut->sendDataPacket->pen.setJoinStyle(Qt::RoundJoin);
 }
 
 

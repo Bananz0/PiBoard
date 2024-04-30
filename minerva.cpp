@@ -5,8 +5,13 @@
 #include <QThread>
 
 
+#define BITSENDDELAY 3
+#define BITRECEIVEDELAY 3
+#define BYTESENDDELAY 20
+#define BYTERECEIVEDELAY 20
+ 
 //enable when wiringPi is installed
-#include "wiringPi.h"
+#include "wiringPiFake.h"
 
 //dummy defines for wiringPi
 //#define OUTPUT 1
@@ -16,7 +21,38 @@
 
 
 Minerva::Minerva() {
+    //initialize GPIO
+	initializeGPIO();
+	//set send pins
+	dataPins[0] = 0;
+	dataPins[1] = 1;
+	dataPins[2] = 2;
+	dataPins[3] = 3;
+    //set receive pins
+	dataPins[4] = 4;
+	dataPins[5] = 5;
+	dataPins[6] = 6;
+	dataPins[7] = 7;
 
+    //set misc pins
+    dataPins[8] = 8;
+    dataPins[9] = 9;
+   
+	//set window size
+	winSize = QSize(800, 600);
+	//initialize drawDataPacket
+	sendDataPacket = new drawData;
+	receiveDataPacket = new drawData;
+	//initialize data packets
+	posData = QByteArray();
+	flagsData = QByteArray();
+	penData = QByteArray();
+	sizeData = QByteArray();
+}
+
+Minerva::~Minerva() {
+	delete sendDataPacket;
+	delete receiveDataPacket;
 }
 
 void Minerva::getServerWindowSize(QSize hermesSize){
@@ -103,19 +139,19 @@ void Minerva::encodeData() {
     //file.write(data);
     ////qInfo() << data.toHex();
 
+
     //simulation of sending data through individual packets through GPIO
+    QFile posFile("posData.dat");
+    posFile.open(QIODevice::WriteOnly);
 
-//    QFile posFile("posData.dat");
-//    posFile.open(QIODevice::WriteOnly);
+    QFile flagsFile("flagsData.dat");
+    flagsFile.open(QIODevice::WriteOnly);
 
-//    QFile flagsFile("flagsData.dat");
-//    flagsFile.open(QIODevice::WriteOnly);
+    QFile penFile("penData.dat");
+    penFile.open(QIODevice::WriteOnly);
 
-//    QFile penFile("penData.dat");
-//    penFile.open(QIODevice::WriteOnly);
-
-//    QFile sizeFile("sizeData.dat");
-//    sizeFile.open(QIODevice::WriteOnly);
+    QFile sizeFile("sizeData.dat");
+    sizeFile.open(QIODevice::WriteOnly);
 
 
 
@@ -125,13 +161,13 @@ void Minerva::encodeData() {
     QDataStream penStream(&penData, QDataStream::WriteOnly);
     QDataStream sizeStream(&sizeData, QDataStream::WriteOnly);
 
-    posStream << drawDataPacket->startPoint;
-    posStream << drawDataPacket->movingPoint;
-    posStream << drawDataPacket->endPoint;
-    flagsStream << drawDataPacket->clearCanvasFlag;
-    flagsStream << drawDataPacket->drawMode;
-    penStream << drawDataPacket->pen;
-    sizeStream << drawDataPacket->windowSize;
+    posStream << sendDataPacket->startPoint;
+    posStream << sendDataPacket->movingPoint;
+    posStream << sendDataPacket->endPoint;
+    flagsStream << sendDataPacket->clearCanvasFlag;
+    flagsStream << sendDataPacket->drawMode;
+    penStream << sendDataPacket->pen;
+    sizeStream << sendDataPacket->windowSize;
 
 //    //Finding out the data size for transmission
 //    qDebug() << posData.size() << " Position Data";
@@ -139,10 +175,10 @@ void Minerva::encodeData() {
 //    qDebug() << penData.size() << " Pen Data";
 //    qDebug() << sizeData.size() << " Size Data";
 
-//    posFile.write(posData);
-//    flagsFile.write(flagsData);
-//    penFile.write(penData);
-//    sizeFile.write(sizeData);
+    posFile.write(posData);
+    flagsFile.write(flagsData);
+    penFile.write(penData);
+    sizeFile.write(sizeData);
 
     //Sending data (gpio)
     sendData(posData, 0);
@@ -176,33 +212,32 @@ void Minerva::decodeData() {
 
 
 //    //simulation of receiving data through individual packets through GPIO
-//    QFile posFile("posData.dat");
-//    posFile.open(QIODevice::ReadOnly);
+    QFile posFile("posData.dat");
+    posFile.open(QIODevice::ReadOnly);
 
-//    QFile flagsFile("flagsData.dat");
-//    flagsFile.open(QIODevice::ReadOnly);
+    QFile flagsFile("flagsData.dat");
+    flagsFile.open(QIODevice::ReadOnly);
 
-//    QFile penFile("penData.dat");
-//    penFile.open(QIODevice::ReadOnly);
+    QFile penFile("penData.dat");
+    penFile.open(QIODevice::ReadOnly);
 
-//    QFile sizeFile("sizeData.dat");
-//    sizeFile.open(QIODevice::ReadOnly);
+    QFile sizeFile("sizeData.dat");
+    sizeFile.open(QIODevice::ReadOnly);
 
-//    posData = posFile.readAll();
-//    flagsData = flagsFile.readAll();
-//    penData = penFile.readAll();
-//    sizeData = sizeFile.readAll();
+    posData = posFile.readAll();
+    flagsData = flagsFile.readAll();
+    penData = penFile.readAll();
+    sizeData = sizeFile.readAll();
 
 
     //Receiving data (gpio)
-    posData = receiveData(4,48);
-    flagsData = receiveData(5,5);
-    penData = receiveData(6,116);
-    sizeData = receiveData(7,8);
+    //posData = receiveData(4,48);
+    //flagsData = receiveData(5,5);
+    //penData = receiveData(6,116);
+    //sizeData = receiveData(7,8);
 
     //qDebug() << posData + flagsData + penData + sizeData;
 
-    QByteArray arrayData = posData + flagsData + penData + sizeData;
 
     //Receiving Individual Packets
     QDataStream posStream(&posData, QDataStream::ReadOnly);
@@ -210,13 +245,13 @@ void Minerva::decodeData() {
     QDataStream penStream(&penData, QDataStream::ReadOnly);
     QDataStream sizeStream(&sizeData, QDataStream::ReadOnly);
 
-    posStream >> drawDataPacket2->startPoint;
-    posStream >> drawDataPacket2->movingPoint;
-    posStream >> drawDataPacket2->endPoint;
-    flagsStream >> drawDataPacket2->clearCanvasFlag;
-    flagsStream >> drawDataPacket2->drawMode;
-    penStream >> drawDataPacket2->pen;
-    sizeStream >> drawDataPacket2->windowSize;
+    posStream >> receiveDataPacket->startPoint;
+    posStream >> receiveDataPacket->movingPoint;
+    posStream >> receiveDataPacket->endPoint;
+    flagsStream >> receiveDataPacket->clearCanvasFlag;
+    flagsStream >> receiveDataPacket->drawMode;
+    penStream >> receiveDataPacket->pen;
+    sizeStream >> receiveDataPacket->windowSize;
 }
 
 
@@ -228,60 +263,24 @@ void Minerva::sendBit(uint pinNumber,bool bitData) {
     else {
 		digitalWrite(dataPins[pinNumber], LOW);
 	}
+    delayMicroseconds( BITSENDDELAY );
 }
 
 int Minerva::receiveBit(uint pinNumber) {
     int bitValue = digitalRead(dataPins[pinNumber]);
-    delayMicroseconds(1000);
+    delayMicroseconds( BITRECEIVEDELAY );
     return bitValue;
 }
 
 void Minerva::sendData(QByteArray data, uint pinNumber) {
-    for (int i = 0; i < data.size(); i++) {
-        uint8_t byte = static_cast<uint8_t>(data[i]);
-        for (int j = 0; j < 8; j++) {
-            bool bit = (byte & (1 << (7 - j))) != 0;
-            sendBit(pinNumber, bit);
-            delayMicroseconds(1000);
-        }
-        delayMicroseconds(10000);
-    }
+
+
 }
 
 QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
     QByteArray receivedData;
-    uint8_t byteValue = 0;
-    int bitCount = 0;
-    bool byteStarted = false;
-    unsigned long byteStartTime = 0;
 
-    for (int i = 0; i < expectedByteSize * 8; i++) {
-        int bitValue = receiveBit(pinNumber);
 
-        if (bitValue == 1 && !byteStarted) {
-            byteStarted = true;
-            byteStartTime = micros(); // Record the start time of the byte
-        }
-
-        if (byteStarted) {
-            unsigned long currentTime = micros();
-            if (currentTime - byteStartTime > 10000) { // Adjust this value to match the delay between bytes on the sender side
-                byteValue = (byteValue << 1) | bitValue;
-                bitCount++;
-
-                if (bitCount == 8) {
-                    receivedData.append(byteValue);
-                    byteValue = 0;
-                    bitCount = 0;
-                    byteStarted = false;
-                }
-            }
-        }
-
-        if (receivedData.size() == expectedByteSize) {
-            break;
-        }
-    }
     qDebug() << receivedData;
     return receivedData;
 }

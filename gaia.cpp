@@ -12,10 +12,7 @@ Gaia::Gaia(QWidget* parent)
 {   
     ui->setupUi(this);
     ui->minervaStatus->setText("Welcome to PiBoard");
-    minerva->initializeGPIO();
-
     ui->minervaStatus->append(minerva->testConnection());
-
 }
 
 Gaia::~Gaia()
@@ -66,7 +63,7 @@ void Gaia::startServer(const QString& position,int localMode){
 
 void Gaia::startClient(const QString& position, int localMode){
     QIcon client(":/assets/client.png");
-    minerva->drawDataPacket->drawMode=0;
+    minerva->sendDataPacket->drawMode=0;
     minerva->decodeData();
     Hephaestus *receiverwindow = new Hephaestus(minerva);
     receiverwindow->show();

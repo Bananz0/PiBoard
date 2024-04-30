@@ -52,5 +52,8 @@ void softPwmCreate(int pin, int value, int range) {
 void softPwmWrite(int pin, int value) {
 	//dummy function
 }
+void micros() {
+	//dummy function
+}
 #endif
 #endif // WIRINGPIFAKE_H

@@ -39,9 +39,9 @@ void Hephaestus::paintEvent(QPaintEvent* event) {
     QPainter imagePainter(image);
     //imagePainter.setRenderHint(QPainter::Antialiasing);
 
-    drawOnCanvas(imagePainter, minervaIn->drawDataPacket2->pen, minervaIn->drawDataPacket2->drawMode);
+    drawOnCanvas(imagePainter, minervaIn->receiveDataPacket->pen, minervaIn->receiveDataPacket->drawMode);
 
-    if (minervaIn->drawDataPacket2->clearCanvasFlag) {
+    if (minervaIn->receiveDataPacket->clearCanvasFlag) {
         draw->clearCanvas(image);
     }
 
@@ -62,9 +62,9 @@ void Hephaestus::resizeEvent(QResizeEvent *event) {
 }
 
 void Hephaestus::drawOnCanvas(QPainter& painter, QPen& pen, int drawMode) {
-    draw->startPoint = minervaIn->drawDataPacket2->startPoint;
-    draw->endPoint = minervaIn->drawDataPacket2->endPoint;
-    draw->movingPoints = minervaIn->drawDataPacket2->movingPoint;
+    draw->startPoint = minervaIn->receiveDataPacket->startPoint;
+    draw->endPoint = minervaIn->receiveDataPacket->endPoint;
+    draw->movingPoints = minervaIn->receiveDataPacket->movingPoint;
     switch (drawMode) {
     case 0:
         draw->drawLine(painter, pen);

@@ -10,12 +10,12 @@
 class Minerva
 {
 private:
-    int dataPins[10] = {0,1,2,3,
-                        4,5,6,7,
-                        14,10};
+    int dataPins[10];
 public:
-    QSize winSize;
+
+
     Minerva();
+    ~Minerva();
     QString testConnection();
     void selectDataPin(int pinNumber, int dataModeNum);
     void getServerWindowSize(QSize hermesSize);
@@ -25,7 +25,7 @@ public:
     void clientMode();
     void encodeData();
     void decodeData();
-
+    
     class drawData {
     public:
         QPointF startPoint;
@@ -38,10 +38,10 @@ public:
         //https://doc.qt.io/qt-6/qpen.html#capStyle
         drawData() {}
     };
-    drawData* drawDataPacket = new drawData;
-    drawData* drawDataPacket2 = new drawData;
 
-    QByteArray data;
+    QSize winSize;
+    drawData* sendDataPacket;
+    drawData* receiveDataPacket;
     QByteArray posData, penData, flagsData, sizeData;
 
     void sendBit(uint pinNumber, bool bitData);
