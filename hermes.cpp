@@ -17,12 +17,11 @@ Hermes::Hermes(Minerva* minerva,QWidget *parent)
     , minervaOut(minerva)
 {
     ui->setupUi(this);
+    draw = new Artemis;
     setMouseTracking(true);
     image = new QImage(800, 600, QImage::Format_RGB32);
     image->fill(Qt::white);
-
     initializePenProperties();
-
     //https://stackoverflow.com/questions/11651852/how-to-use-qtimer
     //Send Data through Minerva every 1ms
     timerId = startTimer(1);
@@ -30,8 +29,11 @@ Hermes::Hermes(Minerva* minerva,QWidget *parent)
 
 Hermes::~Hermes()
 {
-    delete ui;
+    delete minervaOut;
     delete draw;
+    delete image;
+    delete draw;
+    delete ui;
 }
 
 //From QT Docs

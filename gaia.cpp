@@ -10,6 +10,7 @@ Gaia::Gaia(QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::Gaia)
 {   
+    minerva = new Minerva();
     ui->setupUi(this);
     ui->minervaStatus->setText("Welcome to PiBoard");
     ui->minervaStatus->append(minerva->testConnection());
@@ -17,6 +18,9 @@ Gaia::Gaia(QWidget* parent)
 
 Gaia::~Gaia()
 {
+    delete senderWindow;
+    delete receiverWindow;
+    delete minerva;
     delete ui;
 }
 
@@ -44,7 +48,7 @@ void Gaia::on_allButton_clicked()
 
 void Gaia::startServer(const QString& position,int localMode){
     QIcon server(":/assets/server.png");
-    Hermes *senderWindow = new Hermes(minerva);
+    senderWindow = new Hermes(minerva);
     senderWindow->show();
     senderWindow->setWindowTitle("Server");
     senderWindow->setWindowIcon(server);
@@ -65,11 +69,11 @@ void Gaia::startClient(const QString& position, int localMode){
     QIcon client(":/assets/client.png");
     minerva->sendDataPacket->drawMode=0;
     minerva->decodeData();
-    Hephaestus *receiverwindow = new Hephaestus(minerva);
-    receiverwindow->show();
-    receiverwindow->setWindowIcon(client);
-    receiverwindow->setWindowTitle("Reciever");
-    movePosition(receiverwindow,position);
+    receiverWindow = new Hephaestus(minerva);
+    receiverWindow->show();
+    receiverWindow->setWindowIcon(client);
+    receiverWindow->setWindowTitle("Reciever");
+    movePosition(receiverWindow,position);
 
     //localMode ? minerva->serverMode() : ui->minervaStatus->append("PiBoard Client is running locally");
     if (localMode) {

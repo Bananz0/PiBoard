@@ -23,7 +23,7 @@ public:
 private:
     Ui::Hermes *ui;
     QImage* image;
-    Artemis* draw = new Artemis;
+    Artemis* draw;
     Minerva* minervaOut;
 
     int timerId = 0;

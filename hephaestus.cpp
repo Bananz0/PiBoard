@@ -10,6 +10,7 @@ Hephaestus::Hephaestus(Minerva* minerva,QWidget *parent)
     , ui(new Ui::Hephaestus)
     , minervaIn(minerva)
 {
+    draw = new Artemis;
     ui->setupUi(this);
     image = new QImage(800, 600, QImage::Format_RGB32);
     image->fill(Qt::white);
@@ -20,6 +21,9 @@ Hephaestus::Hephaestus(Minerva* minerva,QWidget *parent)
 
 Hephaestus::~Hephaestus()
 {
+    delete minervaIn;
+    delete draw;
+    delete image;
     delete draw;
     delete ui;
 }

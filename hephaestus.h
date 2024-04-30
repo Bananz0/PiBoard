@@ -21,11 +21,12 @@ private:
     Minerva* minervaIn;
     Ui::Hephaestus *ui;
     QImage* image;
-    void timerEvent(QTimerEvent* event) override;
-    Artemis* draw = new Artemis;
+    Artemis* draw;
+
+
+    void timerEvent(QTimerEvent* event) override;  
     void paintEvent(QPaintEvent* event) override;
-    void resizeEvent(QResizeEvent* event) override;
-    Minerva::drawData* drawDataPacket;
+    void resizeEvent(QResizeEvent* event) override;    
     void drawOnCanvas(QPainter& painter, QPen& pen, int drawMode);
 };
 
