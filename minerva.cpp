@@ -13,7 +13,8 @@
 #define BITRECEIVEDELAY 3
 #define BYTESENDDELAY 20
 #define BYTERECEIVEDELAY 20
-#define USEGPIO 0
+#define USEGPIO 1
+#define USEBIGDATA 1
  
 
 
@@ -114,8 +115,6 @@ void Minerva::clientMode() {
 //https://doc.qt.io/qt-6/qdatastream.html
 void Minerva::encodeData() {
     if (USEGPIO) {
-        sendData(bigData, 0);
-
         //Sending data (gpio)
         sendData(posData, 0);
         sendData(flagsData, 1);
@@ -123,67 +122,64 @@ void Minerva::encodeData() {
         sendData(sizeData, 3);
     }
     else if (!USEGPIO) {
-        //sending over one pin
-        QFile bigFile("bigData.dat");
-        bigFile.open(QIODevice::WriteOnly);
+        if (USEBIGDATA) {
+            //sending over one file
+            QFile bigFile("bigData.dat");
+            bigFile.open(QIODevice::WriteOnly);
+            bigFile.write(bigData);
 
-		//Sending data (file)
-		QFile posFile("posData.dat");
-		posFile.open(QIODevice::WriteOnly);
+            //Sending Big Packet
+            QDataStream bigStreamSender(&bigData, QDataStream::WriteOnly);
+            bigStreamSender << sendDataPacket->startPoint;
+            bigStreamSender << sendDataPacket->movingPoint;
+            bigStreamSender << sendDataPacket->endPoint;
+            bigStreamSender << sendDataPacket->clearCanvasFlag;
+            bigStreamSender << sendDataPacket->drawMode;
+            bigStreamSender << sendDataPacket->pen;
+            bigStreamSender << sendDataPacket->windowSize;
+        }
+        else {
+            //Sending data (file)
+            QFile posFile("posData.dat");
+            posFile.open(QIODevice::WriteOnly);
 
-		QFile flagsFile("flagsData.dat");
-		flagsFile.open(QIODevice::WriteOnly);
+            QFile flagsFile("flagsData.dat");
+            flagsFile.open(QIODevice::WriteOnly);
 
-		QFile penFile("penData.dat");
-		penFile.open(QIODevice::WriteOnly);
+            QFile penFile("penData.dat");
+            penFile.open(QIODevice::WriteOnly);
 
-		QFile sizeFile("sizeData.dat");
-		sizeFile.open(QIODevice::WriteOnly);
+            QFile sizeFile("sizeData.dat");
+            sizeFile.open(QIODevice::WriteOnly);
 
-        posFile.write(posData);
-        flagsFile.write(flagsData);
-        penFile.write(penData);
-        sizeFile.write(sizeData);
+            posFile.write(posData);
+            flagsFile.write(flagsData);
+            penFile.write(penData);
+            sizeFile.write(sizeData);
 
-        bigFile.write(bigData);
+            //Sending Individual Packets
+            QDataStream posStreamSender(&posData, QDataStream::WriteOnly);
+            QDataStream flagsStreamSender(&flagsData, QDataStream::WriteOnly);
+            QDataStream penStreamSender(&penData, QDataStream::WriteOnly);
+            QDataStream sizeStreamSender(&sizeData, QDataStream::WriteOnly);
+
+            //check if data has changed before sending
+            if (lastSentDataPacket != nullptr && *sendDataPacket == *lastSentDataPacket) {
+                qDebug() << "No new data to send";
+                return;
+            }
+            delete lastSentDataPacket;
+            lastSentDataPacket = new drawData(*sendDataPacket);
+
+            posStreamSender << sendDataPacket->startPoint;
+            posStreamSender << sendDataPacket->movingPoint;
+            posStreamSender << sendDataPacket->endPoint;
+            flagsStreamSender << sendDataPacket->clearCanvasFlag;
+            flagsStreamSender << sendDataPacket->drawMode;
+            penStreamSender << sendDataPacket->pen;
+            sizeStreamSender << sendDataPacket->windowSize;
+        }        
 	}
-
-    //Sending Big Packet
-    QDataStream bigStreamSender(&bigData, QDataStream::WriteOnly);
-    bigStreamSender >> sendDataPacket->startPoint;
-    bigStreamSender >> sendDataPacket->movingPoint;
-    bigStreamSender >> sendDataPacket->endPoint;
-    bigStreamSender >> sendDataPacket->clearCanvasFlag;
-    bigStreamSender >> sendDataPacket->drawMode;
-    bigStreamSender >> sendDataPacket->pen;
-    bigStreamSender >> sendDataPacket->windowSize;
-
-
-    //Sending Individual Packets
-    QDataStream posStreamSender(&posData, QDataStream::WriteOnly);
-    QDataStream flagsStreamSender(&flagsData, QDataStream::WriteOnly);
-    QDataStream penStreamSender(&penData, QDataStream::WriteOnly);
-    QDataStream sizeStreamSender(&sizeData, QDataStream::WriteOnly);
-
-    //check if data has changed before sending
-    if (lastSentDataPacket != nullptr && *sendDataPacket == *lastSentDataPacket) {
-        qDebug() << "No new data to send";
-        return;
-    }
-    delete lastSentDataPacket;
-    lastSentDataPacket = new drawData(*sendDataPacket);
-
-    posStreamSender << sendDataPacket->startPoint;
-    posStreamSender << sendDataPacket->movingPoint;
-    posStreamSender << sendDataPacket->endPoint;
-    flagsStreamSender << sendDataPacket->clearCanvasFlag;
-    flagsStreamSender << sendDataPacket->drawMode;
-    penStreamSender << sendDataPacket->pen;
-    sizeStreamSender << sendDataPacket->windowSize;
-
-    qDebug() << "Data Sent";
-
-  
 //    //Finding out the data size for transmission
 //    qDebug() << posData.size() << " Position Data";
 //    qDebug() << flagsData.size() << " Flags Data";
@@ -199,55 +195,55 @@ void Minerva::decodeData() {
         penData = receiveData(6, 116);
         sizeData = receiveData(7, 8);
     } else if (!USEGPIO) {
+        if (USEBIGDATA) {
+            //Receiving Big Packet
+            QFile bigFile("bigData.dat");
+            bigFile.open(QIODevice::ReadOnly);
+            bigData = bigFile.readAll();
+            //Receiving Big Packet
+            QDataStream bigStream(&bigData, QDataStream::ReadOnly);
+            bigStream >> receiveDataPacket->startPoint;
+            bigStream >> receiveDataPacket->movingPoint;
+            bigStream >> receiveDataPacket->endPoint;
+            bigStream >> receiveDataPacket->clearCanvasFlag;
+            bigStream >> receiveDataPacket->drawMode;
+            bigStream >> receiveDataPacket->pen;
+            bigStream >> receiveDataPacket->windowSize;
+        }
+        else {
+            //simulation of receiving data through individual packets through GPIO
+            QFile posFile("posData.dat");
+            posFile.open(QIODevice::ReadOnly);
 
-        //Receiving Big Packet
-        QFile bigFile("bigData.dat");
-        bigFile.open(QIODevice::ReadOnly);
-        bigData = bigFile.readAll();
+            QFile flagsFile("flagsData.dat");
+            flagsFile.open(QIODevice::ReadOnly);
 
-        //simulation of receiving data through individual packets through GPIO
-        QFile posFile("posData.dat");
-        posFile.open(QIODevice::ReadOnly);
+            QFile penFile("penData.dat");
+            penFile.open(QIODevice::ReadOnly);
 
-        QFile flagsFile("flagsData.dat");
-        flagsFile.open(QIODevice::ReadOnly);
+            QFile sizeFile("sizeData.dat");
+            sizeFile.open(QIODevice::ReadOnly);
 
-        QFile penFile("penData.dat");
-        penFile.open(QIODevice::ReadOnly);
+            posData = posFile.readAll();
+            flagsData = flagsFile.readAll();
+            penData = penFile.readAll();
+            sizeData = sizeFile.readAll();
 
-        QFile sizeFile("sizeData.dat");
-        sizeFile.open(QIODevice::ReadOnly);
+            //Receiving Individual Packets
+            QDataStream posStream(&posData, QDataStream::ReadOnly);
+            QDataStream flagsStream(&flagsData, QDataStream::ReadOnly);
+            QDataStream penStream(&penData, QDataStream::ReadOnly);
+            QDataStream sizeStream(&sizeData, QDataStream::ReadOnly);
 
-        posData = posFile.readAll();
-        flagsData = flagsFile.readAll();
-        penData = penFile.readAll();
-        sizeData = sizeFile.readAll();
+            posStream >> receiveDataPacket->startPoint;
+            posStream >> receiveDataPacket->movingPoint;
+            posStream >> receiveDataPacket->endPoint;
+            flagsStream >> receiveDataPacket->clearCanvasFlag;
+            flagsStream >> receiveDataPacket->drawMode;
+            penStream >> receiveDataPacket->pen;
+            sizeStream >> receiveDataPacket->windowSize;
+        }
     }
-
-    //Receiving Big Packet
-    QDataStream bigStream(&bigData, QDataStream::ReadOnly);
-    bigStream >> receiveDataPacket->startPoint;
-    bigStream >> receiveDataPacket->movingPoint;
-    bigStream >> receiveDataPacket->endPoint;
-    bigStream >> receiveDataPacket->clearCanvasFlag;
-    bigStream >> receiveDataPacket->drawMode;
-    bigStream >> receiveDataPacket->pen;
-    bigStream >> receiveDataPacket->windowSize;
-
-    ////Receiving Individual Packets
-    //QDataStream posStream(&posData, QDataStream::ReadOnly);
-    //QDataStream flagsStream(&flagsData, QDataStream::ReadOnly);
-    //QDataStream penStream(&penData, QDataStream::ReadOnly);
-    //QDataStream sizeStream(&sizeData, QDataStream::ReadOnly);
-
-    //posStream >> receiveDataPacket->startPoint;
-    //posStream >> receiveDataPacket->movingPoint;
-    //posStream >> receiveDataPacket->endPoint;
-    //flagsStream >> receiveDataPacket->clearCanvasFlag;
-    //flagsStream >> receiveDataPacket->drawMode;
-    //penStream >> receiveDataPacket->pen;
-    //sizeStream >> receiveDataPacket->windowSize;
-
     //qDebug() << posData << " Position Data";
 }
 
