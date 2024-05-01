@@ -1,19 +1,13 @@
 #include "minerva.h"
 #include "wiringPiFake.h"
 
-#include <QDebug>
-#include <QFile>
-#include <QThread>
-#include <QQueue>
-#include <QMutex>
-#include <QWaitCondition>
 
 //Delay times for sending and receiving bits and bytes
 #define BITSENDDELAY 3
 #define BITRECEIVEDELAY 3
 #define BYTESENDDELAY 20
 #define BYTERECEIVEDELAY 20
-#define USEGPIO 1
+#define USEGPIO 0
 #define USEBIGDATA 1
  
 
@@ -47,6 +41,8 @@ Minerva::Minerva() {
 	flagsData = QByteArray();
 	penData = QByteArray();
 	sizeData = QByteArray();
+
+
 }
 
 Minerva::~Minerva() {
@@ -115,6 +111,9 @@ void Minerva::clientMode() {
 //https://doc.qt.io/qt-6/qdatastream.html
 void Minerva::encodeData() {
     if (USEGPIO) {
+        //send over one wire
+        sendData(bigData, 0);
+       
         //Sending data (gpio)
         sendData(posData, 0);
         sendData(flagsData, 1);

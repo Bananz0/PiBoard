@@ -7,10 +7,15 @@
 #include <QPen>
 #include <QDataStream>
 #include <QFile>
+#include <QThread>
+#include <QDebug>
+#include <QObject>
 
 
-class Minerva
+class Minerva : public QObject
 {
+	Q_OBJECT
+
 private:
     int dataPins[10];
 
@@ -56,10 +61,13 @@ public:
     drawData* receiveDataPacket = nullptr;
     QByteArray posData, penData, flagsData, sizeData, bigData;
 
+
     void sendBit(uint pinNumber, bool bitData);
     int receiveBit(uint pinNumber);
+
     void sendData(QByteArray data, uint pinNumber);
     QByteArray receiveData(uint pinNumber,int expectedByteSize);
 };
 
-#endif // MINERVA_H
+
+#endif MINERVA_H
