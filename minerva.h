@@ -8,6 +8,7 @@
 #include <QDataStream>
 #include <QFile>
 
+
 class Minerva
 {
 private:
@@ -37,11 +38,22 @@ public:
         bool clearCanvasFlag = false;
         //https://doc.qt.io/qt-6/qpen.html#capStyle
         drawData() {}
+        bool operator==(const drawData& other) const {
+            return startPoint == other.startPoint
+                && movingPoint == other.movingPoint
+                && endPoint == other.endPoint
+                && clearCanvasFlag == other.clearCanvasFlag
+                && drawMode == other.drawMode
+                && pen == other.pen
+                && windowSize == other.windowSize;
+        }
     };
 
     QSize winSize;
-    drawData* sendDataPacket;
-    drawData* receiveDataPacket;
+    drawData* lastReceivedDataPacket = nullptr;
+    drawData* lastSentDataPacket = nullptr;
+    drawData* sendDataPacket = nullptr;
+    drawData* receiveDataPacket = nullptr;
     QByteArray posData, penData, flagsData, sizeData;
 
     void sendBit(uint pinNumber, bool bitData);

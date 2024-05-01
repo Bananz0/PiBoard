@@ -15,7 +15,7 @@ Hephaestus::Hephaestus(Minerva* minerva,QWidget *parent)
     image = new QImage(800, 600, QImage::Format_RGB32);
     image->fill(Qt::white);
     //Update the image every 10ms
-    int timerId = startTimer(10);
+    int timerId = startTimer(1500);
 }
 
 Hephaestus::~Hephaestus()

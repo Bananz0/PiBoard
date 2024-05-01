@@ -24,7 +24,7 @@ Hermes::Hermes(Minerva* minerva,QWidget *parent)
     initializePenProperties();
     //https://stackoverflow.com/questions/11651852/how-to-use-qtimer
     //Send Data through Minerva every 1ms
-    timerId = startTimer(1);
+    timerId = startTimer(1500);
 }
 
 Hermes::~Hermes()
