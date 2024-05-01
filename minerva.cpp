@@ -1,4 +1,6 @@
 #include "minerva.h"
+#include "wiringPiFake.h"
+
 #include <QDebug>
 #include <QFile>
 #include <QThread>
@@ -11,10 +13,9 @@
 #define BITRECEIVEDELAY 3
 #define BYTESENDDELAY 20
 #define BYTERECEIVEDELAY 20
-
 #define USEGPIO 0
  
-#include "wiringPiFake.h"
+
 
 Minerva::Minerva() {
     //initialize GPIO
@@ -113,6 +114,8 @@ void Minerva::clientMode() {
 //https://doc.qt.io/qt-6/qdatastream.html
 void Minerva::encodeData() {
     if (USEGPIO) {
+        sendData(bigData, 0);
+
         //Sending data (gpio)
         sendData(posData, 0);
         sendData(flagsData, 1);
@@ -120,6 +123,10 @@ void Minerva::encodeData() {
         sendData(sizeData, 3);
     }
     else if (!USEGPIO) {
+        //sending over one pin
+        QFile bigFile("bigData.dat");
+        bigFile.open(QIODevice::WriteOnly);
+
 		//Sending data (file)
 		QFile posFile("posData.dat");
 		posFile.open(QIODevice::WriteOnly);
@@ -137,7 +144,20 @@ void Minerva::encodeData() {
         flagsFile.write(flagsData);
         penFile.write(penData);
         sizeFile.write(sizeData);
+
+        bigFile.write(bigData);
 	}
+
+    //Sending Big Packet
+    QDataStream bigStreamSender(&bigData, QDataStream::WriteOnly);
+    bigStreamSender >> sendDataPacket->startPoint;
+    bigStreamSender >> sendDataPacket->movingPoint;
+    bigStreamSender >> sendDataPacket->endPoint;
+    bigStreamSender >> sendDataPacket->clearCanvasFlag;
+    bigStreamSender >> sendDataPacket->drawMode;
+    bigStreamSender >> sendDataPacket->pen;
+    bigStreamSender >> sendDataPacket->windowSize;
+
 
     //Sending Individual Packets
     QDataStream posStreamSender(&posData, QDataStream::WriteOnly);
@@ -179,6 +199,12 @@ void Minerva::decodeData() {
         penData = receiveData(6, 116);
         sizeData = receiveData(7, 8);
     } else if (!USEGPIO) {
+
+        //Receiving Big Packet
+        QFile bigFile("bigData.dat");
+        bigFile.open(QIODevice::ReadOnly);
+        bigData = bigFile.readAll();
+
         //simulation of receiving data through individual packets through GPIO
         QFile posFile("posData.dat");
         posFile.open(QIODevice::ReadOnly);
@@ -198,19 +224,29 @@ void Minerva::decodeData() {
         sizeData = sizeFile.readAll();
     }
 
-    //Receiving Individual Packets
-    QDataStream posStream(&posData, QDataStream::ReadOnly);
-    QDataStream flagsStream(&flagsData, QDataStream::ReadOnly);
-    QDataStream penStream(&penData, QDataStream::ReadOnly);
-    QDataStream sizeStream(&sizeData, QDataStream::ReadOnly);
+    //Receiving Big Packet
+    QDataStream bigStream(&bigData, QDataStream::ReadOnly);
+    bigStream >> receiveDataPacket->startPoint;
+    bigStream >> receiveDataPacket->movingPoint;
+    bigStream >> receiveDataPacket->endPoint;
+    bigStream >> receiveDataPacket->clearCanvasFlag;
+    bigStream >> receiveDataPacket->drawMode;
+    bigStream >> receiveDataPacket->pen;
+    bigStream >> receiveDataPacket->windowSize;
 
-    posStream >> receiveDataPacket->startPoint;
-    posStream >> receiveDataPacket->movingPoint;
-    posStream >> receiveDataPacket->endPoint;
-    flagsStream >> receiveDataPacket->clearCanvasFlag;
-    flagsStream >> receiveDataPacket->drawMode;
-    penStream >> receiveDataPacket->pen;
-    sizeStream >> receiveDataPacket->windowSize;
+    ////Receiving Individual Packets
+    //QDataStream posStream(&posData, QDataStream::ReadOnly);
+    //QDataStream flagsStream(&flagsData, QDataStream::ReadOnly);
+    //QDataStream penStream(&penData, QDataStream::ReadOnly);
+    //QDataStream sizeStream(&sizeData, QDataStream::ReadOnly);
+
+    //posStream >> receiveDataPacket->startPoint;
+    //posStream >> receiveDataPacket->movingPoint;
+    //posStream >> receiveDataPacket->endPoint;
+    //flagsStream >> receiveDataPacket->clearCanvasFlag;
+    //flagsStream >> receiveDataPacket->drawMode;
+    //penStream >> receiveDataPacket->pen;
+    //sizeStream >> receiveDataPacket->windowSize;
 
     //qDebug() << posData << " Position Data";
 }

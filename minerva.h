@@ -54,7 +54,7 @@ public:
     drawData* lastSentDataPacket = nullptr;
     drawData* sendDataPacket = nullptr;
     drawData* receiveDataPacket = nullptr;
-    QByteArray posData, penData, flagsData, sizeData;
+    QByteArray posData, penData, flagsData, sizeData, bigData;
 
     void sendBit(uint pinNumber, bool bitData);
     int receiveBit(uint pinNumber);
