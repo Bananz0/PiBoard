@@ -10,6 +10,7 @@ Hephaestus::Hephaestus(Minerva* minerva,QWidget *parent)
     , ui(new Ui::Hephaestus)
     , minervaIn(minerva)
 {
+    minervaIn->startReceiveThread();
     draw = new Artemis;
     ui->setupUi(this);
     image = new QImage(800, 600, QImage::Format_RGB32);
@@ -43,8 +44,7 @@ void Hephaestus::paintEvent(QPaintEvent* event) {
     if (minervaIn->receiveDataPacket->clearCanvasFlag) {
         draw->clearCanvas(image);
     }
-
-    minervaIn->receive();
+    //minervaIn->receive();
     minervaIn->decodeData();  
    // qDebug() << "Drawing on Hephaestus";
 }

@@ -16,6 +16,7 @@ Hermes::Hermes(Minerva* minerva,QWidget *parent)
     //, drawDataPacket(minerva->drawDataPacket)
     , minervaOut(minerva)
 {
+    minervaOut->startSendThread();
     ui->setupUi(this);
     draw = new Artemis;
     setMouseTracking(true);
@@ -76,7 +77,7 @@ void Hermes::paintEvent(QPaintEvent *event){
 
     drawOnCanvas(imagePainter, minervaOut->sendDataPacket->pen, minervaOut->sendDataPacket->drawMode);
 
-    //TODO: Remove this line
+    ////TODO: Remove this line
     minervaOut->encodeData();
 
  }
@@ -174,8 +175,7 @@ void Hermes::penProperties_clicked(){
 
 //Send Data through Minerva every 10ms and update the canvas
 void Hermes::timerEvent(QTimerEvent* event){
-    minervaOut->send();
-    //minervaOut->sendBigData();
+    //minervaOut->send();
     update();
 }
 

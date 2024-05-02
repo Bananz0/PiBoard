@@ -1,5 +1,7 @@
 #include "minerva.h"
-#include "wiringPiFake.h"
+#include "wiringPiFake.h"\
+
+#include <thread>
 
 
 
@@ -9,7 +11,7 @@
 #define BYTESENDDELAY 20
 #define BYTERECEIVEDELAY 20
 #define USEGPIO false
-#define USEBIGDATA false
+#define USEBIGDATA true
  
 
 
@@ -155,7 +157,6 @@ void Minerva::encodeData() {
 		penQueue.enqueue(penData);
 		sizeQueue.enqueue(sizeData);
 	}
-
 //    //Finding out the data size for transmission
 //    qDebug() << posData.size() << " Position Data";
 //    qDebug() << flagsData.size() << " Flags Data";
@@ -255,7 +256,7 @@ void Minerva::sendBigData() {
     if (dataQueue.isEmpty()) {
 		return;
 	}
-    qDebug() << "Big Data Size: " << dataQueue.size();
+    //qDebug() << "Big Data Size: " << dataQueue.size();
     if (USEGPIO) {
 		sendData(dataQueue.dequeue(), 0);
 	}
@@ -370,3 +371,26 @@ void Minerva::receive() {
 //    return 0;
 //}
 
+void Minerva::runSendThread() {
+    while (true) {
+        send();
+        std::this_thread::sleep_for(std::chrono::milliseconds(100)); 
+    }
+}
+void Minerva::runReceiveThread() {
+    while (true) {
+        receive();
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+}
+
+void Minerva::startReceiveThread() {
+    std::thread receiveThread(&Minerva::runReceiveThread, this);
+	receiveThread.detach();
+}
+
+void Minerva::startSendThread() {
+    std::thread sendThread(&Minerva::runSendThread, this);
+     sendThread.detach();
+
+}

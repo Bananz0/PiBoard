@@ -11,7 +11,8 @@
 #include <QDebug>
 #include <QObject>
 #include <QQueue>
-
+#include <QMutex>
+#include <QWaitCondition>
 
 class Minerva : public QObject
 {
@@ -80,6 +81,18 @@ public:
     void receiveMultipleData();
     void send();
     void receive();
+
+    void runSendThread();
+
+    void runReceiveThread();
+
+    void startReceiveThread();
+
+    void startSendThread();
+
+    QMutex senderLock, receiverLock;
+    QWaitCondition senderWait, receiverWait;
+    QThread senderThread, receiverThread;
 };
 
 
