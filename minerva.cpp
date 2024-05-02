@@ -2,13 +2,14 @@
 #include "wiringPiFake.h"
 
 
+
 //Delay times for sending and receiving bits and bytes
 #define BITSENDDELAY 3
 #define BITRECEIVEDELAY 3
 #define BYTESENDDELAY 20
 #define BYTERECEIVEDELAY 20
-#define USEGPIO 0
-#define USEBIGDATA 1
+#define USEGPIO false
+#define USEBIGDATA false
  
 
 
@@ -110,75 +111,51 @@ void Minerva::clientMode() {
 
 //https://doc.qt.io/qt-6/qdatastream.html
 void Minerva::encodeData() {
-    if (USEGPIO) {
-        //send over one wire
-        sendData(bigData, 0);
-       
-        //Sending data (gpio)
-        sendData(posData, 0);
-        sendData(flagsData, 1);
-        sendData(penData, 2);
-        sendData(sizeData, 3);
+    //check if data has changed before sending
+    if (lastSentDataPacket != nullptr && *sendDataPacket == *lastSentDataPacket) {
+        qDebug() << "No new data to send";
+        return;
     }
-    else if (!USEGPIO) {
-        if (USEBIGDATA) {
-            //sending over one file
-            QFile bigFile("bigData.dat");
-            bigFile.open(QIODevice::WriteOnly);
-            bigFile.write(bigData);
+    delete lastSentDataPacket;
+    lastSentDataPacket = new drawData(*sendDataPacket);
 
-            //Sending Big Packet
-            QDataStream bigStreamSender(&bigData, QDataStream::WriteOnly);
-            bigStreamSender << sendDataPacket->startPoint;
-            bigStreamSender << sendDataPacket->movingPoint;
-            bigStreamSender << sendDataPacket->endPoint;
-            bigStreamSender << sendDataPacket->clearCanvasFlag;
-            bigStreamSender << sendDataPacket->drawMode;
-            bigStreamSender << sendDataPacket->pen;
-            bigStreamSender << sendDataPacket->windowSize;
-        }
-        else {
-            //Sending data (file)
-            QFile posFile("posData.dat");
-            posFile.open(QIODevice::WriteOnly);
+    if (USEBIGDATA) {
+        //Serialize Big Packet
+        QDataStream bigStreamSender(&bigData, QDataStream::WriteOnly);
 
-            QFile flagsFile("flagsData.dat");
-            flagsFile.open(QIODevice::WriteOnly);
+        bigStreamSender << sendDataPacket->startPoint;
+        bigStreamSender << sendDataPacket->movingPoint;
+        bigStreamSender << sendDataPacket->endPoint;
+        bigStreamSender << sendDataPacket->clearCanvasFlag;
+        bigStreamSender << sendDataPacket->drawMode;
+        bigStreamSender << sendDataPacket->pen;
+        bigStreamSender << sendDataPacket->windowSize;
 
-            QFile penFile("penData.dat");
-            penFile.open(QIODevice::WriteOnly);
-
-            QFile sizeFile("sizeData.dat");
-            sizeFile.open(QIODevice::WriteOnly);
-
-            posFile.write(posData);
-            flagsFile.write(flagsData);
-            penFile.write(penData);
-            sizeFile.write(sizeData);
-
-            //Sending Individual Packets
-            QDataStream posStreamSender(&posData, QDataStream::WriteOnly);
-            QDataStream flagsStreamSender(&flagsData, QDataStream::WriteOnly);
-            QDataStream penStreamSender(&penData, QDataStream::WriteOnly);
-            QDataStream sizeStreamSender(&sizeData, QDataStream::WriteOnly);
-
-            //check if data has changed before sending
-            if (lastSentDataPacket != nullptr && *sendDataPacket == *lastSentDataPacket) {
-                qDebug() << "No new data to send";
-                return;
-            }
-            delete lastSentDataPacket;
-            lastSentDataPacket = new drawData(*sendDataPacket);
-
-            posStreamSender << sendDataPacket->startPoint;
-            posStreamSender << sendDataPacket->movingPoint;
-            posStreamSender << sendDataPacket->endPoint;
-            flagsStreamSender << sendDataPacket->clearCanvasFlag;
-            flagsStreamSender << sendDataPacket->drawMode;
-            penStreamSender << sendDataPacket->pen;
-            sizeStreamSender << sendDataPacket->windowSize;
-        }        
+		//Queueing big packet
+		dataQueue.enqueue(bigData);
 	}
+    else if (!USEBIGDATA) {
+        //Serialize Individual Packets
+        QDataStream posStreamSender(&posData, QDataStream::WriteOnly);
+        QDataStream flagsStreamSender(&flagsData, QDataStream::WriteOnly);
+        QDataStream penStreamSender(&penData, QDataStream::WriteOnly);
+        QDataStream sizeStreamSender(&sizeData, QDataStream::WriteOnly);
+
+        posStreamSender << sendDataPacket->startPoint;
+        posStreamSender << sendDataPacket->movingPoint;
+        posStreamSender << sendDataPacket->endPoint;
+        flagsStreamSender << sendDataPacket->clearCanvasFlag;
+        flagsStreamSender << sendDataPacket->drawMode;
+        penStreamSender << sendDataPacket->pen;
+        sizeStreamSender << sendDataPacket->windowSize;
+
+		//Queueing data to send over multiple wires
+		posQueue.enqueue(posData);
+		flagsQueue.enqueue(flagsData);
+		penQueue.enqueue(penData);
+		sizeQueue.enqueue(sizeData);
+	}
+
 //    //Finding out the data size for transmission
 //    qDebug() << posData.size() << " Position Data";
 //    qDebug() << flagsData.size() << " Flags Data";
@@ -187,63 +164,44 @@ void Minerva::encodeData() {
 }
 
 void Minerva::decodeData() {
-    if (USEGPIO) {
-        //Receiving data (gpio) using individual packets
-        posData = receiveData(4, 48);
-        flagsData = receiveData(5, 5);
-        penData = receiveData(6, 116);
-        sizeData = receiveData(7, 8);
-    } else if (!USEGPIO) {
-        if (USEBIGDATA) {
-            //Receiving Big Packet
-            QFile bigFile("bigData.dat");
-            bigFile.open(QIODevice::ReadOnly);
-            bigData = bigFile.readAll();
-            //Receiving Big Packet
-            QDataStream bigStream(&bigData, QDataStream::ReadOnly);
-            bigStream >> receiveDataPacket->startPoint;
-            bigStream >> receiveDataPacket->movingPoint;
-            bigStream >> receiveDataPacket->endPoint;
-            bigStream >> receiveDataPacket->clearCanvasFlag;
-            bigStream >> receiveDataPacket->drawMode;
-            bigStream >> receiveDataPacket->pen;
-            bigStream >> receiveDataPacket->windowSize;
+    if (USEBIGDATA) {
+        if (dataQueue.isEmpty()){
+            return;
         }
-        else {
-            //simulation of receiving data through individual packets through GPIO
-            QFile posFile("posData.dat");
-            posFile.open(QIODevice::ReadOnly);
-
-            QFile flagsFile("flagsData.dat");
-            flagsFile.open(QIODevice::ReadOnly);
-
-            QFile penFile("penData.dat");
-            penFile.open(QIODevice::ReadOnly);
-
-            QFile sizeFile("sizeData.dat");
-            sizeFile.open(QIODevice::ReadOnly);
-
-            posData = posFile.readAll();
-            flagsData = flagsFile.readAll();
-            penData = penFile.readAll();
-            sizeData = sizeFile.readAll();
-
-            //Receiving Individual Packets
-            QDataStream posStream(&posData, QDataStream::ReadOnly);
-            QDataStream flagsStream(&flagsData, QDataStream::ReadOnly);
-            QDataStream penStream(&penData, QDataStream::ReadOnly);
-            QDataStream sizeStream(&sizeData, QDataStream::ReadOnly);
-
-            posStream >> receiveDataPacket->startPoint;
-            posStream >> receiveDataPacket->movingPoint;
-            posStream >> receiveDataPacket->endPoint;
-            flagsStream >> receiveDataPacket->clearCanvasFlag;
-            flagsStream >> receiveDataPacket->drawMode;
-            penStream >> receiveDataPacket->pen;
-            sizeStream >> receiveDataPacket->windowSize;
-        }
+        bigData = dataQueue.dequeue();
+        //Deserializing Big Packet
+        QDataStream bigStream(&bigData, QDataStream::ReadOnly);
+        bigStream >> receiveDataPacket->startPoint;
+        bigStream >> receiveDataPacket->movingPoint;
+        bigStream >> receiveDataPacket->endPoint;
+        bigStream >> receiveDataPacket->clearCanvasFlag;
+        bigStream >> receiveDataPacket->drawMode;
+        bigStream >> receiveDataPacket->pen;
+        bigStream >> receiveDataPacket->windowSize;
     }
-    //qDebug() << posData << " Position Data";
+    else if (!USEBIGDATA){
+        if (posQueue.isEmpty() || flagsQueue.isEmpty() || penQueue.isEmpty() || sizeQueue.isEmpty()) {
+			return;
+		}
+        posData = posQueue.dequeue();
+        flagsData = flagsQueue.dequeue();
+        penData = penQueue.dequeue();
+        sizeData = sizeQueue.dequeue();
+        
+        //Receiving Individual Packets
+        QDataStream posStream(&posData, QDataStream::ReadOnly);
+        QDataStream flagsStream(&flagsData, QDataStream::ReadOnly);
+        QDataStream penStream(&penData, QDataStream::ReadOnly);
+        QDataStream sizeStream(&sizeData, QDataStream::ReadOnly);
+
+        posStream >> receiveDataPacket->startPoint;
+        posStream >> receiveDataPacket->movingPoint;
+        posStream >> receiveDataPacket->endPoint;
+        flagsStream >> receiveDataPacket->clearCanvasFlag;
+        flagsStream >> receiveDataPacket->drawMode;
+        penStream >> receiveDataPacket->pen;
+        sizeStream >> receiveDataPacket->windowSize;
+    }
 }
 
 void Minerva::sendBit(uint pinNumber,bool bitData) {
@@ -291,6 +249,94 @@ QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
 
     qDebug() << "Received data:" << receivedData;
     return receivedData;
+}
+
+void Minerva::sendBigData() {
+    if (dataQueue.isEmpty()) {
+		return;
+	}
+    qDebug() << "Big Data Size: " << dataQueue.size();
+    if (USEGPIO) {
+		sendData(dataQueue.dequeue(), 0);
+	}
+    else if (!USEGPIO) {
+		QFile bigFile("bigData.dat");
+		bigFile.open(QIODevice::WriteOnly);
+		bigFile.write(dataQueue.dequeue());
+	}
+}
+
+void Minerva::receiveBigData() {
+    if (USEGPIO) {
+        dataQueue.enqueue(receiveData(4, 100));
+    }
+    else if (!USEGPIO) {
+        QFile bigFile("bigData.dat");
+        bigFile.open(QIODevice::ReadOnly);
+        dataQueue.enqueue(bigFile.readAll());
+    }
+    
+}
+
+void Minerva::sendMultipleData() {
+    if (posQueue.isEmpty() || flagsQueue.isEmpty() || penQueue.isEmpty() || sizeQueue.isEmpty()) {
+        return;
+	}
+    if (USEGPIO) {
+        sendData(posQueue.dequeue(), 1);
+        sendData(flagsQueue.dequeue(), 2);
+        sendData(penQueue.dequeue(), 3);
+        sendData(sizeQueue.dequeue(), 4);
+    }
+    else if (!USEGPIO) {
+		QFile posFile("posData.dat");
+		posFile.open(QIODevice::WriteOnly);
+		posFile.write(posQueue.dequeue());
+
+		QFile flagsFile("flagsData.dat");
+		flagsFile.open(QIODevice::WriteOnly);
+		flagsFile.write(flagsQueue.dequeue());
+
+		QFile penFile("penData.dat");
+		penFile.open(QIODevice::WriteOnly);
+		penFile.write(penQueue.dequeue());
+
+		QFile sizeFile("sizeData.dat");
+		sizeFile.open(QIODevice::WriteOnly);
+		sizeFile.write(sizeQueue.dequeue());
+	}
+}
+
+void Minerva::receiveMultipleData() {
+
+    if (USEGPIO) {
+        posQueue.enqueue(receiveData(5, 48));
+        flagsQueue.enqueue(receiveData(6, 5));
+        penQueue.enqueue(receiveData(7, 116));
+        sizeQueue.enqueue(receiveData(8, 8));
+	}
+    else if (!USEGPIO) {
+        //Receiving Individual Packets
+        QFile posFile("posData.dat");
+        posFile.open(QIODevice::ReadOnly);
+
+        QFile flagsFile("flagsData.dat");
+        flagsFile.open(QIODevice::ReadOnly);
+
+        QFile penFile("penData.dat");
+        penFile.open(QIODevice::ReadOnly);
+
+        QFile sizeFile("sizeData.dat");
+        sizeFile.open(QIODevice::ReadOnly);
+
+        //Deserializing Individual Packets
+        posQueue.enqueue(posFile.readAll());
+        flagsQueue.enqueue(flagsFile.readAll());
+        penQueue.enqueue(penFile.readAll());
+        sizeQueue.enqueue(sizeFile.readAll());      
+    }
+
+
 }
 
 //dummy function to comly with wiringPi not being present in windows

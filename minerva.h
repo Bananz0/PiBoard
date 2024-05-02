@@ -10,6 +10,7 @@
 #include <QThread>
 #include <QDebug>
 #include <QObject>
+#include <QQueue>
 
 
 class Minerva : public QObject
@@ -67,6 +68,16 @@ public:
 
     void sendData(QByteArray data, uint pinNumber);
     QByteArray receiveData(uint pinNumber,int expectedByteSize);
+
+    
+
+    QQueue<QByteArray> dataQueue, posQueue, flagsQueue, penQueue, sizeQueue;
+
+    void sendBigData();
+    void receiveBigData();
+
+    void sendMultipleData();
+    void receiveMultipleData();
 };
 
 

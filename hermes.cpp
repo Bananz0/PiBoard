@@ -24,7 +24,7 @@ Hermes::Hermes(Minerva* minerva,QWidget *parent)
     initializePenProperties();
     //https://stackoverflow.com/questions/11651852/how-to-use-qtimer
     //Send Data through Minerva every 1ms
-    timerId = startTimer(1500);
+    timerId = startTimer(1);
 }
 
 Hermes::~Hermes()
@@ -75,6 +75,10 @@ void Hermes::paintEvent(QPaintEvent *event){
     imagePainter.setRenderHint(QPainter::Antialiasing);
 
     drawOnCanvas(imagePainter, minervaOut->sendDataPacket->pen, minervaOut->sendDataPacket->drawMode);
+
+    //TODO: Remove this line
+    minervaOut->encodeData();
+
  }
 
 //https://stackoverflow.com/questions/12828825/how-to-assign-callback-when-the-user-resizes-a-qmainwindow
@@ -170,7 +174,8 @@ void Hermes::penProperties_clicked(){
 
 //Send Data through Minerva every 10ms and update the canvas
 void Hermes::timerEvent(QTimerEvent* event){
-    minervaOut->encodeData();
+    minervaOut->sendMultipleData();
+    //minervaOut->sendBigData();
     update();
 }
 

@@ -15,7 +15,7 @@ Hephaestus::Hephaestus(Minerva* minerva,QWidget *parent)
     image = new QImage(800, 600, QImage::Format_RGB32);
     image->fill(Qt::white);
     //Update the image every 10ms
-    int timerId = startTimer(1500);
+    int timerId = startTimer(10);
 }
 
 Hephaestus::~Hephaestus()
@@ -28,6 +28,7 @@ Hephaestus::~Hephaestus()
 }
 
 void Hephaestus::timerEvent(QTimerEvent* event){
+
     	update();
 }
 
@@ -42,6 +43,8 @@ void Hephaestus::paintEvent(QPaintEvent* event) {
     if (minervaIn->receiveDataPacket->clearCanvasFlag) {
         draw->clearCanvas(image);
     }
+    minervaIn->receiveMultipleData();
+    //minervaIn->receiveBigData();
     minervaIn->decodeData();  
    // qDebug() << "Drawing on Hephaestus";
 }
