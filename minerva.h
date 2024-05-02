@@ -78,6 +78,8 @@ public:
 
     void sendMultipleData();
     void receiveMultipleData();
+    void send();
+    void receive();
 };
 
 

@@ -174,7 +174,7 @@ void Hermes::penProperties_clicked(){
 
 //Send Data through Minerva every 10ms and update the canvas
 void Hermes::timerEvent(QTimerEvent* event){
-    minervaOut->sendMultipleData();
+    minervaOut->send();
     //minervaOut->sendBigData();
     update();
 }

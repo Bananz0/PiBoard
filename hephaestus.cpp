@@ -43,8 +43,8 @@ void Hephaestus::paintEvent(QPaintEvent* event) {
     if (minervaIn->receiveDataPacket->clearCanvasFlag) {
         draw->clearCanvas(image);
     }
-    minervaIn->receiveMultipleData();
-    //minervaIn->receiveBigData();
+
+    minervaIn->receive();
     minervaIn->decodeData();  
    // qDebug() << "Drawing on Hephaestus";
 }

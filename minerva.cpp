@@ -113,7 +113,7 @@ void Minerva::clientMode() {
 void Minerva::encodeData() {
     //check if data has changed before sending
     if (lastSentDataPacket != nullptr && *sendDataPacket == *lastSentDataPacket) {
-        qDebug() << "No new data to send";
+        //qDebug() << "No new data to send";
         return;
     }
     delete lastSentDataPacket;
@@ -339,6 +339,23 @@ void Minerva::receiveMultipleData() {
 
 }
 
+void Minerva::send(){
+    if (USEBIGDATA) {
+		sendBigData();
+	}
+    else if (!USEBIGDATA) {
+		sendMultipleData();
+	}
+}
+
+void Minerva::receive() {
+    if (USEBIGDATA) {
+		receiveBigData();
+	}
+    else if (!USEBIGDATA) {
+		receiveMultipleData();
+	}
+}
 //dummy function to comly with wiringPi not being present in windows
 //void Minerva::digitalWrite(int pin, int value) {
 //	//dummy function
