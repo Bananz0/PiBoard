@@ -124,6 +124,7 @@ void Minerva::encodeData() {
     if (USEBIGDATA) {
         //Serialize Big Packet
         QDataStream bigStreamSender(&bigData, QDataStream::WriteOnly);
+        //Lock data when sending 
         sendLock->lock();
         bigStreamSender << sendDataPacket->startPoint;
         bigStreamSender << sendDataPacket->movingPoint;
@@ -133,6 +134,7 @@ void Minerva::encodeData() {
         bigStreamSender << sendDataPacket->pen;
         bigStreamSender << sendDataPacket->windowSize;
         sendLock->unlock();
+        //unlock data when sending
 		//Queueing big packet
 		dataQueue.enqueue(bigData);
 
@@ -144,7 +146,7 @@ void Minerva::encodeData() {
         QDataStream flagsStreamSender(&flagsData, QDataStream::WriteOnly);
         QDataStream penStreamSender(&penData, QDataStream::WriteOnly);
         QDataStream sizeStreamSender(&sizeData, QDataStream::WriteOnly);
-
+        sendLock->lock();
         posStreamSender << sendDataPacket->startPoint;
         posStreamSender << sendDataPacket->movingPoint;
         posStreamSender << sendDataPacket->endPoint;
@@ -152,7 +154,7 @@ void Minerva::encodeData() {
         flagsStreamSender << sendDataPacket->drawMode;
         penStreamSender << sendDataPacket->pen;
         sizeStreamSender << sendDataPacket->windowSize;
-
+        sendLock->unlock();
 		//Queueing data to send over multiple wires
 		posQueue.enqueue(posData);
 		flagsQueue.enqueue(flagsData);
@@ -200,7 +202,7 @@ void Minerva::decodeData() {
         QDataStream flagsStream(&flagsData, QDataStream::ReadOnly);
         QDataStream penStream(&penData, QDataStream::ReadOnly);
         QDataStream sizeStream(&sizeData, QDataStream::ReadOnly);
-
+        recLock->lock();
         posStream >> receiveDataPacket->startPoint;
         posStream >> receiveDataPacket->movingPoint;
         posStream >> receiveDataPacket->endPoint;
@@ -208,6 +210,7 @@ void Minerva::decodeData() {
         flagsStream >> receiveDataPacket->drawMode;
         penStream >> receiveDataPacket->pen;
         sizeStream >> receiveDataPacket->windowSize;
+        recLock->unlock();
     }
     qDebug() << "Receive data queue size is :" << dataQueue.size();
     //recLock->unlock();
