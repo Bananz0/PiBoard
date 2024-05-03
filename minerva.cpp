@@ -69,7 +69,7 @@ QString Minerva::testConnection(){
 
     for (int i = 0; i < 10; i++){
         int outputPin = dataPins[i%4];
-        int inputPin = dataPins[(i+4) % 4];
+        int inputPin = dataPins[ (i%4 + 4)];
         pinMode(outputPin, OUTPUT);
         qDebug() << "Set pin " << outputPin << " as output";
         pinMode(inputPin, INPUT);

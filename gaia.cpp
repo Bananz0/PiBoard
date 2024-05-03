@@ -28,22 +28,10 @@ Gaia::Gaia(QWidget* parent)
     minervaOut->moveToThread(prometheusThread);
     minervaIn->moveToThread(epimetheusThread);
     QObject::connect(ui->exitButton, SIGNAL(clicked()), qApp, SLOT(quit()));
-
-
-    ////Start Send and receive timer
-    //sendTimer = new QTimer();
-    //sendTimer->start(5);
-    //recTimer = new QTimer();
-    //recTimer->start(5);
-    //QObject::connect(sendTimer, &QTimer::timeout, prometheus, &Prometheus::sendDataUsingThread);
-    //QObject::connect(recTimer, &QTimer::timeout, epimetheus, &Epimetheus::receiveDataUsingThread);
-    //recTimer->moveToThread(epimetheusThread);
-    //sendTimer->moveToThread(prometheusThread);
 }
 
 Gaia::~Gaia()
 {
-    delete sendTimer;
     delete epimetheus;
     delete prometheus;
     delete epimetheusThread;

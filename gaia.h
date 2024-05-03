@@ -6,11 +6,9 @@
 #include "hephaestus.h"
 #include <QScreen>
 #include <QString>
-//#include "artemis.h"
 #include "minerva.h"
 #include "Epimetheus.h"
 #include "Prometheus.h"
-#include <QTimer>
 
 class Hermes;
 class Hephaestus;
@@ -48,8 +46,6 @@ private:
     Hephaestus* receiverWindow;
     Minerva* minervaOut;
     Minerva* minervaIn;
-
-    QTimer* sendTimer, *recTimer;
     Epimetheus* epimetheus;
     Prometheus* prometheus;
     EpimetheusThread* epimetheusThread;
