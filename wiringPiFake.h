@@ -25,7 +25,7 @@ void wiringPiSetupGpio() {
 }
 int digitalRead(int pinNumber) {
     //dummy function
-    return 1;
+    return 0;
 }
 void delay(int delayTime) {
     //dummy function
