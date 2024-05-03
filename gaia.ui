@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>429</width>
-    <height>461</height>
+    <width>277</width>
+    <height>418</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,21 +17,17 @@
    <layout class="QGridLayout" name="gridLayout_2">
     <item row="0" column="0">
      <layout class="QGridLayout" name="gridLayout">
-      <item row="4" column="0">
-       <widget class="QPushButton" name="allButton">
-        <property name="text">
-         <string>Local Mode</string>
-        </property>
-       </widget>
+      <item row="1" column="0" colspan="3">
+       <widget class="QTextBrowser" name="minervaStatus"/>
       </item>
       <item row="3" column="0">
-       <widget class="QPushButton" name="receiverButton">
+       <widget class="QPushButton" name="senderButton">
         <property name="text">
-         <string>Client Mode</string>
+         <string>Server Mode</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
+      <item row="2" column="1">
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -47,30 +43,35 @@
         </property>
        </spacer>
       </item>
-      <item row="2" column="0">
-       <widget class="QPushButton" name="senderButton">
+      <item row="3" column="1">
+       <widget class="QPushButton" name="receiverButton">
         <property name="text">
-         <string>Server Mode</string>
+         <string>Client Mode</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QTextBrowser" name="minervaStatus"/>
+      <item row="5" column="1">
+       <widget class="QPushButton" name="exitButton">
+        <property name="text">
+         <string>Exit</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QPushButton" name="allButton">
+        <property name="text">
+         <string>Local Mode</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QPushButton" name="testDMAbutton">
+        <property name="text">
+         <string>Test DMA</string>
+        </property>
+       </widget>
       </item>
      </layout>
-    </item>
-    <item row="3" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout"/>
-    </item>
-    <item row="5" column="0">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>Send Queue size:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="6" column="0">
-     <widget class="QTextBrowser" name="sendQueueSizeText"/>
     </item>
    </layout>
   </widget>
@@ -79,8 +80,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>429</width>
-     <height>22</height>
+     <width>277</width>
+     <height>21</height>
     </rect>
    </property>
   </widget>

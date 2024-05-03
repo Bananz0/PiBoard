@@ -6,7 +6,7 @@
 #include "hephaestus.h"
 #include <QScreen>
 #include <QString>
-#include "artemis.h"
+//#include "artemis.h"
 #include "minerva.h"
 #include "Epimetheus.h"
 #include "Prometheus.h"
@@ -37,6 +37,8 @@ private slots:
     void on_senderButton_clicked();
     void on_receiverButton_clicked();
     void on_allButton_clicked();
+    void on_testDMAbutton_clicked();
+    void testDMA();
 
 private:
     Ui::Gaia *ui;

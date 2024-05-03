@@ -27,6 +27,7 @@ Gaia::Gaia(QWidget* parent)
     //move respective to their places
     minervaOut->moveToThread(prometheusThread);
     minervaIn->moveToThread(epimetheusThread);
+    QObject::connect(ui->exitButton, SIGNAL(clicked()), qApp, SLOT(quit()));
 
 
     ////Start Send and receive timer
@@ -74,6 +75,17 @@ void Gaia::on_allButton_clicked()
 {
     startServer("Left",0);
     startClient("Right",0);
+}
+
+void Gaia::testDMA(){
+    qDebug() << "Button has been clicked";
+    int pinNumber = 8;
+    bool sent = true;
+    bool rec = false;
+    minervaOut->sendBit(8,sent);
+    ui->minervaStatus->append("Data has been sent on pin");
+    rec = minervaIn->receiveBit(8);
+    ui->minervaStatus->append(rec ?"The boolean value has been changed on the pin" :"The boolean value has not been changed on the pin");
 }
 
 void Gaia::startServer(const QString& position,int localMode){
@@ -142,5 +154,10 @@ void Gaia::selectDataPinCount(int pincount){
     //TODO
     // Add loginc for selecting the number of pins for data transfer sacrificing speed for idk anything else
     // minerva->selectDataPin(pincount);
+}
+
+void Gaia::on_testDMAbutton_clicked()
+{
+    testDMA();
 }
 
