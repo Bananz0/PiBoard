@@ -12,10 +12,13 @@ void Prometheus::stop() {
 }
 
 void Prometheus::sendDataUsingThread() {
-	while (!t_stop) {
-		minerva->send();
-		qDebug() << "Have sent using qThread";
-		//QThread::sleep(100);
-	}
+	minerva->runSendThread();
+	qDebug() << "Have sent using qThread";
+
+	//while (!t_stop) {
+	//	minerva->send();
+	//	qDebug() << "Have sent using qThread";
+	//	//QThread::sleep(100);
+	//}
 
 }

@@ -23,16 +23,15 @@ Gaia::Gaia(QWidget* parent)
     epimetheus = new Epimetheus(minervaIn);
     prometheus = new Prometheus(minervaOut);
 
-    //Start Send and receive timer
-    sendTimer = new QTimer();
-    sendTimer->start(5);
-    recTimer = new QTimer();
-    recTimer->start(5);
-    QObject::connect(sendTimer, &QTimer::timeout, prometheus, &Prometheus::sendDataUsingThread);
-    QObject::connect(recTimer, &QTimer::timeout, epimetheus, &Epimetheus::receiveDataUsingThread);
-
-    recTimer->moveToThread(epimetheusThread);
-    sendTimer->moveToThread(prometheusThread);
+    ////Start Send and receive timer
+    //sendTimer = new QTimer();
+    //sendTimer->start(5);
+    //recTimer = new QTimer();
+    //recTimer->start(5);
+    //QObject::connect(sendTimer, &QTimer::timeout, prometheus, &Prometheus::sendDataUsingThread);
+    //QObject::connect(recTimer, &QTimer::timeout, epimetheus, &Epimetheus::receiveDataUsingThread);
+    //recTimer->moveToThread(epimetheusThread);
+    //sendTimer->moveToThread(prometheusThread);
 }
 
 Gaia::~Gaia()
@@ -95,7 +94,6 @@ void Gaia::startServer(const QString& position,int localMode){
 void Gaia::startClient(const QString& position, int localMode){
     epimetheus->moveToThread(epimetheusThread);
     QObject::connect(epimetheusThread, &QThread::started, epimetheus, &Epimetheus::receiveDataUsingThread);
-
     epimetheusThread->start();
     QIcon client(":/assets/client.png");
     minervaIn->sendDataPacket->drawMode=0;
@@ -105,7 +103,6 @@ void Gaia::startClient(const QString& position, int localMode){
     receiverWindow->setWindowIcon(client);
     receiverWindow->setWindowTitle("Reciever");
     movePosition(receiverWindow,position);
-
     //localMode ? minerva->serverMode() : ui->minervaStatus->append("PiBoard Client is running locally");
     if (localMode) {
         minervaIn->clientMode();
