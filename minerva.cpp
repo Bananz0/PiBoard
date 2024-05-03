@@ -7,7 +7,7 @@
 #define BITRECEIVEDELAY 20
 #define BYTESENDDELAY 20
 #define BYTERECEIVEDELAY 20
-#define USEGPIO true
+#define USEGPIO false
 #define USEBIGDATA true
  
 Minerva::Minerva() {
