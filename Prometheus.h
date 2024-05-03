@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QObject>
-#include <Qdebug>
+#include <QDebug>
 #include "PrometheusThread.h"
 #include "minerva.h"
 
