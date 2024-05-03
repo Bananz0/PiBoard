@@ -373,13 +373,13 @@ void Minerva::receive() {
 void Minerva::runSendThread() {
     while (true) {
         send();
-        std::this_thread::sleep_for(std::chrono::milliseconds(5)); 
+        std::this_thread::sleep_for(std::chrono::nanoseconds(2500000));
     }
 }
 void Minerva::runReceiveThread() {
     while (true) {
         receive();
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        std::this_thread::sleep_for(std::chrono::nanoseconds(2500000));
     }
 }
 
