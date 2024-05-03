@@ -80,6 +80,7 @@ public:
     void startReceiveThread();
     void startSendThread();
     void testDMA();
+    QString testPins();
     QMutex *sendLock, * recLock;
 };
 

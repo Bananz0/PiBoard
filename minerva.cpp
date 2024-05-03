@@ -14,15 +14,15 @@ Minerva::Minerva() {
     //initialize GPIO
 	initializeGPIO();
 	//set send pins
-    dataPins[0] = 19;
+    dataPins[0] = 22;
     dataPins[1] = 26;
     dataPins[2] = 6;
-    dataPins[3] = 17;
+    dataPins[3] = 0;
     //set receive pins
-    dataPins[4] = 16;
+    dataPins[4] = 23;
     dataPins[5] = 20;
     dataPins[6] = 12;
-    dataPins[7] = 18;
+    dataPins[7] = 1;
     //set misc pins
     dataPins[8] = 8;
     dataPins[9] = 9;   
@@ -62,38 +62,34 @@ QSize Minerva::setClentWindowSize(){
     return winSize;
 }
 
-QString Minerva::testConnection(){
-    QString connectionStatus;
-    int connectionStatusNum = 0;
-    int connectionStatusNumSent = 0;
-
-    for (int i = 0; i < 10; i++){
-        int outputPin = dataPins[i%4];
-        int inputPin = dataPins[ (i%4 + 4)];
-        pinMode(outputPin, OUTPUT);
-        qDebug() << "Set pin " << outputPin << " as output";
-        pinMode(inputPin, INPUT);
-        qDebug() << "Set pin " << inputPin << " as input";
-        i % 3? digitalWrite(outputPin,1) : digitalWrite(inputPin,0);
-        delay(BITSENDDELAY);
-        connectionStatusNum += digitalRead(inputPin);
-        connectionStatusNumSent += receiveBit(inputPin);
-        qDebug() << connectionStatusNum << "Send Pin: "<< outputPin << "Receive Pin: " << inputPin;
-    }
-
-    if (connectionStatusNum != 10) {
-        connectionStatus = "Connection failed";
-    }
-    else {
-        connectionStatus = "Connection successful";
-    }
-    qDebug() << connectionStatus;
-    return connectionStatus;
-}
+//QString Minerva::testConnection(){
+//    QString connectionStatus;
+//    int connectionStatusNum = 0;
+//    int connectionStatusNumSent = 0;
+//    for (int i = 0; i < 4; i++){
+//        int outputPin = dataPins[i%4];
+//        int inputPin = dataPins[ (i%4 + 4)];
+//        digitalWrite(outputPin,1);// : digitalWrite(outputPin,0);
+//        connectionStatusNum += 1;//: connectionStatusNum = connectionStatusNum;
+//        connectionStatusNumSent += receiveBit(inputPin);
+//        delay(100);
+//        digitalWrite(outputPin,0);
+//        qDebug() << "Send Pin: "<< outputPin << "Receive Pin: " << inputPin << "Data Received: "<< connectionStatusNumSent;
+//    }
+//     qDebug() << "Data Sent: " <<connectionStatusNum << " Data received: " << connectionStatusNumSent;
+//    if (connectionStatusNum != connectionStatusNumSent) {
+//        connectionStatus = "Connection failed";
+//    }
+//    else {
+//        connectionStatus = "Connection successful";
+//    }
+//    qDebug() << connectionStatus;
+//    return connectionStatus;
+//}
 
 void Minerva::selectDataPin(int pinNumber,int dataModeNum){
     pinMode(dataPins[pinNumber], dataModeNum);
-};
+}
 
 void Minerva::initializeGPIO() {
     wiringPiSetupGpio();
@@ -230,9 +226,10 @@ void Minerva::sendBit(uint pinNumber,bool bitData) {
 }
 
 int Minerva::receiveBit(uint pinNumber) {
-    int bitValue = digitalRead(dataPins[pinNumber]);
+    bool bitValue = false;
+    bitValue = digitalRead(dataPins[pinNumber]);
     delayMicroseconds( BITRECEIVEDELAY );
-    return bitValue;
+    return (int)bitValue;
 }
 
 void Minerva::sendData(QByteArray data, uint pinNumber) {
@@ -399,8 +396,32 @@ void Minerva::startSendThread() {
     /*prometheusThread->start();*/
 }
 void Minerva::testDMA(){
-    qDebug() << "Input and output modes set";
     pinMode(8, OUTPUT);
     pinMode(9,INPUT);
+}
+QString Minerva::testPins(){
+    pinMode(22, OUTPUT);
+    pinMode(23, INPUT);
+    pinMode(26, OUTPUT);
+    pinMode(20, INPUT);
+    pinMode(6, OUTPUT);
+    pinMode(0, INPUT);
+    pinMode(8, OUTPUT);
+    pinMode(9, INPUT);
+
+    bool sent = true;
+    bool rec = false;
+    int dataCount = 0;
+    for (int i = 0; i < 40; i++){
+        int output = i %4;
+        int input = output + 4;
+        sendBit(output,sent);
+        rec = receiveBit(input);
+        dataCount += rec;
+        qDebug() << "Send Pin: "<< output << "Receive Pin: " << input << "Data Received: "<< dataCount;
+        rec = false;
+    }
+    QString dataText = dataCount == 40? "Data connection test successfull ":"Data connection test failed";
+    return dataText;
 }
 //dummy

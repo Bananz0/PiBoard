@@ -15,7 +15,7 @@ Gaia::Gaia(QWidget* parent)
     minervaIn = new Minerva();
     ui->setupUi(this);
     ui->minervaStatus->setText("Welcome to PiBoard");
-    ui->minervaStatus->append(minervaIn->testConnection());
+    ui->minervaStatus->append(minervaIn->testPins());
 
     //Start thread and worker
     epimetheusThread = new EpimetheusThread();
@@ -68,6 +68,10 @@ void Gaia::on_allButton_clicked()
 void Gaia::testDMA(){
     minervaIn->testDMA();
 }
+QString Gaia::testPins(){
+    return minervaIn->testPins();
+
+}
 
 void Gaia::startServer(const QString& position,int localMode){
     
@@ -83,11 +87,11 @@ void Gaia::startServer(const QString& position,int localMode){
     movePosition(senderWindow,position);
     //localMode ? minerva->serverMode() : ui->minervaStatus->append("PiBoard Server is running locally");
     if (localMode) {
-		minervaOut->serverMode();
+        minervaOut->serverMode();
         ui->minervaStatus->append("PiBoard Server has started");
     }
     else {
-		ui->minervaStatus->append("PiBoard Server is running locally");
+        ui->minervaStatus->append("PiBoard Server is running locally");
     }
 
 };
@@ -111,8 +115,8 @@ void Gaia::startClient(const QString& position, int localMode){
         ui->minervaStatus->append("PiBoard Client has started");
     }
     else {
-		ui->minervaStatus->append("PiBoard Client is running locally");
-	}
+        ui->minervaStatus->append("PiBoard Client is running locally");
+    }
 };
 
 void Gaia::movePosition(QMainWindow* window,const QString& position){
@@ -143,15 +147,15 @@ void Gaia::on_testDMAbutton_clicked()
     int pinNumber = 8;
     bool sent = true;
     bool rec = false;
-    minervaOut->sendBit(8,sent);
+    minervaOut->sendBit(22,sent);
     ui->minervaStatus->append("Data has been sent on pin");
-    rec = minervaIn->receiveBit(9);
-    ui->minervaStatus->append(rec ?"The boolean value has been changed on the pin" :"The boolean value has not been changed on the pin");
+    rec = minervaIn->receiveBit(23);
+    ui->minervaStatus->append(rec ?"The boolean value has been changed on the pin" : "The boolean value has not been changed on the pin");
 }
 
 
 void Gaia::on_pinTestButton_clicked()
 {
-    ui->minervaStatus->append(minervaIn->testConnection());
+    ui->minervaStatus->append(testPins());
 }
 
