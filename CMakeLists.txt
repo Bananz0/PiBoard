@@ -28,6 +28,10 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         resources.qrc
         artemis.h artemis.cpp
         minerva.h minerva.cpp
+        PrometheusThread.h PrometheusThread.cpp
+        EpimetheusThread.h EpimetheusThread.cpp
+        Epimetheus.h Epimetheus.cpp
+        Prometheus.h Prometheus.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET PiBoard APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

@@ -16,10 +16,32 @@ Gaia::Gaia(QWidget* parent)
     ui->setupUi(this);
     ui->minervaStatus->setText("Welcome to PiBoard");
     ui->minervaStatus->append(minervaIn->testConnection());
+
+    //Start thread and worker
+    epimetheusThread = new EpimetheusThread();
+    prometheusThread = new PrometheusThread();
+    epimetheus = new Epimetheus(minervaIn);
+    prometheus = new Prometheus(minervaOut);
+
+    //Start Send and receive timer
+    sendTimer = new QTimer();
+    sendTimer->start(5);
+    recTimer = new QTimer();
+    recTimer->start(5);
+    QObject::connect(sendTimer, &QTimer::timeout, prometheus, &Prometheus::sendDataUsingThread);
+    QObject::connect(recTimer, &QTimer::timeout, epimetheus, &Epimetheus::receiveDataUsingThread);
+
+    recTimer->moveToThread(epimetheusThread);
+    sendTimer->moveToThread(prometheusThread);
 }
 
 Gaia::~Gaia()
 {
+    delete sendTimer, recTimer;
+    delete epimetheus;
+    delete prometheus;
+    delete epimetheusThread;
+    delete prometheusThread;
     delete senderWindow;
     delete receiverWindow;
     delete minervaOut;
@@ -50,13 +72,15 @@ void Gaia::on_allButton_clicked()
 }
 
 void Gaia::startServer(const QString& position,int localMode){
+    prometheus->moveToThread(prometheusThread);
+    QObject::connect(prometheusThread, &QThread::started, prometheus, &Prometheus::sendDataUsingThread);
+    prometheusThread->start();
     QIcon server(":/assets/server.png");
     senderWindow = new Hermes(minervaOut);
     senderWindow->show();
     senderWindow->setWindowTitle("Server");
     senderWindow->setWindowIcon(server);
     movePosition(senderWindow,position);
-
     //localMode ? minerva->serverMode() : ui->minervaStatus->append("PiBoard Server is running locally");
     if (localMode) {
 		minervaOut->serverMode();
@@ -69,6 +93,10 @@ void Gaia::startServer(const QString& position,int localMode){
 };
 
 void Gaia::startClient(const QString& position, int localMode){
+    epimetheus->moveToThread(epimetheusThread);
+    QObject::connect(epimetheusThread, &QThread::started, epimetheus, &Epimetheus::receiveDataUsingThread);
+
+    epimetheusThread->start();
     QIcon client(":/assets/client.png");
     minervaIn->sendDataPacket->drawMode=0;
     minervaIn->decodeData();

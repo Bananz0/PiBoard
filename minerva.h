@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef MINERVA_H
 #define MINERVA_H
 
@@ -62,37 +64,22 @@ public:
     drawData* sendDataPacket = nullptr;
     drawData* receiveDataPacket = nullptr;
     QByteArray posData, penData, flagsData, sizeData, bigData;
-
-
     void sendBit(uint pinNumber, bool bitData);
     int receiveBit(uint pinNumber);
-
     void sendData(QByteArray data, uint pinNumber);
     QByteArray receiveData(uint pinNumber,int expectedByteSize);
-
-      
-
     QQueue<QByteArray> dataQueue, posQueue, flagsQueue, penQueue, sizeQueue;
 
     void sendBigData();
     void receiveBigData();
-
     void sendMultipleData();
     void receiveMultipleData();
     void send();
     void receive();
-
     void runSendThread();
-
     void runReceiveThread();
-
     void startReceiveThread();
-
     void startSendThread();
-
-    QMutex senderLock, receiverLock;
-    QWaitCondition senderWait, receiverWait;
-    QThread senderThread, receiverThread;
 };
 
 

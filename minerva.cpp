@@ -23,11 +23,9 @@ Minerva::Minerva() {
 	dataPins[5] = 5;
 	dataPins[6] = 6;
 	dataPins[7] = 7;
-
     //set misc pins
     dataPins[8] = 8;
-    dataPins[9] = 9;
-   
+    dataPins[9] = 9;   
 	//set window size
 	winSize = QSize(800, 600);
 	//initialize drawDataPacket
@@ -42,6 +40,10 @@ Minerva::Minerva() {
 }
 
 Minerva::~Minerva() {
+    //delete epimetheus;
+    //delete prometheus;
+    //delete epimetheusThread;
+    //delete prometheusThread;
     delete lastReceivedDataPacket;
     delete lastSentDataPacket;
 	delete sendDataPacket;
@@ -128,6 +130,8 @@ void Minerva::encodeData() {
 
 		//Queueing big packet
 		dataQueue.enqueue(bigData);
+
+        qDebug() << "Send data queue size is :" << dataQueue.size();
 	}
     else if (!USEBIGDATA) {
         //Serialize Individual Packets
@@ -196,6 +200,7 @@ void Minerva::decodeData() {
         penStream >> receiveDataPacket->pen;
         sizeStream >> receiveDataPacket->windowSize;
     }
+    qDebug() << "Receive data queue size is :" << dataQueue.size();
 }
 
 void Minerva::sendBit(uint pinNumber,bool bitData) {
@@ -334,6 +339,7 @@ void Minerva::receiveMultipleData() {
 }
 
 void Minerva::send(){
+    qDebug() << "Data sent";
     if (USEBIGDATA) {
 		sendBigData();
 	}
@@ -378,12 +384,13 @@ void Minerva::runReceiveThread() {
 }
 
 void Minerva::startReceiveThread() {
-    std::thread receiveThread(&Minerva::runReceiveThread, this);
-	receiveThread.detach();
+    //std::thread receiveThread(&Minerva::runReceiveThread, this);
+	//receiveThread.detach();
+    /*epimetheusThread->start();*/
 }
 
 void Minerva::startSendThread() {
-    std::thread sendThread(&Minerva::runSendThread, this);
-     sendThread.detach();
-
+    //std::thread sendThread(&Minerva::runSendThread, this);
+    // sendThread.detach();
+    /*prometheusThread->start();*/
 }
