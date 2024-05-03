@@ -159,3 +159,11 @@ void Gaia::on_pinTestButton_clicked()
     ui->minervaStatus->append(testPins());
 }
 
+
+void Gaia::on_dataSendTest_clicked()
+{
+    QByteArray test(10, 0xE3);
+    minervaOut->sendData(test,0);
+    qDebug() << minervaIn->receiveData(4,10);
+}
+

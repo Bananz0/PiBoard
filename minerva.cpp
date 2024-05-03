@@ -269,7 +269,7 @@ QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
         }
     }
 
-    qDebug() << "Received data:" << receivedData;
+    qDebug() << "Received data size:" << receivedData.size();
     return receivedData;
 }
 
@@ -362,7 +362,7 @@ void Minerva::receiveMultipleData() {
 }
 
 void Minerva::send(){
-    qDebug() << "Data sent";
+    //qDebug() << "Data sent";
     if (USEBIGDATA) {
 		sendBigData();
 	}

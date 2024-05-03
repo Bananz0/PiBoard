@@ -40,6 +40,8 @@ private slots:
     QString testPins();
     void on_pinTestButton_clicked();
 
+    void on_dataSendTest_clicked();
+
 private:
     Ui::Gaia *ui;
     Hermes* senderWindow;
