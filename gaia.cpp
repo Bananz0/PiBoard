@@ -43,7 +43,7 @@ Gaia::Gaia(QWidget* parent)
 
 Gaia::~Gaia()
 {
-    delete sendTimer, recTimer;
+    delete sendTimer;
     delete epimetheus;
     delete prometheus;
     delete epimetheusThread;
@@ -78,14 +78,7 @@ void Gaia::on_allButton_clicked()
 }
 
 void Gaia::testDMA(){
-    qDebug() << "Button has been clicked";
-    int pinNumber = 8;
-    bool sent = true;
-    bool rec = false;
-    minervaOut->sendBit(8,sent);
-    ui->minervaStatus->append("Data has been sent on pin");
-    rec = minervaIn->receiveBit(8);
-    ui->minervaStatus->append(rec ?"The boolean value has been changed on the pin" :"The boolean value has not been changed on the pin");
+    minervaIn->testDMA();
 }
 
 void Gaia::startServer(const QString& position,int localMode){
@@ -159,5 +152,18 @@ void Gaia::selectDataPinCount(int pincount){
 void Gaia::on_testDMAbutton_clicked()
 {
     testDMA();
+    int pinNumber = 8;
+    bool sent = true;
+    bool rec = false;
+    minervaOut->sendBit(8,sent);
+    ui->minervaStatus->append("Data has been sent on pin");
+    rec = minervaIn->receiveBit(9);
+    ui->minervaStatus->append(rec ?"The boolean value has been changed on the pin" :"The boolean value has not been changed on the pin");
+}
+
+
+void Gaia::on_pinTestButton_clicked()
+{
+    ui->minervaStatus->append(minervaIn->testConnection());
 }
 

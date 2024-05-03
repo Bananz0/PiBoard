@@ -40,6 +40,8 @@ private slots:
     void on_testDMAbutton_clicked();
     void testDMA();
 
+    void on_pinTestButton_clicked();
+
 private:
     Ui::Gaia *ui;
     Hermes* senderWindow;

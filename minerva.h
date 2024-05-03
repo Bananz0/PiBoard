@@ -79,7 +79,7 @@ public:
     void runReceiveThread();
     void startReceiveThread();
     void startSendThread();
-
+    void testDMA();
     QMutex *sendLock, * recLock;
 };
 

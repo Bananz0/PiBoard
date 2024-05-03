@@ -3,26 +3,26 @@
 #include <thread>
 
 //Delay times for sending and receiving bits and bytes
-#define BITSENDDELAY 3
-#define BITRECEIVEDELAY 3
+#define BITSENDDELAY 20
+#define BITRECEIVEDELAY 20
 #define BYTESENDDELAY 20
 #define BYTERECEIVEDELAY 20
-#define USEGPIO false
+#define USEGPIO true
 #define USEBIGDATA true
  
 Minerva::Minerva() {
     //initialize GPIO
 	initializeGPIO();
 	//set send pins
-	dataPins[0] = 0;
-	dataPins[1] = 1;
-	dataPins[2] = 2;
-	dataPins[3] = 3;
+    dataPins[0] = 19;
+    dataPins[1] = 26;
+    dataPins[2] = 6;
+    dataPins[3] = 17;
     //set receive pins
-	dataPins[4] = 4;
-	dataPins[5] = 5;
-	dataPins[6] = 6;
-	dataPins[7] = 7;
+    dataPins[4] = 16;
+    dataPins[5] = 20;
+    dataPins[6] = 12;
+    dataPins[7] = 18;
     //set misc pins
     dataPins[8] = 8;
     dataPins[9] = 9;   
@@ -63,22 +63,25 @@ QSize Minerva::setClentWindowSize(){
 }
 
 QString Minerva::testConnection(){
-    pinMode(dataPins[0], OUTPUT);
-    pinMode(dataPins[4], INPUT);
-
     QString connectionStatus;
     int connectionStatusNum = 0;
     int connectionStatusNumSent = 0;
 
-    for (int i = 0; i < 4; i++){
-        digitalWrite(dataPins[i],1);
+    for (int i = 0; i < 10; i++){
+        int outputPin = dataPins[i%4];
+        int inputPin = dataPins[(i+4) % 4];
+        pinMode(outputPin, OUTPUT);
+        qDebug() << "Set pin " << outputPin << " as output";
+        pinMode(inputPin, INPUT);
+        qDebug() << "Set pin " << inputPin << " as input";
+        i % 3? digitalWrite(outputPin,1) : digitalWrite(inputPin,0);
         delay(BITSENDDELAY);
-        connectionStatusNum += digitalRead(dataPins[i+4]);
-        connectionStatusNumSent += receiveBit(dataPins[i+4]);
-        qDebug() << connectionStatusNum << "Send Pin: "<< i << "Receive Pin: " << i+4;
+        connectionStatusNum += digitalRead(inputPin);
+        connectionStatusNumSent += receiveBit(inputPin);
+        qDebug() << connectionStatusNum << "Send Pin: "<< outputPin << "Receive Pin: " << inputPin;
     }
 
-    if (connectionStatusNum != 4) {
+    if (connectionStatusNum != 10) {
         connectionStatus = "Connection failed";
     }
     else {
@@ -394,5 +397,10 @@ void Minerva::startSendThread() {
     //std::thread sendThread(&Minerva::runSendThread, this);
     // sendThread.detach();
     /*prometheusThread->start();*/
+}
+void Minerva::testDMA(){
+    qDebug() << "Input and output modes set";
+    pinMode(8, OUTPUT);
+    pinMode(9,INPUT);
 }
 //dummy

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>277</width>
+    <width>311</width>
     <height>418</height>
    </rect>
   </property>
@@ -17,13 +17,10 @@
    <layout class="QGridLayout" name="gridLayout_2">
     <item row="0" column="0">
      <layout class="QGridLayout" name="gridLayout">
-      <item row="1" column="0" colspan="3">
-       <widget class="QTextBrowser" name="minervaStatus"/>
-      </item>
-      <item row="3" column="0">
-       <widget class="QPushButton" name="senderButton">
+      <item row="3" column="1">
+       <widget class="QPushButton" name="receiverButton">
         <property name="text">
-         <string>Server Mode</string>
+         <string>Client Mode</string>
         </property>
        </widget>
       </item>
@@ -43,19 +40,8 @@
         </property>
        </spacer>
       </item>
-      <item row="3" column="1">
-       <widget class="QPushButton" name="receiverButton">
-        <property name="text">
-         <string>Client Mode</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QPushButton" name="exitButton">
-        <property name="text">
-         <string>Exit</string>
-        </property>
-       </widget>
+      <item row="1" column="0" colspan="3">
+       <widget class="QTextBrowser" name="minervaStatus"/>
       </item>
       <item row="3" column="2">
        <widget class="QPushButton" name="allButton">
@@ -64,10 +50,31 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
+      <item row="3" column="0">
+       <widget class="QPushButton" name="senderButton">
+        <property name="text">
+         <string>Server Mode</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QPushButton" name="exitButton">
+        <property name="text">
+         <string>Exit</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
        <widget class="QPushButton" name="testDMAbutton">
         <property name="text">
          <string>Test DMA</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QPushButton" name="pinTestButton">
+        <property name="text">
+         <string>Test Pins</string>
         </property>
        </widget>
       </item>
@@ -80,8 +87,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>277</width>
-     <height>21</height>
+     <width>311</width>
+     <height>27</height>
     </rect>
    </property>
   </widget>
