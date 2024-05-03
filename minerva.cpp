@@ -369,19 +369,6 @@ void Minerva::receive() {
 		receiveMultipleData();
 	}
 }
-//dummy function to comly with wiringPi not being present in windows
-//void Minerva::digitalWrite(int pin, int value) {
-//	//dummy function
-//}
-//void Minerva::pinMode(int pin, int mode) {
-//	//dummy function
-//}
-//void Minerva::wiringPiSetupGpio() {
-//}
-//int Minerva::digitalRead(int pinNumber) {
-//	//dummy function
-//    return 0;
-//}
 
 void Minerva::runSendThread() {
     while (true) {
@@ -389,6 +376,7 @@ void Minerva::runSendThread() {
        std::this_thread::sleep_for(std::chrono::nanoseconds(2500000));
     }
 }
+
 void Minerva::runReceiveThread() {
     while (true) {
         receive();
