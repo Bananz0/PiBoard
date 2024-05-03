@@ -424,4 +424,3 @@ QString Minerva::testPins(){
     QString dataText = dataCount == 40? "Data connection test successfull ":"Data connection test failed";
     return dataText;
 }
-//dummy
