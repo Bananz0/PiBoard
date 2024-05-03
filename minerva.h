@@ -85,4 +85,4 @@ public:
 };
 
 
-#endif //MINERVA_H
+#endif // MINERVA_H

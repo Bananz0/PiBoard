@@ -7,7 +7,7 @@
 #define BITRECEIVEDELAY 20
 #define BYTESENDDELAY 20
 #define BYTERECEIVEDELAY 20
-#define USEGPIO false
+#define USEGPIO true
 #define USEBIGDATA true
  
 Minerva::Minerva() {
@@ -41,6 +41,16 @@ Minerva::Minerva() {
     //initialize the mutexes
     sendLock = new QMutex();
     recLock = new QMutex();
+
+    //makind sure they are set as respective inputs and outputs
+    pinMode(22, OUTPUT);
+    pinMode(23, INPUT);
+    pinMode(26, OUTPUT);
+    pinMode(20, INPUT);
+    pinMode(6, OUTPUT);
+    pinMode(0, INPUT);
+    pinMode(8, OUTPUT);
+    pinMode(9, INPUT);
 }
 
 Minerva::~Minerva() {
@@ -280,7 +290,7 @@ void Minerva::sendBigData() {
 
 void Minerva::receiveBigData() {
     if (USEGPIO) {
-        dataQueue.enqueue(receiveData(4, 100));
+        dataQueue.enqueue(receiveData(4, 171));
     }
     else if (!USEGPIO) {
         QFile bigFile("bigData.dat");
@@ -400,15 +410,6 @@ void Minerva::testDMA(){
     pinMode(9,INPUT);
 }
 QString Minerva::testPins(){
-    pinMode(22, OUTPUT);
-    pinMode(23, INPUT);
-    pinMode(26, OUTPUT);
-    pinMode(20, INPUT);
-    pinMode(6, OUTPUT);
-    pinMode(0, INPUT);
-    pinMode(8, OUTPUT);
-    pinMode(9, INPUT);
-
     bool sent = true;
     bool rec = false;
     int dataCount = 0;
