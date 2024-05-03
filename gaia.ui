@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>311</width>
+    <width>328</width>
     <height>418</height>
    </rect>
   </property>
@@ -78,6 +78,13 @@
         </property>
        </widget>
       </item>
+      <item row="4" column="1">
+       <widget class="QPushButton" name="dataSendTest">
+        <property name="text">
+         <string>DataSendTest</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>
@@ -87,7 +94,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>311</width>
+     <width>328</width>
      <height>27</height>
     </rect>
    </property>
