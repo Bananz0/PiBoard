@@ -23,6 +23,12 @@ Gaia::Gaia(QWidget* parent)
     epimetheus = new Epimetheus(minervaIn);
     prometheus = new Prometheus(minervaOut);
 
+
+    //move respective to their places
+    minervaOut->moveToThread(prometheusThread);
+    minervaIn->moveToThread(epimetheusThread);
+
+
     ////Start Send and receive timer
     //sendTimer = new QTimer();
     //sendTimer->start(5);
@@ -71,11 +77,13 @@ void Gaia::on_allButton_clicked()
 }
 
 void Gaia::startServer(const QString& position,int localMode){
+    
     prometheus->moveToThread(prometheusThread);
     QObject::connect(prometheusThread, &QThread::started, prometheus, &Prometheus::sendDataUsingThread);
     prometheusThread->start();
     QIcon server(":/assets/server.png");
     senderWindow = new Hermes(minervaOut);
+    senderWindow->moveToThread(prometheusThread);
     senderWindow->show();
     senderWindow->setWindowTitle("Server");
     senderWindow->setWindowIcon(server);
@@ -99,6 +107,7 @@ void Gaia::startClient(const QString& position, int localMode){
     minervaIn->sendDataPacket->drawMode=0;
     minervaIn->decodeData();
     receiverWindow = new Hephaestus(minervaIn);
+    receiverWindow->moveToThread(epimetheusThread);
     receiverWindow->show();
     receiverWindow->setWindowIcon(client);
     receiverWindow->setWindowTitle("Reciever");

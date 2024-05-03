@@ -80,6 +80,8 @@ public:
     void runReceiveThread();
     void startReceiveThread();
     void startSendThread();
+
+    QMutex *sendLock, * recLock;
 };
 
 

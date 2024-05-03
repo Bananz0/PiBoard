@@ -37,6 +37,10 @@ Minerva::Minerva() {
 	flagsData = QByteArray();
 	penData = QByteArray();
 	sizeData = QByteArray();
+
+    //initialize the mutexes
+    sendLock = new QMutex();
+    recLock = new QMutex();
 }
 
 Minerva::~Minerva() {
@@ -108,6 +112,7 @@ void Minerva::clientMode() {
 
 //https://doc.qt.io/qt-6/qdatastream.html
 void Minerva::encodeData() {
+    //sendLock->lock();
     //check if data has changed before sending
     if (lastSentDataPacket != nullptr && *sendDataPacket == *lastSentDataPacket) {
         //qDebug() << "No new data to send";
@@ -119,7 +124,7 @@ void Minerva::encodeData() {
     if (USEBIGDATA) {
         //Serialize Big Packet
         QDataStream bigStreamSender(&bigData, QDataStream::WriteOnly);
-
+        sendLock->lock();
         bigStreamSender << sendDataPacket->startPoint;
         bigStreamSender << sendDataPacket->movingPoint;
         bigStreamSender << sendDataPacket->endPoint;
@@ -127,7 +132,7 @@ void Minerva::encodeData() {
         bigStreamSender << sendDataPacket->drawMode;
         bigStreamSender << sendDataPacket->pen;
         bigStreamSender << sendDataPacket->windowSize;
-
+        sendLock->unlock();
 		//Queueing big packet
 		dataQueue.enqueue(bigData);
 
@@ -159,15 +164,18 @@ void Minerva::encodeData() {
 //    qDebug() << flagsData.size() << " Flags Data";
 //    qDebug() << penData.size() << " Pen Data";
 //    qDebug() << sizeData.size() << " Size Data";
+    //sendLock->unlock();
 }
 
 void Minerva::decodeData() {
+    //recLock->lock();
     if (USEBIGDATA) {
         if (dataQueue.isEmpty()){
             return;
         }
         bigData = dataQueue.dequeue();
         //Deserializing Big Packet
+        recLock->lock();
         QDataStream bigStream(&bigData, QDataStream::ReadOnly);
         bigStream >> receiveDataPacket->startPoint;
         bigStream >> receiveDataPacket->movingPoint;
@@ -176,6 +184,7 @@ void Minerva::decodeData() {
         bigStream >> receiveDataPacket->drawMode;
         bigStream >> receiveDataPacket->pen;
         bigStream >> receiveDataPacket->windowSize;
+        recLock->unlock();
     }
     else if (!USEBIGDATA){
         if (posQueue.isEmpty() || flagsQueue.isEmpty() || penQueue.isEmpty() || sizeQueue.isEmpty()) {
@@ -201,6 +210,7 @@ void Minerva::decodeData() {
         sizeStream >> receiveDataPacket->windowSize;
     }
     qDebug() << "Receive data queue size is :" << dataQueue.size();
+    //recLock->unlock();
 }
 
 void Minerva::sendBit(uint pinNumber,bool bitData) {
@@ -373,13 +383,13 @@ void Minerva::receive() {
 void Minerva::runSendThread() {
     while (true) {
         send();
-        std::this_thread::sleep_for(std::chrono::nanoseconds(2500000));
+       std::this_thread::sleep_for(std::chrono::nanoseconds(2500000));
     }
 }
 void Minerva::runReceiveThread() {
     while (true) {
         receive();
-        std::this_thread::sleep_for(std::chrono::nanoseconds(2500000));
+       std::this_thread::sleep_for(std::chrono::nanoseconds(2500000));
     }
 }
 
