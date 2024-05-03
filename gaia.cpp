@@ -12,7 +12,9 @@ Gaia::Gaia(QWidget* parent)
     , ui(new Ui::Gaia)
 {   
     minervaOut = new Minerva();
+    minervaOut->serverMode();
     minervaIn = new Minerva();
+    minervaIn->clientMode();
     ui->setupUi(this);
     ui->minervaStatus->setText("Welcome to PiBoard");
     ui->minervaStatus->append(minervaIn->testPins());

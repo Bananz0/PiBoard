@@ -41,16 +41,6 @@ Minerva::Minerva() {
     //initialize the mutexes
     sendLock = new QMutex();
     recLock = new QMutex();
-
-    //makind sure they are set as respective inputs and outputs
-    pinMode(22, OUTPUT);
-    pinMode(23, INPUT);
-    pinMode(26, OUTPUT);
-    pinMode(20, INPUT);
-    pinMode(6, OUTPUT);
-    pinMode(0, INPUT);
-    pinMode(8, OUTPUT);
-    pinMode(9, INPUT);
 }
 
 Minerva::~Minerva() {
@@ -106,17 +96,17 @@ void Minerva::initializeGPIO() {
 }
 
 void Minerva::serverMode() {
-    selectDataPin(0, 1);
-    selectDataPin(1, 1);
-    selectDataPin(2, 1);
-    selectDataPin(3, 1);
+    pinMode(22, OUTPUT);
+    pinMode(26, OUTPUT);
+    pinMode(6, OUTPUT);
+    pinMode(8, OUTPUT);
 }
 
 void Minerva::clientMode() {
-    selectDataPin(4, 0);
-    selectDataPin(5, 0);
-    selectDataPin(6, 0);
-    selectDataPin(7, 0);
+    pinMode(23, INPUT);
+    pinMode(20, INPUT);
+    pinMode(0, INPUT);
+    pinMode(9, INPUT);
 }
 
 //https://doc.qt.io/qt-6/qdatastream.html
@@ -406,8 +396,8 @@ void Minerva::startSendThread() {
     /*prometheusThread->start();*/
 }
 void Minerva::testDMA(){
-    pinMode(8, OUTPUT);
-    pinMode(9,INPUT);
+    //pinMode(8, OUTPUT);
+    //pinMode(9,INPUT);
 }
 QString Minerva::testPins(){
     bool sent = true;
