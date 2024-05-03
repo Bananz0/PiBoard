@@ -70,7 +70,7 @@ public:
     void sendData(QByteArray data, uint pinNumber);
     QByteArray receiveData(uint pinNumber,int expectedByteSize);
 
-    
+      
 
     QQueue<QByteArray> dataQueue, posQueue, flagsQueue, penQueue, sizeQueue;
 

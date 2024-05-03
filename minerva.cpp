@@ -1,9 +1,6 @@
 #include "minerva.h"
-#include "wiringPiFake.h"\
-
+#include "wiringPiFake.h"
 #include <thread>
-
-
 
 //Delay times for sending and receiving bits and bytes
 #define BITSENDDELAY 3
@@ -13,8 +10,6 @@
 #define USEGPIO false
 #define USEBIGDATA true
  
-
-
 Minerva::Minerva() {
     //initialize GPIO
 	initializeGPIO();
@@ -44,8 +39,6 @@ Minerva::Minerva() {
 	flagsData = QByteArray();
 	penData = QByteArray();
 	sizeData = QByteArray();
-
-
 }
 
 Minerva::~Minerva() {
@@ -374,13 +367,13 @@ void Minerva::receive() {
 void Minerva::runSendThread() {
     while (true) {
         send();
-        std::this_thread::sleep_for(std::chrono::milliseconds(100)); 
+        std::this_thread::sleep_for(std::chrono::milliseconds(5)); 
     }
 }
 void Minerva::runReceiveThread() {
     while (true) {
         receive();
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
 }
 
