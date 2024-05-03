@@ -14,7 +14,6 @@
 #include <QObject>
 #include <QQueue>
 #include <QMutex>
-#include <QWaitCondition>
 
 class Minerva : public QObject
 {
@@ -63,7 +62,7 @@ public:
     drawData* lastSentDataPacket = nullptr;
     drawData* sendDataPacket = nullptr;
     drawData* receiveDataPacket = nullptr;
-    QByteArray posData, penData, flagsData, sizeData, bigData;
+    QByteArray posData, penData, flagsData, sizeData, bigData, bigData_raw;
     void sendBit(uint pinNumber, bool bitData);
     int receiveBit(uint pinNumber);
     void sendData(QByteArray data, uint pinNumber);
@@ -85,4 +84,4 @@ public:
 };
 
 
-#endif MINERVA_H
+#endif //MINERVA_H

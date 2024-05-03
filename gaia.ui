@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>429</width>
-    <height>465</height>
+    <height>461</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -58,6 +58,19 @@
        <widget class="QTextBrowser" name="minervaStatus"/>
       </item>
      </layout>
+    </item>
+    <item row="3" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout"/>
+    </item>
+    <item row="5" column="0">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Send Queue size:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0">
+     <widget class="QTextBrowser" name="sendQueueSizeText"/>
     </item>
    </layout>
   </widget>
