@@ -215,9 +215,9 @@ void Minerva::decodeData() {
     //recLock->unlock();
 }
 
-void Minerva::sendBit(uint pinNumber,bool bitData) {
+void Minerva::sendBit(uint pinNumber,bool bitData) {    
     if (bitData) {
-		digitalWrite(dataPins[pinNumber], HIGH);
+        digitalWrite(dataPins[pinNumber], HIGH);
 	}
     else {
 		digitalWrite(dataPins[pinNumber], LOW);
@@ -248,7 +248,8 @@ QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
     int bitCount = 0;
 
     for (int i = 0; i < expectedByteSize * 8; i++) {
-        bool bit = receiveBit(pinNumber);
+        bool bit = digitalRead(dataPins[pinNumber]);
+        //bool bit = receiveBit(pinNumber);
         currentByte = (currentByte << 1) | bit;
         bitCount++;
 
@@ -259,7 +260,7 @@ QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
         }
     }
 
-    qDebug() << "Received data size:" << receivedData.size();
+    //qDebug() << "Received data size:" << receivedData.size();
     return receivedData;
 }
 
