@@ -105,6 +105,9 @@ void Minerva::serverMode() {
     pinMode(26, OUTPUT);
     pinMode(6, OUTPUT);
     pinMode(8, OUTPUT);
+    pinMode(2, OUTPUT);
+    pinMode(3, OUTPUT);
+    pinMode(4, OUTPUT);
 }
 
 void Minerva::clientMode() {
@@ -112,6 +115,9 @@ void Minerva::clientMode() {
     pinMode(20, INPUT);
     pinMode(0, INPUT);
     pinMode(9, INPUT);
+    pinMode(14, INPUT);
+    pinMode(15, INPUT);
+    pinMode(18, INPUT);
 }
 
 //https://doc.qt.io/qt-6/qdatastream.html
