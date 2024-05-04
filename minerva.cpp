@@ -222,8 +222,8 @@ void Minerva::decodeData() {
 
 void Minerva::sendBit(uint pinNumber, bool bitData) {
     if (bitData) {
-        digitalWrite(dataPins[pinNumber], HIGH);
-    }
+		digitalWrite(dataPins[pinNumber], HIGH);
+	}
     else {
         digitalWrite(dataPins[pinNumber], LOW);
     }
