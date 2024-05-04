@@ -11,7 +11,8 @@
 #define USEBIGDATA true
 #define SYNC_TIMEOUT 1000000 
 #define MAX_SYNC_RETRIES 5 
-int syncPins[3] = { 10, 11, 12 };
+int syncPins[6] = { 2, 3, 4,
+                    14, 15, 18};
 
 
 Minerva::Minerva() {
@@ -469,7 +470,7 @@ void Minerva::sendReady(bool value) {
 }
 
 bool Minerva::isReceiveReady() {
-    return digitalRead(syncPins[0]);
+    return digitalRead(syncPins[3]);
 }
 
 void Minerva::sendSolicitation(bool value) {
@@ -486,7 +487,7 @@ bool Minerva::isSolicited() {
 
     // Loop for a limited time
     for (int i = 0; i < max_wait_time; i++) {
-        if (digitalRead(syncPins[1])) {
+        if (digitalRead(syncPins[4])) {
             // Solicitation received
             sendAcknowledgement(true); // Acknowledge the solicitation
             return true;
@@ -506,7 +507,7 @@ bool Minerva::isAcknowledged(bool value) {
 
     // Loop for a limited time
     for (int i = 0; i < max_wait_time; i++) {
-        if (digitalRead(syncPins[2]) == value) {
+        if (digitalRead(syncPins[5]) == value) {
             // Expected value received
             return true;
         }
