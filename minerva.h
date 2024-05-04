@@ -81,6 +81,12 @@ public:
     void startSendThread();
     void testDMA();
     QString testPins();
+    void sendReady(bool value);
+    bool isReceiveReady();
+    void sendSolicitation(bool value);
+    bool isSolicited();
+    void sendAcknowledgement(bool value);
+    bool isAcknowledged(bool value);
     QMutex *sendLock, * recLock;
 };
 

@@ -9,11 +9,15 @@
 #define BYTERECEIVEDELAY 20
 #define USEGPIO true
 #define USEBIGDATA true
- 
+#define SYNC_TIMEOUT 1000000 
+#define MAX_SYNC_RETRIES 5 
+int syncPins[3] = { 10, 11, 12 };
+
+
 Minerva::Minerva() {
     //initialize GPIO
-	initializeGPIO();
-	//set send pins
+    initializeGPIO();
+    //set send pins
     dataPins[0] = 22;
     dataPins[1] = 26;
     dataPins[2] = 6;
@@ -25,18 +29,18 @@ Minerva::Minerva() {
     dataPins[7] = 1;
     //set misc pins
     dataPins[8] = 8;
-    dataPins[9] = 9;   
-	//set window size
-	winSize = QSize(800, 600);
-	//initialize drawDataPacket
-	sendDataPacket = new drawData;
-	receiveDataPacket = new drawData;
+    dataPins[9] = 9;
+    //set window size
+    winSize = QSize(800, 600);
+    //initialize drawDataPacket
+    sendDataPacket = new drawData;
+    receiveDataPacket = new drawData;
     lastSentDataPacket = new drawData;
-	//initialize data packets
-	posData = QByteArray();
-	flagsData = QByteArray();
-	penData = QByteArray();
-	sizeData = QByteArray();
+    //initialize data packets
+    posData = QByteArray();
+    flagsData = QByteArray();
+    penData = QByteArray();
+    sizeData = QByteArray();
 
     //initialize the mutexes
     sendLock = new QMutex();
@@ -50,15 +54,15 @@ Minerva::~Minerva() {
     //delete prometheusThread;
     delete lastReceivedDataPacket;
     delete lastSentDataPacket;
-	delete sendDataPacket;
-	delete receiveDataPacket;
+    delete sendDataPacket;
+    delete receiveDataPacket;
 }
 
-void Minerva::getServerWindowSize(QSize hermesSize){
+void Minerva::getServerWindowSize(QSize hermesSize) {
     winSize = hermesSize;
 };
 
-QSize Minerva::setClentWindowSize(){
+QSize Minerva::setClentWindowSize() {
     return winSize;
 }
 
@@ -87,7 +91,7 @@ QSize Minerva::setClentWindowSize(){
 //    return connectionStatus;
 //}
 
-void Minerva::selectDataPin(int pinNumber,int dataModeNum){
+void Minerva::selectDataPin(int pinNumber, int dataModeNum) {
     pinMode(dataPins[pinNumber], dataModeNum);
 }
 
@@ -134,11 +138,11 @@ void Minerva::encodeData() {
         bigStreamSender << sendDataPacket->windowSize;
         sendLock->unlock();
         //unlock data when sending
-		//Queueing big packet
-		dataQueue.enqueue(bigData);
+        //Queueing big packet
+        dataQueue.enqueue(bigData);
 
         qDebug() << "Send data queue size is :" << dataQueue.size();
-	}
+    }
     else if (!USEBIGDATA) {
         //Serialize Individual Packets
         QDataStream posStreamSender(&posData, QDataStream::WriteOnly);
@@ -154,27 +158,28 @@ void Minerva::encodeData() {
         penStreamSender << sendDataPacket->pen;
         sizeStreamSender << sendDataPacket->windowSize;
         sendLock->unlock();
-		//Queueing data to send over multiple wires
-		posQueue.enqueue(posData);
-		flagsQueue.enqueue(flagsData);
-		penQueue.enqueue(penData);
-		sizeQueue.enqueue(sizeData);
-	}
-//    //Finding out the data size for transmission
-//    qDebug() << posData.size() << " Position Data";
-//    qDebug() << flagsData.size() << " Flags Data";
-//    qDebug() << penData.size() << " Pen Data";
-//    qDebug() << sizeData.size() << " Size Data";
-    //sendLock->unlock();
+        //Queueing data to send over multiple wires
+        posQueue.enqueue(posData);
+        flagsQueue.enqueue(flagsData);
+        penQueue.enqueue(penData);
+        sizeQueue.enqueue(sizeData);
+    }
+    //    //Finding out the data size for transmission
+    //    qDebug() << posData.size() << " Position Data";
+    //    qDebug() << flagsData.size() << " Flags Data";
+    //    qDebug() << penData.size() << " Pen Data";
+    //    qDebug() << sizeData.size() << " Size Data";
+        //sendLock->unlock();
 }
 
 void Minerva::decodeData() {
     //recLock->lock();
     if (USEBIGDATA) {
-        if (dataQueue.isEmpty()){
-            return;
-        }
-        bigData = dataQueue.dequeue();
+        //if (dataQueue.isEmpty()){
+        //    return;
+        //}
+        //bigData = dataQueue.dequeue();
+        bigData = bigData_raw;
         //Deserializing Big Packet
         recLock->lock();
         QDataStream bigStream(&bigData, QDataStream::ReadOnly);
@@ -187,15 +192,15 @@ void Minerva::decodeData() {
         bigStream >> receiveDataPacket->windowSize;
         recLock->unlock();
     }
-    else if (!USEBIGDATA){
+    else if (!USEBIGDATA) {
         if (posQueue.isEmpty() || flagsQueue.isEmpty() || penQueue.isEmpty() || sizeQueue.isEmpty()) {
-			return;
-		}
+            return;
+        }
         posData = posQueue.dequeue();
         flagsData = flagsQueue.dequeue();
         penData = penQueue.dequeue();
         sizeData = sizeQueue.dequeue();
-        
+
         //Receiving Individual Packets
         QDataStream posStream(&posData, QDataStream::ReadOnly);
         QDataStream flagsStream(&flagsData, QDataStream::ReadOnly);
@@ -211,24 +216,24 @@ void Minerva::decodeData() {
         sizeStream >> receiveDataPacket->windowSize;
         recLock->unlock();
     }
-    qDebug() << "Receive data queue size is :" << dataQueue.size();
+    //qDebug() << "Receive data queue size is :" << dataQueue.size();
     //recLock->unlock();
 }
 
-void Minerva::sendBit(uint pinNumber,bool bitData) {
+void Minerva::sendBit(uint pinNumber, bool bitData) {
     if (bitData) {
-		digitalWrite(dataPins[pinNumber], HIGH);
-	}
+        digitalWrite(dataPins[pinNumber], HIGH);
+    }
     else {
-		digitalWrite(dataPins[pinNumber], LOW);
-	}
-    delayMicroseconds( BITSENDDELAY );
+        digitalWrite(dataPins[pinNumber], LOW);
+    }
+    delayMicroseconds(BITSENDDELAY);
 }
 
 int Minerva::receiveBit(uint pinNumber) {
     bool bitValue = false;
     bitValue = digitalRead(dataPins[pinNumber]);
-    delayMicroseconds( BITRECEIVEDELAY );
+    delayMicroseconds(BITRECEIVEDELAY);
     return (int)bitValue;
 }
 
@@ -248,7 +253,8 @@ QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
     int bitCount = 0;
 
     for (int i = 0; i < expectedByteSize * 8; i++) {
-        bool bit = receiveBit(pinNumber);
+        bool bit = digitalRead(dataPins[pinNumber]);
+        //bool bit = receiveBit(pinNumber);
         currentByte = (currentByte << 1) | bit;
         bitCount++;
 
@@ -259,41 +265,43 @@ QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
         }
     }
 
-    qDebug() << "Received data size:" << receivedData.size();
+    //qDebug() << "Received data size:" << receivedData.size();
     return receivedData;
 }
 
 void Minerva::sendBigData() {
     if (dataQueue.isEmpty()) {
-		return;
-	}
+        return;
+    }
     //qDebug() << "Big Data Size: " << dataQueue.size();
     if (USEGPIO) {
-		sendData(dataQueue.dequeue(), 0);
-	}
+        sendData(dataQueue.dequeue(), 0);
+    }
     else if (!USEGPIO) {
-		QFile bigFile("bigData.dat");
-		bigFile.open(QIODevice::WriteOnly);
-		bigFile.write(dataQueue.dequeue());
-	}
+        QFile bigFile("bigData.dat");
+        bigFile.open(QIODevice::WriteOnly);
+        bigFile.write(dataQueue.dequeue());
+    }
 }
 
 void Minerva::receiveBigData() {
     if (USEGPIO) {
-        dataQueue.enqueue(receiveData(4, 171));
+        //dataQueue.enqueue(receiveData(4, 171));
+        bigData_raw = receiveData(4, 171);
+        qDebug() << bigData_raw;
     }
     else if (!USEGPIO) {
         QFile bigFile("bigData.dat");
         bigFile.open(QIODevice::ReadOnly);
         dataQueue.enqueue(bigFile.readAll());
     }
-    
+
 }
 
 void Minerva::sendMultipleData() {
     if (posQueue.isEmpty() || flagsQueue.isEmpty() || penQueue.isEmpty() || sizeQueue.isEmpty()) {
         return;
-	}
+    }
     if (USEGPIO) {
         sendData(posQueue.dequeue(), 1);
         sendData(flagsQueue.dequeue(), 2);
@@ -301,22 +309,22 @@ void Minerva::sendMultipleData() {
         sendData(sizeQueue.dequeue(), 4);
     }
     else if (!USEGPIO) {
-		QFile posFile("posData.dat");
-		posFile.open(QIODevice::WriteOnly);
-		posFile.write(posQueue.dequeue());
+        QFile posFile("posData.dat");
+        posFile.open(QIODevice::WriteOnly);
+        posFile.write(posQueue.dequeue());
 
-		QFile flagsFile("flagsData.dat");
-		flagsFile.open(QIODevice::WriteOnly);
-		flagsFile.write(flagsQueue.dequeue());
+        QFile flagsFile("flagsData.dat");
+        flagsFile.open(QIODevice::WriteOnly);
+        flagsFile.write(flagsQueue.dequeue());
 
-		QFile penFile("penData.dat");
-		penFile.open(QIODevice::WriteOnly);
-		penFile.write(penQueue.dequeue());
+        QFile penFile("penData.dat");
+        penFile.open(QIODevice::WriteOnly);
+        penFile.write(penQueue.dequeue());
 
-		QFile sizeFile("sizeData.dat");
-		sizeFile.open(QIODevice::WriteOnly);
-		sizeFile.write(sizeQueue.dequeue());
-	}
+        QFile sizeFile("sizeData.dat");
+        sizeFile.open(QIODevice::WriteOnly);
+        sizeFile.write(sizeQueue.dequeue());
+    }
 }
 
 void Minerva::receiveMultipleData() {
@@ -326,7 +334,7 @@ void Minerva::receiveMultipleData() {
         flagsQueue.enqueue(receiveData(6, 5));
         penQueue.enqueue(receiveData(7, 116));
         sizeQueue.enqueue(receiveData(8, 8));
-	}
+    }
     else if (!USEGPIO) {
         //Receiving Individual Packets
         QFile posFile("posData.dat");
@@ -345,48 +353,88 @@ void Minerva::receiveMultipleData() {
         posQueue.enqueue(posFile.readAll());
         flagsQueue.enqueue(flagsFile.readAll());
         penQueue.enqueue(penFile.readAll());
-        sizeQueue.enqueue(sizeFile.readAll());      
+        sizeQueue.enqueue(sizeFile.readAll());
     }
 
 
 }
 
-void Minerva::send(){
-    //qDebug() << "Data sent";
-    if (USEBIGDATA) {
-		sendBigData();
-	}
-    else if (!USEBIGDATA) {
-		sendMultipleData();
-	}
+void Minerva::send() {
+    int numRetries = 0;
+    bool receiverReady = false;
+
+    sendReady(true);
+
+    while (!receiverReady && numRetries < MAX_SYNC_RETRIES) {
+        delayMicroseconds(SYNC_TIMEOUT);
+        receiverReady = isReceiveReady();
+        numRetries++;
+    }
+
+    if (receiverReady) {
+        // Receiver is ready, send the data
+        if (USEBIGDATA) {
+            sendBigData();
+        }
+        else {
+            sendMultipleData();
+        }
+
+        // Signal the end of transmission
+        sendReady(false);
+    }
+    else {
+        qWarning() << "Minerva::send(): Receiver not ready after" << MAX_SYNC_RETRIES << "retries. Aborting send.";
+    }
 }
 
 void Minerva::receive() {
-    if (USEBIGDATA) {
-		receiveBigData();
-	}
-    else if (!USEBIGDATA) {
-		receiveMultipleData();
-	}
+    int numRetries = 0;
+    bool senderReady = false;
+
+    // Wait for the ready signal
+    while (!senderReady && numRetries < MAX_SYNC_RETRIES) {
+        delayMicroseconds(SYNC_TIMEOUT);
+        senderReady = isReceiveReady();
+        numRetries++;
+    }
+
+    if (senderReady) {
+        // Sender is ready, acknowledge the ready signal
+        sendAcknowledgement(true);
+
+        // Receive the data
+        if (USEBIGDATA) {
+            receiveBigData();
+        }
+        else {
+            receiveMultipleData();
+        }
+
+        sendAcknowledgement(false);
+    }
+    else {
+        qWarning() << "Minerva::receive(): Sender not ready after" << MAX_SYNC_RETRIES << "retries. Aborting receive.";
+    }
 }
 
 void Minerva::runSendThread() {
     while (true) {
         send();
-       std::this_thread::sleep_for(std::chrono::nanoseconds(2500000));
+        std::this_thread::sleep_for(std::chrono::nanoseconds(2500000));
     }
 }
 
 void Minerva::runReceiveThread() {
     while (true) {
         receive();
-       std::this_thread::sleep_for(std::chrono::nanoseconds(2500000));
+        std::this_thread::sleep_for(std::chrono::nanoseconds(2500000));
     }
 }
 
 void Minerva::startReceiveThread() {
     //std::thread receiveThread(&Minerva::runReceiveThread, this);
-	//receiveThread.detach();
+    //receiveThread.detach();
     /*epimetheusThread->start();*/
 }
 
@@ -395,23 +443,78 @@ void Minerva::startSendThread() {
     // sendThread.detach();
     /*prometheusThread->start();*/
 }
-void Minerva::testDMA(){
+void Minerva::testDMA() {
     //pinMode(8, OUTPUT);
     //pinMode(9,INPUT);
 }
-QString Minerva::testPins(){
+QString Minerva::testPins() {
     bool sent = true;
     bool rec = false;
     int dataCount = 0;
-    for (int i = 0; i < 40; i++){
-        int output = i %4;
+    for (int i = 0; i < 40; i++) {
+        int output = i % 4;
         int input = output + 4;
-        sendBit(output,sent);
+        sendBit(output, sent);
         rec = receiveBit(input);
         dataCount += rec;
-        qDebug() << "Send Pin: "<< output << "Receive Pin: " << input << "Data Received: "<< dataCount;
+        qDebug() << "Send Pin: " << output << "Receive Pin: " << input << "Data Received: " << dataCount;
         rec = false;
     }
-    QString dataText = dataCount == 40? "Data connection test successfull ":"Data connection test failed";
+    QString dataText = dataCount == 40 ? "Data connection test successfull " : "Data connection test failed";
     return dataText;
+}
+
+void Minerva::sendReady(bool value) {
+    digitalWrite(syncPins[0], value);
+}
+
+bool Minerva::isReceiveReady() {
+    return digitalRead(syncPins[0]);
+}
+
+void Minerva::sendSolicitation(bool value) {
+    digitalWrite(syncPins[1], value);
+}
+
+void Minerva::sendAcknowledgement(bool value) {
+    digitalWrite(syncPins[2], value);
+}
+
+bool Minerva::isSolicited() {
+    // Set maximum wait time in microseconds (adjust as needed)
+    const int max_wait_time = 100000;
+
+    // Loop for a limited time
+    for (int i = 0; i < max_wait_time; i++) {
+        if (digitalRead(syncPins[1])) {
+            // Solicitation received
+            sendAcknowledgement(true); // Acknowledge the solicitation
+            return true;
+        }
+
+        // Briefly delay to avoid busy waiting
+        delayMicroseconds(1);
+    }
+
+    // Timeout reached, not solicited
+    return false;
+}
+
+bool Minerva::isAcknowledged(bool value) {
+    // Set maximum wait time in microseconds (adjust as needed)
+    const int max_wait_time = 100000;
+
+    // Loop for a limited time
+    for (int i = 0; i < max_wait_time; i++) {
+        if (digitalRead(syncPins[2]) == value) {
+            // Expected value received
+            return true;
+        }
+
+        // Briefly delay to avoid busy waiting
+        delayMicroseconds(1);
+    }
+
+    // Timeout reached, not acknowledged
+    return false;
 }
