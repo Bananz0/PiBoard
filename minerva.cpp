@@ -3,8 +3,8 @@
 #include <thread>
 
 //Delay times for sending and receiving bits and bytes
-#define BITDELAY 1000
-#define BYTEDELAY 100
+#define BITDELAY 10000
+#define BYTEDELAY 1000000
 #define USEGPIO true
 #define USEBIGDATA true
 #define SYNC_TIMEOUT 1000000 
@@ -260,7 +260,7 @@ QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
     int bitCount = 0;
 
     for (int i = 0; i < expectedByteSize * 8; i++) {
-        bool bit = digitalRead(dataPins[pinNumber]);
+        bool bit = receiveBit(dataPins[pinNumber]);
         //bool bit = receiveBit(pinNumber);
         currentByte = (currentByte << 1) | bit;
         bitCount++;
