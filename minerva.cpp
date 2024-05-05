@@ -3,18 +3,15 @@
 #include <thread>
 
 //Delay times for sending and receiving bits and bytes
-#define BITSENDDELAY 1000
-#define BITRECEIVEDELAY 1000
-#define BYTESENDDELAY 500
-#define BYTERECEIVEDELAY 500
+#define BITDELAY 1000
+#define BYTEDELAY 100
 #define USEGPIO true
 #define USEBIGDATA true
 #define SYNC_TIMEOUT 1000000 
 #define MAX_SYNC_RETRIES 5 
 int syncPins[8] = { 2, 3, 4, 17 ,
                     14, 15, 18, 13};
-
-
+ 
 Minerva::Minerva() {
     //initialize GPIO
     initializeGPIO();
@@ -236,13 +233,13 @@ void Minerva::sendBit(uint pinNumber, bool bitData) {
     else {
         digitalWrite(dataPins[pinNumber], LOW);
     }
-    delayMicroseconds(BITSENDDELAY);
+    delayMicroseconds(BITDELAY);
 }
 
 int Minerva::receiveBit(uint pinNumber) {
     bool bitValue = false;
     bitValue = digitalRead(dataPins[pinNumber]);
-    delayMicroseconds(BITRECEIVEDELAY);
+    delayMicroseconds(BITDELAY);
     return (int)bitValue;
 }
 
@@ -253,7 +250,7 @@ void Minerva::sendData(QByteArray data, uint pinNumber) {
             bool bit = (byte >> j) & 0x01; // Extract the j-th bit from the byte
             sendBit(pinNumber, bit); // Send the bit using the sendBit function
         }
-        delayMicroseconds(BYTERECEIVEDELAY);
+        delayMicroseconds(BYTEDELAY);
     }
 }
 
@@ -273,7 +270,7 @@ QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
             currentByte = 0;
             bitCount = 0;
         }
-        delayMicroseconds(BYTERECEIVEDELAY);
+        delayMicroseconds(BYTEDELAY);
     }
 
     //qDebug() << "Received data size:" << receivedData.size();
@@ -284,7 +281,7 @@ void Minerva::sendBigData() {
     if (dataQueue.isEmpty()) {
         return;
     }
-    //qDebug() << "Big Data Size: " << dataQueue.size();
+    qDebug() << "Big Data Size: " << bigData.size();
     if (USEGPIO) {
         sendData(dataQueue.dequeue(), 0);
     }
@@ -298,7 +295,7 @@ void Minerva::sendBigData() {
 void Minerva::receiveBigData() {
     if (USEGPIO) {
         //dataQueue.enqueue(receiveData(4, 171));
-        bigData_raw = receiveData(4, 171);
+        bigData_raw = receiveData(4, 177);
         qDebug() << bigData_raw;
     }
     else if (!USEGPIO) {
@@ -383,12 +380,12 @@ void Minerva::send() {
     }
 
     if (receiverReady) {
-        if (USEBIGDATA) {
-            sendBigData();
-        }
-        else {
-            sendMultipleData();
-        }
+    if (USEBIGDATA) {
+        sendBigData();
+    }
+    else {
+        sendMultipleData();
+    }
 
         sendReady(false, 0); //sends not ready over pin 0 (GPIO 2) - and pin 4 (GPIO 14) receives it
     }
