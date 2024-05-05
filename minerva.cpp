@@ -11,8 +11,8 @@
 #define USEBIGDATA true
 #define SYNC_TIMEOUT 1000000 
 #define MAX_SYNC_RETRIES 5 
-int syncPins[6] = { 2, 3, 4,
-                    14, 15, 18};
+int syncPins[8] = { 2, 3, 4, 17 ,
+                    14, 15, 18, 14 };
 
 
 Minerva::Minerva() {
@@ -108,6 +108,7 @@ void Minerva::serverMode() {
     pinMode(2, OUTPUT);
     pinMode(3, OUTPUT);
     pinMode(4, OUTPUT);
+    pinMode(17, INPUT);
 }
 
 void Minerva::clientMode() {
@@ -118,6 +119,7 @@ void Minerva::clientMode() {
     pinMode(14, INPUT);
     pinMode(15, INPUT);
     pinMode(18, INPUT);
+    pinMode(14, OUTPUT);
 }
 
 //https://doc.qt.io/qt-6/qdatastream.html
@@ -370,16 +372,15 @@ void Minerva::send() {
     int numRetries = 0;
     bool receiverReady = false;
 
-    sendReady(true);
+    sendReady(true, 0); //sends ready over pin 0 - and pin 3 receives it
 
     while (!receiverReady && numRetries < MAX_SYNC_RETRIES) {
         delayMicroseconds(SYNC_TIMEOUT);
-        receiverReady = isReceiveReady();
+        receiverReady = isReceiveReady(4); //reads receiver ready from pin 4 - pin 7 sends it
         numRetries++;
     }
 
     if (receiverReady) {
-        // Receiver is ready, send the data
         if (USEBIGDATA) {
             sendBigData();
         }
@@ -387,8 +388,7 @@ void Minerva::send() {
             sendMultipleData();
         }
 
-        // Signal the end of transmission
-        sendReady(false);
+        sendReady(false, 0); //sends not ready over pin 0
     }
     else {
         qWarning() << "Minerva::send(): Receiver not ready after" << MAX_SYNC_RETRIES << "retries. Aborting send.";
@@ -399,10 +399,11 @@ void Minerva::receive() {
     int numRetries = 0;
     bool senderReady = false;
 
+    sendReady(true, 7); 
     // Wait for the ready signal
     while (!senderReady && numRetries < MAX_SYNC_RETRIES) {
         delayMicroseconds(SYNC_TIMEOUT);
-        senderReady = isReceiveReady();
+        senderReady = isReceiveReady(3);
         numRetries++;
     }
 
@@ -417,7 +418,7 @@ void Minerva::receive() {
         else {
             receiveMultipleData();
         }
-
+        sendReady(false, 7);
         sendAcknowledgement(false);
     }
     else {
@@ -450,10 +451,12 @@ void Minerva::startSendThread() {
     // sendThread.detach();
     /*prometheusThread->start();*/
 }
+
 void Minerva::testDMA() {
     //pinMode(8, OUTPUT);
     //pinMode(9,INPUT);
 }
+
 QString Minerva::testPins() {
     bool sent = true;
     bool rec = false;
@@ -471,12 +474,12 @@ QString Minerva::testPins() {
     return dataText;
 }
 
-void Minerva::sendReady(bool value) {
-    digitalWrite(syncPins[0], value);
+void Minerva::sendReady(bool value , int pin) {
+    digitalWrite(syncPins[pin], value);
 }
 
-bool Minerva::isReceiveReady() {
-    return digitalRead(syncPins[3]);
+bool Minerva::isReceiveReady(int pin) {
+    return digitalRead(syncPins[pin]);
 }
 
 void Minerva::sendSolicitation(bool value) {

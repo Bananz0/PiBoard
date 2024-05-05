@@ -81,8 +81,8 @@ public:
     void startSendThread();
     void testDMA();
     QString testPins();
-    void sendReady(bool value);
-    bool isReceiveReady();
+    void sendReady(bool value, int pin);
+    bool isReceiveReady(int pin);
     void sendSolicitation(bool value);
     bool isSolicited();
     void sendAcknowledgement(bool value);
