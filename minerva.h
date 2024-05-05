@@ -83,10 +83,6 @@ public:
     QString testPins();
     void sendReady(bool value, int pin);
     bool isReceiveReady(int pin);
-    void sendSolicitation(bool value);
-    bool isSolicited();
-    void sendAcknowledgement(bool value);
-    bool isAcknowledged(bool value);
     QMutex *sendLock, * recLock;
 };
 

@@ -3,16 +3,16 @@
 #include <thread>
 
 //Delay times for sending and receiving bits and bytes
-#define BITSENDDELAY 20
-#define BITRECEIVEDELAY 20
-#define BYTESENDDELAY 20
-#define BYTERECEIVEDELAY 20
+#define BITSENDDELAY 1000
+#define BITRECEIVEDELAY 1000
+#define BYTESENDDELAY 500
+#define BYTERECEIVEDELAY 500
 #define USEGPIO true
 #define USEBIGDATA true
 #define SYNC_TIMEOUT 1000000 
 #define MAX_SYNC_RETRIES 5 
 int syncPins[8] = { 2, 3, 4, 17 ,
-                    14, 15, 18, 13 };
+                    14, 15, 18, 13};
 
 
 Minerva::Minerva() {
@@ -253,6 +253,7 @@ void Minerva::sendData(QByteArray data, uint pinNumber) {
             bool bit = (byte >> j) & 0x01; // Extract the j-th bit from the byte
             sendBit(pinNumber, bit); // Send the bit using the sendBit function
         }
+        delayMicroseconds(BYTERECEIVEDELAY);
     }
 }
 
@@ -272,6 +273,7 @@ QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
             currentByte = 0;
             bitCount = 0;
         }
+        delayMicroseconds(BYTERECEIVEDELAY);
     }
 
     //qDebug() << "Received data size:" << receivedData.size();
@@ -403,15 +405,12 @@ void Minerva::receive() {
 
     while (!senderReady && numRetries < MAX_SYNC_RETRIES) {
         delayMicroseconds(SYNC_TIMEOUT);
-        senderReady = isReceiveReady(4);
+        senderReady = isReceiveReady(4); // Read the ready signal from pin 4 (GPIO 14) - pin 0 (GPIO 2) sends it
         numRetries++;
     }
 
     if (senderReady) {
-        // Sender is ready, acknowledge the ready signal
-        sendAcknowledgement(true);
 
-        // Receive the data
         if (USEBIGDATA) {
             receiveBigData();
         }
@@ -419,7 +418,6 @@ void Minerva::receive() {
             receiveMultipleData();
         }
         sendReady(false, 7); // Send the not ready signal to pin 7 (GPIO 13) - pin 3 (GPIO 17) receives it
-        sendAcknowledgement(false);
     }
     else {
         qWarning() << "Minerva::receive(): Sender not ready after" << MAX_SYNC_RETRIES << "retries. Aborting receive.";
@@ -480,51 +478,4 @@ void Minerva::sendReady(bool value , int pin) {
 
 bool Minerva::isReceiveReady(int pin) {
     return digitalRead(syncPins[pin]);
-}
-
-void Minerva::sendSolicitation(bool value) {
-    digitalWrite(syncPins[1], value);
-}
-
-void Minerva::sendAcknowledgement(bool value) {
-    digitalWrite(syncPins[2], value);
-}
-
-bool Minerva::isSolicited() {
-    // Set maximum wait time in microseconds (adjust as needed)
-    const int max_wait_time = 100000;
-
-    // Loop for a limited time
-    for (int i = 0; i < max_wait_time; i++) {
-        if (digitalRead(syncPins[4])) {
-            // Solicitation received
-            sendAcknowledgement(true); // Acknowledge the solicitation
-            return true;
-        }
-
-        // Briefly delay to avoid busy waiting
-        delayMicroseconds(1);
-    }
-
-    // Timeout reached, not solicited
-    return false;
-}
-
-bool Minerva::isAcknowledged(bool value) {
-    // Set maximum wait time in microseconds (adjust as needed)
-    const int max_wait_time = 100000;
-
-    // Loop for a limited time
-    for (int i = 0; i < max_wait_time; i++) {
-        if (digitalRead(syncPins[5]) == value) {
-            // Expected value received
-            return true;
-        }
-
-        // Briefly delay to avoid busy waiting
-        delayMicroseconds(1);
-    }
-
-    // Timeout reached, not acknowledged
-    return false;
 }
