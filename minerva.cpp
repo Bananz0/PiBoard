@@ -12,7 +12,7 @@
 #define SYNC_TIMEOUT 1000000 
 #define MAX_SYNC_RETRIES 5 
 int syncPins[8] = { 2, 3, 4, 17 ,
-                    14, 15, 18, 14 };
+                    14, 15, 18, 13 };
 
 
 Minerva::Minerva() {
@@ -119,7 +119,7 @@ void Minerva::clientMode() {
     pinMode(14, INPUT);
     pinMode(15, INPUT);
     pinMode(18, INPUT);
-    pinMode(14, OUTPUT);
+    pinMode(13, OUTPUT);
 }
 
 //https://doc.qt.io/qt-6/qdatastream.html
@@ -372,11 +372,11 @@ void Minerva::send() {
     int numRetries = 0;
     bool receiverReady = false;
 
-    sendReady(true, 0); //sends ready over pin 0 - and pin 3 receives it
+    sendReady(true, 0); //sends ready over pin 0 (GPIO 2) - and pin 4 (GPIO 14) receives it
 
     while (!receiverReady && numRetries < MAX_SYNC_RETRIES) {
         delayMicroseconds(SYNC_TIMEOUT);
-        receiverReady = isReceiveReady(4); //reads receiver ready from pin 4 - pin 7 sends it
+        receiverReady = isReceiveReady(3); //reads receiver ready from pin 3(GPIO 17) - pin 7 (GPIO 13) sends it
         numRetries++;
     }
 
@@ -388,7 +388,7 @@ void Minerva::send() {
             sendMultipleData();
         }
 
-        sendReady(false, 0); //sends not ready over pin 0
+        sendReady(false, 0); //sends not ready over pin 0 (GPIO 2) - and pin 4 (GPIO 14) receives it
     }
     else {
         qWarning() << "Minerva::send(): Receiver not ready after" << MAX_SYNC_RETRIES << "retries. Aborting send.";
@@ -399,11 +399,11 @@ void Minerva::receive() {
     int numRetries = 0;
     bool senderReady = false;
 
-    sendReady(true, 7); 
-    // Wait for the ready signal
+    sendReady(true, 7); // Send the ready signal to pin 7 (GPIO 13) - pin 3 (GPIO 17) receives it
+
     while (!senderReady && numRetries < MAX_SYNC_RETRIES) {
         delayMicroseconds(SYNC_TIMEOUT);
-        senderReady = isReceiveReady(3);
+        senderReady = isReceiveReady(4);
         numRetries++;
     }
 
@@ -418,7 +418,7 @@ void Minerva::receive() {
         else {
             receiveMultipleData();
         }
-        sendReady(false, 7);
+        sendReady(false, 7); // Send the not ready signal to pin 7 (GPIO 13) - pin 3 (GPIO 17) receives it
         sendAcknowledgement(false);
     }
     else {
