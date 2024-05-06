@@ -83,6 +83,8 @@ public:
     QString testPins();
     void sendReady(bool value, int pin);
     bool isReceiveReady(int pin);
+    void sendBitUnclocked(uint s_pin, bool send);
+    bool receiveBitUnclocked(uint r_pin);
     QMutex *sendLock, * recLock;
 };
 

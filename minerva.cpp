@@ -238,7 +238,6 @@ void Minerva::decodeData() {
 
 void Minerva::sendBit(uint pinNumber, bool bitData) {
     digitalWrite(syncPins[1], LOW); // Set the clock pin low - sender
-    digitalWrite(24, LOW); // Set the clock pin low - receiver
     if (bitData) {
 		digitalWrite(dataPins[pinNumber], HIGH);
 	}
@@ -247,11 +246,10 @@ void Minerva::sendBit(uint pinNumber, bool bitData) {
     }
     delayMicroseconds(BITDELAY);
     digitalWrite(syncPins[1], HIGH); // Set the clock pin high
-    digitalWrite(24, HIGH); // Set the clock pin high
 }
 
 int Minerva::receiveBit(uint pinNumber) {
-    while (digitalRead(syncPins[5]) == LOW || digitalRead(25) == LOW) {
+    while (digitalRead(syncPins[5]) == LOW) {
         delayMicroseconds(1); 
     }
     bool bitValue = digitalRead(dataPins[pinNumber]);
@@ -475,8 +473,8 @@ QString Minerva::testPins() {
     for (int i = 0; i < 40; i++) {
         int output = i % 4;
         int input = output + 4;
-        sendBit(output, sent);
-        rec = receiveBit(input);
+        digitalWrite(output, sent);
+        rec = digitalRead(input);
         dataCount += rec;
         qDebug() << "Send Pin: " << output << "Receive Pin: " << input << "Data Received: " << dataCount;
         rec = false;
@@ -491,4 +489,11 @@ void Minerva::sendReady(bool value , int pin) {
 
 bool Minerva::isReceiveReady(int pin) {
     return digitalRead(syncPins[pin]);
+}
+
+void Minerva::sendBitUnclocked(uint s_pin,bool send) {
+    digitalWrite(s_pin, send);
+}
+bool Minerva::receiveBitUnclocked(uint r_pin) {
+	return digitalRead(r_pin);
 }
