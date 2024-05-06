@@ -98,15 +98,20 @@ void Minerva::initializeGPIO() {
 }
 
 void Minerva::serverMode() {
-    pinMode(22, OUTPUT); //Main sender
-    pinMode(26, OUTPUT); //send small packets
-    pinMode(6, OUTPUT); //send small packets
-    pinMode(8, OUTPUT); //send small packets
+    pinMode(22, OUTPUT); //Connected to GPIO 23
+    pinMode(26, OUTPUT); //Connected to GPIO 20
+    pinMode(6, OUTPUT);  //Connected to GPIO 0
+    pinMode(8, OUTPUT);  //connected to GPIO 9
 
-    pinMode(2, OUTPUT); // sync - send senderready
-    pinMode(3, OUTPUT); //sync send sendbit() to GPIO 15
+    pinMode(2, OUTPUT); //sync - send senderready to GPIO 14
+
+    pinMode(3, OUTPUT); //sync - send sendbit() to GPIO 15 - clock to receiver
+    pinMode(25, INPUT); //sync - receive sendBit from GPIO 24 - clock from receiver
+    
+
+
     pinMode(4, INPUT); //sync - receive sendBit from GPIO 18
-    pinMode(17, INPUT);// sync - read receiverready
+    pinMode(17, INPUT);// sync - read receiverready from GPIO 13
 }
 
 void Minerva::clientMode() {
@@ -115,10 +120,13 @@ void Minerva::clientMode() {
     pinMode(0, INPUT);  //receive small packets
     pinMode(9, INPUT); // receive small packets
 
-    pinMode(14, INPUT);  //sync receive sendready
-    pinMode(15, INPUT);  //sync receive sendbit()
-    pinMode(18, OUTPUT); //sync send sendBit() to GPIO 4
-    pinMode(13, OUTPUT); //sync send receiverready
+    pinMode(14, INPUT);  //sync receive sendready  from GPIO 2
+
+    pinMode(15, INPUT);  //sync receive sendbit() from GPIO 3 - clock from sender
+    pinMode(24, OUTPUT); //sync send sendBit to GPIO 25 - clock to sender
+
+    pinMode(18, OUTPUT); //sync send sendBit() to GPIO 4 
+    pinMode(13, OUTPUT); //sync send receiverready to GPIO 17
 }
 
 //https://doc.qt.io/qt-6/qdatastream.html
@@ -229,7 +237,8 @@ void Minerva::decodeData() {
 }
 
 void Minerva::sendBit(uint pinNumber, bool bitData) {
-    digitalWrite(syncPins[1], LOW); // Set the clock pin low
+    digitalWrite(syncPins[1], LOW); // Set the clock pin low - sender
+    digitalWrite(24, LOW); // Set the clock pin low - receiver
     if (bitData) {
 		digitalWrite(dataPins[pinNumber], HIGH);
 	}
@@ -238,10 +247,11 @@ void Minerva::sendBit(uint pinNumber, bool bitData) {
     }
     delayMicroseconds(BITDELAY);
     digitalWrite(syncPins[1], HIGH); // Set the clock pin high
+    digitalWrite(24, HIGH); // Set the clock pin high
 }
 
 int Minerva::receiveBit(uint pinNumber) {
-    while (digitalRead(syncPins[5]) == LOW) {
+    while (digitalRead(syncPins[5]) == LOW || digitalRead(25) == LOW) {
         delayMicroseconds(1); 
     }
     bool bitValue = digitalRead(dataPins[pinNumber]);
@@ -362,7 +372,7 @@ void Minerva::receiveMultipleData() {
 
         QFile sizeFile("sizeData.dat");
         sizeFile.open(QIODevice::ReadOnly);
-sendReady
+
         //Deserializing Individual Packets
         posQueue.enqueue(posFile.readAll());
         flagsQueue.enqueue(flagsFile.readAll());
