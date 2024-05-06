@@ -1,6 +1,5 @@
 #include "minerva.h"
 #include "wiringPiFake.h"
-#include <thread>
 
 //Delay times for sending and receiving bits and bytes
 #define BITDELAY 10000
@@ -9,6 +8,7 @@
 #define USEBIGDATA true
 #define SYNC_TIMEOUT 1000000 
 #define MAX_SYNC_RETRIES 5 
+#define THREADSLEEP 2500000
 int syncPins[8] = { 2, 3, 4, 17 ,
                     14, 15, 18, 13};
  
@@ -227,6 +227,7 @@ void Minerva::decodeData() {
 }
 
 void Minerva::sendBit(uint pinNumber, bool bitData) {
+    digitalWrite(syncPins[1], LOW); // Set the clock pin low
     if (bitData) {
 		digitalWrite(dataPins[pinNumber], HIGH);
 	}
@@ -234,11 +235,14 @@ void Minerva::sendBit(uint pinNumber, bool bitData) {
         digitalWrite(dataPins[pinNumber], LOW);
     }
     delayMicroseconds(BITDELAY);
+    digitalWrite(syncPins[1], HIGH); // Set the clock pin high
 }
 
 int Minerva::receiveBit(uint pinNumber) {
-    bool bitValue = false;
-    bitValue = digitalRead(dataPins[pinNumber]);
+    while (digitalRead(syncPins[5]) == LOW) {
+        delayMicroseconds(1); 
+    }
+    bool bitValue = digitalRead(dataPins[pinNumber]);
     delayMicroseconds(BITDELAY);
     return (int)bitValue;
 }
@@ -424,14 +428,14 @@ void Minerva::receive() {
 void Minerva::runSendThread() {
     while (true) {
         send();
-        std::this_thread::sleep_for(std::chrono::nanoseconds(2500000));
+        QThread::sleep(THREADSLEEP);
     }
 }
 
 void Minerva::runReceiveThread() {
     while (true) {
         receive();
-        std::this_thread::sleep_for(std::chrono::nanoseconds(2500000));
+        QThread::sleep(THREADSLEEP);
     }
 }
 
