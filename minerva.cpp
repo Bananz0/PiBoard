@@ -2,8 +2,8 @@
 #include "wiringPiFake.h"
 
 //Delay times for sending and receiving bits and bytes
-#define BITDELAY 10000
-#define BYTEDELAY 1000000
+#define BITDELAY 1000
+#define BYTEDELAY 1000
 #define USEGPIO true
 #define USEBIGDATA true
 #define SYNC_TIMEOUT 1000000 
@@ -98,25 +98,27 @@ void Minerva::initializeGPIO() {
 }
 
 void Minerva::serverMode() {
-    pinMode(22, OUTPUT);
-    pinMode(26, OUTPUT);
-    pinMode(6, OUTPUT);
-    pinMode(8, OUTPUT);
-    pinMode(2, OUTPUT);
-    pinMode(3, OUTPUT);
-    pinMode(4, OUTPUT);
-    pinMode(17, INPUT);
+    pinMode(22, OUTPUT); //Main sender
+    pinMode(26, OUTPUT); //send small packets
+    pinMode(6, OUTPUT); //send small packets
+    pinMode(8, OUTPUT); //send small packets
+
+    pinMode(2, OUTPUT); // sync - send senderready
+    pinMode(3, OUTPUT); //sync send sendbit() to GPIO 15
+    pinMode(4, INPUT); //sync - receive sendBit from GPIO 18
+    pinMode(17, INPUT);// sync - read receiverready
 }
 
 void Minerva::clientMode() {
-    pinMode(23, INPUT);
-    pinMode(20, INPUT);
-    pinMode(0, INPUT);
-    pinMode(9, INPUT);
-    pinMode(14, INPUT);
-    pinMode(15, INPUT);
-    pinMode(18, INPUT);
-    pinMode(13, OUTPUT);
+    pinMode(23, INPUT); //main receiver
+    pinMode(20, INPUT); //receive small packets
+    pinMode(0, INPUT);  //receive small packets
+    pinMode(9, INPUT); // receive small packets
+
+    pinMode(14, INPUT);  //sync receive sendready
+    pinMode(15, INPUT);  //sync receive sendbit()
+    pinMode(18, OUTPUT); //sync send sendBit() to GPIO 4
+    pinMode(13, OUTPUT); //sync send receiverready
 }
 
 //https://doc.qt.io/qt-6/qdatastream.html
@@ -360,7 +362,7 @@ void Minerva::receiveMultipleData() {
 
         QFile sizeFile("sizeData.dat");
         sizeFile.open(QIODevice::ReadOnly);
-
+sendReady
         //Deserializing Individual Packets
         posQueue.enqueue(posFile.readAll());
         flagsQueue.enqueue(flagsFile.readAll());
