@@ -1,8 +1,9 @@
 #include "minerva.h"
 #include "wiringPiFake.h"
+#include <thread>
 
 //Delay times for sending and receiving bits and bytes
-#define BITDELAY 1000
+#define BITDELAY 1000000
 #define BYTEDELAY 1000
 #define USEBIGDATA true
 #define SYNC_TIMEOUT 1000000 
@@ -84,10 +85,12 @@ void Minerva::serverMode() {
     pinMode(3, OUTPUT); //sync - send sendbit() to GPIO 15 - clock to receiver
     pinMode(25, INPUT); //sync - receive sendBit from GPIO 24 - clock from receiver
 
-
-
     pinMode(4, INPUT); //sync - receive sendBit from GPIO 18
     pinMode(17, INPUT);// sync - read receiverready from GPIO 13
+
+    digitalWrite(2, LOW);
+    digitalWrite(3, LOW);
+    digitalWrite(22, LOW);
 }
 
 void Minerva::clientMode() {
@@ -103,6 +106,10 @@ void Minerva::clientMode() {
 
     pinMode(18, OUTPUT); //sync send sendBit() to GPIO 4 
     pinMode(13, OUTPUT); //sync send receiverready to GPIO 17
+
+    digitalWrite(24, LOW);
+    digitalWrite(18, LOW);
+    digitalWrite(13, LOW);
 }
 
 //https://doc.qt.io/qt-6/qdatastream.html
@@ -167,8 +174,8 @@ void Minerva::encodeData() {
 void Minerva::decodeData() {
     //recLock->lock();
     if (USEBIGDATA) {
-        if (dataQueue.isEmpty()){
-            qDebug() << "Receive Data Queue is empty";
+        if (dataQueue.isEmpty()) {
+            //qDebug() << "Receive Data Queue is empty";
             return;
         }
         bigData = dataQueue.dequeue();
@@ -220,25 +227,28 @@ void Minerva::sendBit(uint pinNumber, bool bitData) {
     else {
         digitalWrite(dataPins[pinNumber], LOW);
     }
-    delayMicroseconds(BITDELAY);
     digitalWrite(syncPins[1], HIGH); // Set the clock pin high
+    delayMicroseconds(BITDELAY);
+    digitalWrite(dataPins[pinNumber], LOW);
 }
 
-int Minerva::receiveBit(uint pinNumber) {
-    while (digitalRead(syncPins[5]) == LOW) {
-        delayMicroseconds(1);
-    }
-    bool bitValue = digitalRead(dataPins[pinNumber]);
-    delayMicroseconds(BITDELAY);
-    return (int)bitValue;
+bool Minerva::receiveBit(uint pinNumber) {
+    bool bitValue = false;
+
+    bitValue = digitalRead(dataPins[pinNumber]);
+    qDebug() << "Receitdfhethhethetrhom: " << bitValue;
+    return bitValue;
 }
 
 void Minerva::sendData(QByteArray data, uint pinNumber) {
+    data.clear();
+    data.append(0xAA);
     for (int i = 0; i < data.size(); i++) {
         char byte = data[i]; // Get the byte at index i
         for (int j = 0; j < 8; j++) {
             bool bit = (byte >> j) & 0x01; // Extract the j-th bit from the byte
             sendBit(pinNumber, bit); // Send the bit using the sendBit function
+            qDebug() << "Sent Bit:" << bit;
         }
         delayMicroseconds(BYTEDELAY);
     }
@@ -250,12 +260,17 @@ QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
     int bitCount = 0;
 
     for (int i = 0; i < expectedByteSize * 8; i++) {
-        bool bit = receiveBit(dataPins[pinNumber]);
-        //bool bit = receiveBit(pinNumber);
+        while (digitalRead(syncPins[5]) == LOW) {
+            delayMicroseconds(1);
+        }
+        bool bit = digitalRead(dataPins[pinNumber]);
+        delayMicroseconds(BITDELAY);
+        qDebug() << "Received Bit Custom: " << bit << "Actual Received Bit: " << digitalRead(dataPins[pinNumber]);
         currentByte = (currentByte << 1) | bit;
         bitCount++;
 
         if (bitCount == 8) {
+            qDebug() << currentByte;
             receivedData.append(currentByte);
             currentByte = 0;
             bitCount = 0;
@@ -270,7 +285,7 @@ QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
 void Minerva::sendBigData() {
     if (dataQueue.isEmpty()) {
         return;
-        qDebug () << "Send Data Queue is empty";
+        qDebug() << "Send Data Queue is empty";
     }
     qDebug() << "Big Data Size: " << bigData.size();
     if (USEGPIO) {
@@ -360,20 +375,20 @@ void Minerva::receiveMultipleData() {
 
 void Minerva::send() {
     if (USEGPIO) {
-		sendGPIO();
-	}
+        sendGPIO();
+    }
     else if (!USEGPIO) {
-		sendFile();
-	}
+        sendFile();
+    }
 }
 
 void Minerva::receive() {
     if (USEGPIO) {
-		receiveGPIO();
-	}
+        receiveGPIO();
+    }
     else if (!USEGPIO) {
-		receiveFile();
-	}
+        receiveFile();
+    }
 }
 
 void Minerva::sendFile() {
