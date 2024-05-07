@@ -168,6 +168,7 @@ void Minerva::decodeData() {
     //recLock->lock();
     if (USEBIGDATA) {
         if (dataQueue.isEmpty()){
+            qDebug() << "Receive Data Queue is empty";
             return;
         }
         bigData = dataQueue.dequeue();
@@ -269,6 +270,7 @@ QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
 void Minerva::sendBigData() {
     if (dataQueue.isEmpty()) {
         return;
+        qDebug () << "Send Data Queue is empty";
     }
     qDebug() << "Big Data Size: " << bigData.size();
     if (USEGPIO) {
@@ -283,7 +285,6 @@ void Minerva::sendBigData() {
 
 void Minerva::receiveBigData() {
     if (USEGPIO) {
-        //dataQueue.enqueue(receiveData(4, 171));
         bigData_raw = receiveData(4, 177);
         dataQueue.enqueue(bigData_raw);
         qDebug() << bigData_raw;
