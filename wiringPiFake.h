@@ -7,6 +7,7 @@
 #ifdef __linux__
 // Include the actual wiringPi library for Linux
 #include <wiringPi.h>
+#define USEGPIO true
 #else
 #include <fstream>
 #include <iostream>
@@ -18,6 +19,7 @@ std::mutex gpioFileMutex;
 #define INPUT 0
 #define HIGH 1
 #define LOW 0
+#define USEGPIO false
 
 //dummy function to comly with wiringPi not being present in windows
 void digitalWrite(int pin, int value) {

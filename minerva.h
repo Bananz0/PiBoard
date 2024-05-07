@@ -75,6 +75,10 @@ public:
     void receiveMultipleData();
     void send();
     void receive();
+    void sendFile();
+    void receiveFile();
+    void receiveGPIO();
+    void sendGPIO();
     void runSendThread();
     void runReceiveThread();
     void startReceiveThread();
