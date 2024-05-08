@@ -242,10 +242,6 @@ void Minerva::decodeData() {
 //}
 
 void Minerva::sendData(QByteArray data, uint pinNumber) {
-    data.clear();
-    data.append(0xAA);
-    digitalWrite(21, HIGH);
-
     //sending bits individually
     //for (int i = 0; i < data.size(); i++) {
     //    char byte = data[i]; // Get the byte at index i
@@ -258,54 +254,71 @@ void Minerva::sendData(QByteArray data, uint pinNumber) {
     //}
 
 
-    //Using digitalWriteByte() to send data
+    ////Using digitalWriteByte() to send data
+    //for (int i = 0; i < data.size(); i++) {
+    //    char byte = data[i];
+    //    digitalWriteByte(byte);
+    //    delayMicroseconds(BYTEDELAY);
+
+    //}
+    //digitalWrite(21, LOW);
+
+    //reimplementing individual sendbits
+    data.clear();
+    data.append(0xAA); //start marker
+    data.append(0x01); //dummy data
+    data.append(0x02);
+    data.append(0xBB); //end marker
+
+    digitalWrite(21, HIGH); // Set the write enable pin high
+
     for (int i = 0; i < data.size(); i++) {
         char byte = data[i];
-        digitalWriteByte(byte);
+        for (int j = 0; j < 8; j++) {
+            bool bit = (byte >> (7 - j)) & 0x01;
+            digitalWrite(dataPins[j], bit);
+        }
+        qDebug() << "Sent Byte:" << QString::number(byte, 16);
         delayMicroseconds(BYTEDELAY);
-
     }
-    digitalWrite(21, LOW);
 
+    digitalWrite(21, LOW); // Set the write enable pin low
 }
 
 QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
     QByteArray receivedData;
-    //char currentByte = 0;
-    //int bitCount = 0;
-    //while (digitalRead(21) == HIGH) {
-    //    for (int i = 0; i < expectedByteSize * 8; i++) {
-    //        while (digitalRead(syncPins[5]) == LOW) {
-    //            delayMicroseconds(1);
-    //        }
-    //        bool bit = digitalRead(dataPins[pinNumber]);
-    //        delayMicroseconds(BITDELAY);
-    //        qDebug() << "Received Bit Custom: " << bit << "Actual Received Bit: " << digitalRead(dataPins[pinNumber]);
-    //        currentByte = (currentByte << 1) | bit;
-    //        bitCount++;
+    char currentByte = 0;
+    bool receiving = false;
+    const char startMarker = 0xAA; // Assuming 0xAA is the start marker
+    const char endMarker = 0xBB; // Assuming 0xBB is the end marker
 
-    //        if (bitCount == 8) {
-    //            qDebug() << currentByte;
-    //            receivedData.append(currentByte);
-    //            currentByte = 0;
-    //            bitCount = 0;
-    //        }
-    //        delayMicroseconds(BYTEDELAY);
-    //    }
-    //}
-
-    //using digitalReadByte() to receive data
     while (digitalRead(21) == LOW) {
-        delayMicroseconds(1);
+        delayMicroseconds(1); // Wait until the write enable pin goes high
     }
 
     while (digitalRead(21) == HIGH) {
-        qDebug() << digitalReadByte();
-        receivedData.append(digitalReadByte());
+        for (int j = 0; j < 8; j++) {
+            bool bit = digitalRead(dataPins[j]);
+            currentByte = (currentByte << 1) | bit;
+        }
+
+        if (!receiving && currentByte == startMarker) {
+            receiving = true;
+        }
+        else if (receiving && currentByte != endMarker) {
+            receivedData.append(currentByte);
+        }
+        else if (receiving && currentByte == endMarker) {
+            receiving = false;
+            break;
+        }
+
+        currentByte = 0;
         delayMicroseconds(BYTEDELAY);
     }
 
-    //qDebug() << "Received data size:" << receivedData.size();
+    digitalWrite(21, LOW); // Set the write enable pin low
+
     return receivedData;
 }
 
@@ -336,10 +349,10 @@ void Minerva::receiveBigData() {
         bigFile.open(QIODevice::ReadOnly);
         if (USEQUEUE) {
             dataQueue.enqueue(bigFile.readAll());
-		}
+        }
         else {
             bigData_raw = bigFile.readAll();
-        }       
+        }
     }
 
 }
