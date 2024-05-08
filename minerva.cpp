@@ -215,26 +215,26 @@ void Minerva::decodeData() {
     //recLock->unlock();
 }
 
-void Minerva::sendBit(uint pinNumber, bool bitData) {
-    digitalWrite(syncPins[1], LOW); // Set the clock pin low - sender
-    if (bitData) {
-        digitalWrite(dataPins[pinNumber], HIGH);
-    }
-    else {
-        digitalWrite(dataPins[pinNumber], LOW);
-    }
-    digitalWrite(syncPins[1], HIGH); // Set the clock pin high
-    delayMicroseconds(BITDELAY);
-    digitalWrite(dataPins[pinNumber], LOW);
-}
+//void Minerva::sendBit(uint pinNumber, bool bitData) {
+//    digitalWrite(syncPins[1], LOW); // Set the clock pin low - sender
+//    if (bitData) {
+//        digitalWrite(dataPins[pinNumber], HIGH);
+//    }
+//    else {
+//        digitalWrite(dataPins[pinNumber], LOW);
+//    }
+//    digitalWrite(syncPins[1], HIGH); // Set the clock pin high
+//    delayMicroseconds(BITDELAY);
+//    digitalWrite(dataPins[pinNumber], LOW);
+//}
 
-bool Minerva::receiveBit(uint pinNumber) {
-    bool bitValue = false;
-
-    bitValue = digitalRead(dataPins[pinNumber]);
-    qDebug() << "Receitdfhethhethetrhom: " << bitValue;
-    return bitValue;
-}
+//bool Minerva::receiveBit(uint pinNumber) {
+//    bool bitValue = false;
+//
+//    bitValue = digitalRead(dataPins[pinNumber]);
+//    qDebug() << "Receitdfhethhethetrhom: " << bitValue;
+//    return bitValue;
+//}
 
 void Minerva::sendData(QByteArray data, uint pinNumber) {
     data.clear();
@@ -534,17 +534,17 @@ QString Minerva::testPins() {
 }
 
 void Minerva::sendReady(bool value, int pin) {
-    digitalWrite(syncPins[pin], value);
+    //pinMode(syncPins[pin], OUTPUT);
 }
 
 bool Minerva::isReceiveReady(int pin) {
-    return digitalRead(syncPins[pin]);
+    return 0; // digitalRead(syncPins[pin]);
 }
 
 void Minerva::sendBitUnclocked(uint s_pin, bool send) {
-    digitalWrite(s_pin, send);
+    //digitalWrite(s_pin, send);
 }
 
 bool Minerva::receiveBitUnclocked(uint r_pin) {
-    return digitalRead(r_pin);
+    return 0;// digitalRead(r_pin);
 }
