@@ -9,7 +9,7 @@
 #define SYNC_TIMEOUT 1000000 
 #define MAX_SYNC_RETRIES 5 
 #define THREADSLEEP 01//1500000
-#define USEQUEUE true //queue for receiving data locally
+#define USEQUEUE false //queue for receiving data locally
 
 //int syncPins[8] = { 2, 3, 4, 17 ,
 //                    14, 15, 18, 13 };
@@ -303,8 +303,8 @@ QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
     QByteArray receivedData;
     char currentByte = 0;
     bool receiving = false;
-    const char startMarker = 0xAA; // Assuming 0xAA is the start marker
-    const char endMarker = 0xBB; // Assuming 0xBB is the end marker
+    const char startMarker = 0xAA; //data start marker
+    const char endMarker = 0xBB; //data end marker
 
     while (digitalRead(21) == LOW) {
         delayMicroseconds(1); // Wait until the write enable pin goes high
