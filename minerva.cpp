@@ -263,7 +263,9 @@ void Minerva::sendData(QByteArray data, uint pinNumber) {
         for (int j = 0; j < 8; j++) {
             bool bit = (byte >> (7 - j)) & 0x01;
             digitalWrite(dataPins[0], bit);
+            pinMode(dataPins[1], OUTPUT);
             digitalWrite(dataPins[1], bit); //clock pin - sort of
+            pinMode(dataPins[1], INPUT);
             delayMicroseconds(BITDELAY);
             while (digitalRead(dataPins[1]) == HIGH) {
 				delayMicroseconds(1);
@@ -286,7 +288,9 @@ QByteArray Minerva::receiveData(uint pinNumber) {
         delayMicroseconds(BYTEDELAY);
         for (int j = 0; j < 8; j++) {
             bool bit = digitalRead(dataPins[0]);
+            pinMode(dataPins[1], OUTPUT);
             digitalWrite(dataPins[1], LOW); //clock pin - sort of 
+            pinMode(dataPins[1], INPUT);
             currentByte = (currentByte << 1) | bit;
             delayMicroseconds(BITDELAY);
         }
