@@ -423,18 +423,18 @@ void Minerva::sendFile() {
 }
 
 void Minerva::sendGPIO() {
-    int numRetries = 0;
-    bool receiverReady = false;
+    //int numRetries = 0;
+    //bool receiverReady = false;
 
-    sendReady(true, 0); //sends ready over pin 0 (GPIO 2) - and pin 4 (GPIO 14) receives it
+    //sendReady(true, 0); //sends ready over pin 0 (GPIO 2) - and pin 4 (GPIO 14) receives it
 
-    while (!receiverReady && numRetries < MAX_SYNC_RETRIES) {
-        delayMicroseconds(SYNC_TIMEOUT);
-        receiverReady = isReceiveReady(3); //reads receiver ready from pin 3(GPIO 17) - pin 7 (GPIO 13) sends it
-        numRetries++;
-    }
+    //while (!receiverReady && numRetries < MAX_SYNC_RETRIES) {
+    //    delayMicroseconds(SYNC_TIMEOUT);
+    //    receiverReady = isReceiveReady(3); //reads receiver ready from pin 3(GPIO 17) - pin 7 (GPIO 13) sends it
+    //    numRetries++;
+    //}
 
-    if (receiverReady) {
+    //if (receiverReady) {
         if (USEBIGDATA) {
             sendBigData();
         }
@@ -442,11 +442,11 @@ void Minerva::sendGPIO() {
             sendMultipleData();
         }
 
-        sendReady(false, 0); //sends not ready over pin 0 (GPIO 2) - and pin 4 (GPIO 14) receives it
-    }
-    else {
-        qWarning() << "Minerva::send(): Receiver not ready after" << MAX_SYNC_RETRIES << "retries. Aborting send.";
-    }
+    //    sendReady(false, 0); //sends not ready over pin 0 (GPIO 2) - and pin 4 (GPIO 14) receives it
+    //}
+    //else {
+    //    qWarning() << "Minerva::send(): Receiver not ready after" << MAX_SYNC_RETRIES << "retries. Aborting send.";
+    //}
 }
 
 void Minerva::receiveFile() {
@@ -459,18 +459,18 @@ void Minerva::receiveFile() {
 }
 
 void Minerva::receiveGPIO() {
-    int numRetries = 0;
-    bool senderReady = false;
+    //int numRetries = 0;
+    //bool senderReady = false;
 
-    sendReady(true, 7); // Send the ready signal to pin 7 (GPIO 13) - pin 3 (GPIO 17) receives it
+    //sendReady(true, 7); // Send the ready signal to pin 7 (GPIO 13) - pin 3 (GPIO 17) receives it
 
-    while (!senderReady && numRetries < MAX_SYNC_RETRIES) {
-        delayMicroseconds(SYNC_TIMEOUT);
-        senderReady = isReceiveReady(4); // Read the ready signal from pin 4 (GPIO 14) - pin 0 (GPIO 2) sends it
-        numRetries++;
-    }
+    //while (!senderReady && numRetries < MAX_SYNC_RETRIES) {
+    //    delayMicroseconds(SYNC_TIMEOUT);
+    //    senderReady = isReceiveReady(4); // Read the ready signal from pin 4 (GPIO 14) - pin 0 (GPIO 2) sends it
+    //    numRetries++;
+    //}
 
-    if (senderReady) {
+    //if (senderReady) {
 
         if (USEBIGDATA) {
             receiveBigData();
@@ -478,11 +478,11 @@ void Minerva::receiveGPIO() {
         else {
             receiveMultipleData();
         }
-        sendReady(false, 7); // Send the not ready signal to pin 7 (GPIO 13) - pin 3 (GPIO 17) receives it
-    }
-    else {
-        qWarning() << "Minerva::receive(): Sender not ready after" << MAX_SYNC_RETRIES << "retries. Aborting receive.";
-    }
+    //    sendReady(false, 7); // Send the not ready signal to pin 7 (GPIO 13) - pin 3 (GPIO 17) receives it
+    //}
+    //else {
+    //    qWarning() << "Minerva::receive(): Sender not ready after" << MAX_SYNC_RETRIES << "retries. Aborting receive.";
+    //}
 }
 
 void Minerva::runSendThread() {
