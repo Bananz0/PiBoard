@@ -146,8 +146,8 @@ void Minerva::encodeData() {
         bigStreamSender << sendDataPacket->endPoint;
         bigStreamSender << sendDataPacket->clearCanvasFlag;
         bigStreamSender << sendDataPacket->drawMode;
-        bigStreamSender << sendDataPacket->pen;
-        bigStreamSender << sendDataPacket->windowSize;
+ //     bigStreamSender << sendDataPacket->pen;
+ //     bigStreamSender << sendDataPacket->windowSize;
         sendLock->unlock();
         //unlock data when sending
         //Queueing big packet
@@ -167,8 +167,8 @@ void Minerva::encodeData() {
         posStreamSender << sendDataPacket->endPoint;
         flagsStreamSender << sendDataPacket->clearCanvasFlag;
         flagsStreamSender << sendDataPacket->drawMode;
-        penStreamSender << sendDataPacket->pen;
-        sizeStreamSender << sendDataPacket->windowSize;
+//      penStreamSender << sendDataPacket->pen;
+ //     sizeStreamSender << sendDataPacket->windowSize;
         sendLock->unlock();
         //Queueing data to send over multiple wires
         posQueue.enqueue(posData);
@@ -211,8 +211,8 @@ void Minerva::decodeData() {
         bigStream >> receiveDataPacket->endPoint;
         bigStream >> receiveDataPacket->clearCanvasFlag;
         bigStream >> receiveDataPacket->drawMode;
-        bigStream >> receiveDataPacket->pen;
-        bigStream >> receiveDataPacket->windowSize;
+ //     bigStream >> receiveDataPacket->pen;
+ //     bigStream >> receiveDataPacket->windowSize;
         recLock->unlock();
     }
     else if (!USEBIGDATA) {
@@ -235,8 +235,8 @@ void Minerva::decodeData() {
         posStream >> receiveDataPacket->endPoint;
         flagsStream >> receiveDataPacket->clearCanvasFlag;
         flagsStream >> receiveDataPacket->drawMode;
-        penStream >> receiveDataPacket->pen;
-        sizeStream >> receiveDataPacket->windowSize;
+ //     penStream >> receiveDataPacket->pen;
+ //     sizeStream >> receiveDataPacket->windowSize;
         recLock->unlock();
     }
     //qDebug() << "Receive data queue size is :" << dataQueue.size();
@@ -276,12 +276,14 @@ void Minerva::sendData(QByteArray data, uint pinNumber) {
             qDebug() << "sent bit: " << bit;  
             delayMicroseconds(BITDELAY);
             digitalWrite(dataPins[1], HIGH); // send the sent flag
-            while (!read) {
-                read = digitalRead(dataPins[2]); //read flag
+            delayMicroseconds(100);
+            while (!read) {            
                 delayMicroseconds(1);
+                read = digitalRead(dataPins[2]); //read flag
             }
             if (read) {
 				digitalWrite(dataPins[1], LOW); //clear the sent flag
+                delayMicroseconds(100);
             }
         }
         delayMicroseconds(BYTEDELAY);
@@ -303,13 +305,14 @@ QByteArray Minerva::receiveData(uint pinNumber) {
         for (int j = 0; j < 8; j++) {
             while (!sent) {
 				sent = digitalRead(dataPins[1]); //sent flag
-				delayMicroseconds(1);
                 digitalWrite(dataPins[2], LOW); //clear the read flag
+                delayMicroseconds(100);
 			}
             bool bit = digitalRead(dataPins[0]);
             currentByte = (currentByte << 1) | bit;
             qDebug() << "rec bit: " << bit;
             digitalWrite(dataPins[2], HIGH); //receive flag
+            delayMicroseconds(100);
             delayMicroseconds(BITDELAY);
         }
         receivedData.append(currentByte);

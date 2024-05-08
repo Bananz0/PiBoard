@@ -17,6 +17,12 @@ Hephaestus::Hephaestus(Minerva* minerva,QWidget *parent)
     image->fill(Qt::white);
     //Update the image every 10ms
     int timerId = startTimer(100);
+    //Pen Properties
+    minervaIn->receiveDataPacket->pen.setColor(Qt::black);
+    minervaIn->receiveDataPacket->pen.setWidth(15);
+    minervaIn->receiveDataPacket->pen.setBrush(Qt::black);
+    minervaIn->receiveDataPacket->pen.setCapStyle(Qt::RoundCap);
+    minervaIn->receiveDataPacket->pen.setJoinStyle(Qt::RoundJoin);
 }
 
 Hephaestus::~Hephaestus()
