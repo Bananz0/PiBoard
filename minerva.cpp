@@ -8,8 +8,8 @@
 #define USEBIGDATA true
 #define SYNC_TIMEOUT 1000000 
 #define MAX_SYNC_RETRIES 5 
-#define THREADSLEEP 3000000
-
+#define THREADSLEEP 01//1500000
+#define USEQUEUE true //queue for receiving data locally
 
 //int syncPins[8] = { 2, 3, 4, 17 ,
 //                    14, 15, 18, 13 };
@@ -85,8 +85,8 @@ void Minerva::serverMode() {
     //pinMode(17, INPUT);// sync - read receiverready from GPIO 13
 
     for (int i = 0; i < 8; i++) {
-		pinMode(dataPins[i], OUTPUT);
-	}
+        pinMode(dataPins[i], OUTPUT);
+    }
     pinMode(21, OUTPUT);
     digitalWrite(21, LOW);
 }
@@ -170,11 +170,16 @@ void Minerva::encodeData() {
 void Minerva::decodeData() {
     //recLock->lock();
     if (USEBIGDATA) {
-        if (dataQueue.isEmpty()) {
-            //qDebug() << "Receive Data Queue is empty";
-            return;
+        if (USEQUEUE) {
+            if (dataQueue.isEmpty()) {
+                //qDebug() << "Receive Data Queue is empty";
+                return;
+            }
+            bigData = dataQueue.dequeue();
         }
-        bigData = dataQueue.dequeue();
+        else if (!USEQUEUE) {
+            bigData = bigData_raw;
+        }
         //Deserializing Big Packet
         recLock->lock();
         QDataStream bigStream(&bigData, QDataStream::ReadOnly);
@@ -251,17 +256,17 @@ void Minerva::sendData(QByteArray data, uint pinNumber) {
     //    }
     //    delayMicroseconds(BYTEDELAY);
     //}
-   
+
 
     //Using digitalWriteByte() to send data
     for (int i = 0; i < data.size(); i++) {
-		char byte = data[i];
+        char byte = data[i];
         digitalWriteByte(byte);
         delayMicroseconds(BYTEDELAY);
 
     }
     digitalWrite(21, LOW);
- 
+
 }
 
 QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
@@ -290,14 +295,15 @@ QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
     //}
 
     //using digitalReadByte() to receive data
-    while(digitalRead(21) == LOW) {
-		delayMicroseconds(1);
-	}
+    while (digitalRead(21) == LOW) {
+        delayMicroseconds(1);
+    }
 
     while (digitalRead(21) == HIGH) {
-		receivedData.append(digitalReadByte());
-		delayMicroseconds(BYTEDELAY);
-	}
+        qDebug() << digitalReadByte();
+        receivedData.append(digitalReadByte());
+        delayMicroseconds(BYTEDELAY);
+    }
 
     //qDebug() << "Received data size:" << receivedData.size();
     return receivedData;
@@ -328,7 +334,12 @@ void Minerva::receiveBigData() {
     else if (!USEGPIO) {
         QFile bigFile("bigData.dat");
         bigFile.open(QIODevice::ReadOnly);
-        dataQueue.enqueue(bigFile.readAll());
+        if (USEQUEUE) {
+            dataQueue.enqueue(bigFile.readAll());
+		}
+        else {
+            bigData_raw = bigFile.readAll();
+        }       
     }
 
 }
@@ -435,12 +446,12 @@ void Minerva::sendGPIO() {
     //}
 
     //if (receiverReady) {
-        if (USEBIGDATA) {
-            sendBigData();
-        }
-        else {
-            sendMultipleData();
-        }
+    if (USEBIGDATA) {
+        sendBigData();
+    }
+    else {
+        sendMultipleData();
+    }
 
     //    sendReady(false, 0); //sends not ready over pin 0 (GPIO 2) - and pin 4 (GPIO 14) receives it
     //}
@@ -472,12 +483,12 @@ void Minerva::receiveGPIO() {
 
     //if (senderReady) {
 
-        if (USEBIGDATA) {
-            receiveBigData();
-        }
-        else {
-            receiveMultipleData();
-        }
+    if (USEBIGDATA) {
+        receiveBigData();
+    }
+    else {
+        receiveMultipleData();
+    }
     //    sendReady(false, 7); // Send the not ready signal to pin 7 (GPIO 13) - pin 3 (GPIO 17) receives it
     //}
     //else {
