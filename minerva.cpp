@@ -3,8 +3,8 @@
 #include <thread>
 
 //Delay times for sending and receiving bits and bytes
-#define BITDELAY 5
-#define BYTEDELAY 5
+#define BITDELAY 100
+#define BYTEDELAY 200
 #define USEBIGDATA true
 #define SYNC_TIMEOUT 1000000
 #define MAX_SYNC_RETRIES 5
@@ -92,6 +92,8 @@ void Minerva::serverMode() {
 }
 
 void Minerva::clientMode() {
+    pinMode(dataPins[2], OUTPUT); //read flag
+
     //https://raspberrypi.stackexchange.com/questions/79111/is-pinmode-necessary-in-wiringpi-programming
     //Therefore not using pinmode for input pins
     //pinMode(23, INPUT); //main receiver
@@ -103,6 +105,7 @@ void Minerva::clientMode() {
     //pinMode(24, OUTPUT); //sync send sendBit to GPIO 25 - clock to sender
     //pinMode(18, OUTPUT); //sync send sendBit() to GPIO 4
     //pinMode(13, OUTPUT); //sync send receiverready to GPIO 17
+    
     //digitalWrite(24, LOW);
     //digitalWrite(18, LOW);
     //digitalWrite(13, LOW);
@@ -189,9 +192,9 @@ void Minerva::decodeData() {
             if (dataQueue.isEmpty()) {
                 //alert empty once and return
                 if (emptyAlert) {
-					qDebug() << "Receive Data Queue is empty";
-					emptyAlert = false;
-				}
+                    qDebug() << "Receive Data Queue is empty";
+                    emptyAlert = false;
+                }
                 return;
 
             }
@@ -263,17 +266,22 @@ void Minerva::decodeData() {
 
 void Minerva::sendData(QByteArray data, uint pinNumber) {
     digitalWrite(21, HIGH); // Set the write enable pin high
+
     for (int i = 0; i < data.size(); i++) {
         char byte = data[i];
         for (int j = 0; j < 8; j++) {
             bool bit = (byte >> (7 - j)) & 0x01;
-            digitalWrite(dataPins[0], bit); //write data to pin 0
-            pinMode(dataPins[1], OUTPUT); //set clock pin to output
-            digitalWrite(dataPins[1], bit); //clock pin - sort of
-            delayMicroseconds(BITDELAY); //delay for the clock
-            pinMode(dataPins[1], INPUT); //set clock pin to input
-            while (digitalRead(dataPins[1]) == HIGH) {
-				delayMicroseconds(1);
+            bool read = false;
+            digitalWrite(dataPins[0], bit);
+            qDebug() << "sent bit: " << bit;  
+            delayMicroseconds(BITDELAY);
+            digitalWrite(dataPins[1], HIGH); // send the sent flag
+            while (!read) {
+                read = digitalRead(dataPins[2]); //read flag
+                delayMicroseconds(1);
+            }
+            if (read) {
+				digitalWrite(dataPins[1], LOW); //clear the sent flag
             }
         }
         delayMicroseconds(BYTEDELAY);
@@ -284,19 +292,24 @@ void Minerva::sendData(QByteArray data, uint pinNumber) {
 QByteArray Minerva::receiveData(uint pinNumber) {
     QByteArray receivedData;
     char currentByte = 0;
+    bool sent = false;
 
     while (digitalRead(21) == LOW) {
-        delayMicroseconds(1); 
+        delayMicroseconds(1);
     }
 
     while (digitalRead(21) == HIGH) {
+        delayMicroseconds(BYTEDELAY);
         for (int j = 0; j < 8; j++) {
+            while (!sent) {
+				sent = digitalRead(dataPins[1]); //sent flag
+				delayMicroseconds(1);
+                digitalWrite(dataPins[2], LOW); //clear the read flag
+			}
             bool bit = digitalRead(dataPins[0]);
             currentByte = (currentByte << 1) | bit;
-
-            pinMode(dataPins[1], OUTPUT);
-            digitalWrite(dataPins[1], LOW); //clock pin - sort of 
-            pinMode(dataPins[1], INPUT);  
+            qDebug() << "rec bit: " << bit;
+            digitalWrite(dataPins[2], HIGH); //receive flag
             delayMicroseconds(BITDELAY);
         }
         receivedData.append(currentByte);
