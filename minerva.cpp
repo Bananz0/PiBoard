@@ -243,6 +243,7 @@ bool Minerva::receiveBit(uint pinNumber) {
 void Minerva::sendData(QByteArray data, uint pinNumber) {
     data.clear();
     data.append(0xAA);
+    digitalWrite(21,HIGH);
     for (int i = 0; i < data.size(); i++) {
         char byte = data[i]; // Get the byte at index i
         for (int j = 0; j < 8; j++) {
@@ -252,30 +253,32 @@ void Minerva::sendData(QByteArray data, uint pinNumber) {
         }
         delayMicroseconds(BYTEDELAY);
     }
+    digitalWrite(21, LOW);
 }
 
 QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
     QByteArray receivedData;
     char currentByte = 0;
     int bitCount = 0;
+    while (digitalRead(21) == HIGH) {
+        for (int i = 0; i < expectedByteSize * 8; i++) {
+            while (digitalRead(syncPins[5]) == LOW) {
+                delayMicroseconds(1);
+            }
+            bool bit = digitalRead(dataPins[pinNumber]);
+            delayMicroseconds(BITDELAY);
+            qDebug() << "Received Bit Custom: " << bit << "Actual Received Bit: " << digitalRead(dataPins[pinNumber]);
+            currentByte = (currentByte << 1) | bit;
+            bitCount++;
 
-    for (int i = 0; i < expectedByteSize * 8; i++) {
-        while (digitalRead(syncPins[5]) == LOW) {
-            delayMicroseconds(1);
+            if (bitCount == 8) {
+                qDebug() << currentByte;
+                receivedData.append(currentByte);
+                currentByte = 0;
+                bitCount = 0;
+            }
+            delayMicroseconds(BYTEDELAY);
         }
-        bool bit = digitalRead(dataPins[pinNumber]);
-        delayMicroseconds(BITDELAY);
-        qDebug() << "Received Bit Custom: " << bit << "Actual Received Bit: " << digitalRead(dataPins[pinNumber]);
-        currentByte = (currentByte << 1) | bit;
-        bitCount++;
-
-        if (bitCount == 8) {
-            qDebug() << currentByte;
-            receivedData.append(currentByte);
-            currentByte = 0;
-            bitCount = 0;
-        }
-        delayMicroseconds(BYTEDELAY);
     }
 
     //qDebug() << "Received data size:" << receivedData.size();
