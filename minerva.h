@@ -62,10 +62,8 @@ public:
     drawData* sendDataPacket = nullptr;
     drawData* receiveDataPacket = nullptr;
     QByteArray posData, penData, flagsData, sizeData, bigData, bigData_raw;
-    void sendBit(uint pinNumber, bool bitData);
-    bool receiveBit(uint pinNumber);
     void sendData(QByteArray data, uint pinNumber);
-    QByteArray receiveData(uint pinNumber,int expectedByteSize);
+    QByteArray receiveData(uint pinNumber);
     QQueue<QByteArray> dataQueue, posQueue, flagsQueue, penQueue, sizeQueue;
 
     void sendBigData();

@@ -167,6 +167,6 @@ void Gaia::on_dataSendTest_clicked()
 {
     QByteArray test(10, 0xE3);
     minervaOut->sendData(test,0);
-    qDebug() << minervaIn->receiveData(4,10);
+    qDebug() << minervaIn->receiveData(4);
 }
 

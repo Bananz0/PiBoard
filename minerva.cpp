@@ -3,12 +3,12 @@
 #include <thread>
 
 //Delay times for sending and receiving bits and bytes
-#define BITDELAY 1000000
-#define BYTEDELAY 1000000
+#define BITDELAY 1000
+#define BYTEDELAY 2000
 #define USEBIGDATA true
-#define SYNC_TIMEOUT 1000000 
-#define MAX_SYNC_RETRIES 5 
-#define THREADSLEEP 01//1500000
+#define SYNC_TIMEOUT 1000000
+#define MAX_SYNC_RETRIES 5
+#define THREADSLEEP 01 //1500000
 #define USEQUEUE false //queue for receiving data locally
 
 //int syncPins[8] = { 2, 3, 4, 17 ,
@@ -101,25 +101,25 @@ void Minerva::clientMode() {
     //pinMode(14, INPUT);  //sync receive sendready  from GPIO 2
     //pinMode(15, INPUT);  //sync receive sendbit() from GPIO 3 - clock from sender
     //pinMode(24, OUTPUT); //sync send sendBit to GPIO 25 - clock to sender
-    //pinMode(18, OUTPUT); //sync send sendBit() to GPIO 4 
+    //pinMode(18, OUTPUT); //sync send sendBit() to GPIO 4
     //pinMode(13, OUTPUT); //sync send receiverready to GPIO 17
     //digitalWrite(24, LOW);
     //digitalWrite(18, LOW);
     //digitalWrite(13, LOW);
-    bool DMAreceived = false;
-    while (!DMAreceived) {
-        DMAreceived = digitalRead(23);
-        delayMicroseconds(1000);
-        if (DMAreceived) {
-			qDebug() << "DMA Received";
-            qDebug() << "Sending back SOL";
-            pinMode(23, OUTPUT);
-			testDMA();
-            delayMicroseconds(1000);
-            qDebug() << "SOL Sent";
-            pinMode(23, INPUT);
-		}
-	}
+//    bool DMAreceived = false;
+//    while (!DMAreceived) {
+//        DMAreceived = digitalRead(23);
+//        delayMicroseconds(1000);
+//        if (DMAreceived) {
+//            qDebug() << "DMA Received";
+//            qDebug() << "Sending back SOL";
+//            pinMode(23, OUTPUT);
+//            testDMA();
+//            delayMicroseconds(1000);
+//            qDebug() << "SOL Sent";
+//            pinMode(23, INPUT);
+//        }
+//    }
 }
 
 //https://doc.qt.io/qt-6/qdatastream.html
@@ -136,7 +136,7 @@ void Minerva::encodeData() {
     if (USEBIGDATA) {
         //Serialize Big Packet
         QDataStream bigStreamSender(&bigData, QDataStream::WriteOnly);
-        //Lock data when sending 
+        //Lock data when sending
         sendLock->lock();
         bigStreamSender << sendDataPacket->startPoint;
         bigStreamSender << sendDataPacket->movingPoint;
@@ -299,7 +299,7 @@ void Minerva::sendData(QByteArray data, uint pinNumber) {
     digitalWrite(21, LOW); // Set the write enable pin low
 }
 
-QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
+QByteArray Minerva::receiveData(uint pinNumber) {
     QByteArray receivedData;
     char currentByte = 0;
     bool receiving = false;
@@ -352,7 +352,7 @@ void Minerva::sendBigData() {
 
 void Minerva::receiveBigData() {
     if (USEGPIO) {
-        bigData_raw = receiveData(4, 177);
+        bigData_raw = receiveData(4);
         dataQueue.enqueue(bigData_raw);
         qDebug() << bigData_raw;
     }
@@ -401,10 +401,10 @@ void Minerva::sendMultipleData() {
 void Minerva::receiveMultipleData() {
 
     if (USEGPIO) {
-        posQueue.enqueue(receiveData(5, 48));
-        flagsQueue.enqueue(receiveData(6, 5));
-        penQueue.enqueue(receiveData(7, 116));
-        sizeQueue.enqueue(receiveData(8, 8));
+        posQueue.enqueue(receiveData(5));
+        flagsQueue.enqueue(receiveData(6));
+        penQueue.enqueue(receiveData(7));
+        sizeQueue.enqueue(receiveData(8));
     }
     else if (!USEGPIO) {
         //Receiving Individual Packets
@@ -548,25 +548,26 @@ void Minerva::startSendThread() {
 }
 
 QString Minerva::testDMA() {
-    bool DMAreceived = false;
-    digitalWrite(21, HIGH);
-    qDebug() << "DMA Test Sent";
-    delayMicroseconds(BITDELAY);
-    digitalWrite(21, LOW);
-    delayMicroseconds(BITDELAY);
-    delayMicroseconds(4000);
-    //timeout
-    for (int i = 0; i < 10; i++) {
-		DMAreceived = digitalRead(23);
-        if (DMAreceived) {
-			break;
-		}
-		delayMicroseconds(1000);
-        qDebug() << "Timeout after " << i << " seconds";
-	}
-    QString dataText = DMAreceived ? "DMA Test successfull" : "DMA Test failed";
-    qDebug() << "DMA Test Received: " << DMAreceived;
-    return dataText;
+    //    bool DMAreceived = false;
+    //    digitalWrite(21, HIGH);
+    //    qDebug() << "DMA Test Sent";
+    //    delayMicroseconds(BITDELAY);
+    //    digitalWrite(21, LOW);
+    //    delayMicroseconds(BITDELAY);
+    //    delayMicroseconds(4000);
+    //    //timeout
+    //    for (int i = 0; i < 10; i++) {
+    //		DMAreceived = digitalRead(23);
+    //        if (DMAreceived) {
+    //			break;
+    //		}
+    //		delayMicroseconds(1000);
+    //        qDebug() << "Timeout after " << i << " seconds";
+    //	}
+    //    QString dataText = DMAreceived ? "DMA Test successfull" : "DMA Test failed";
+    //    qDebug() << "DMA Test Received: " << DMAreceived;
+    //    return dataText;
+    return "Feature has been deimplemented and reabsorbed into another function. ";
 }
 
 QString Minerva::testPins() {
