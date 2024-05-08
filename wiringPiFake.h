@@ -21,6 +21,18 @@ std::mutex gpioFileMutex;
 #define LOW 0
 #define USEGPIO false
 
+void digitalWriteByte(int value) {
+	//dummy function
+};
+void digitalWriteByte2(int value) {
+	//dummy function
+};
+int digitalReadByte() {
+	//dummy function
+	return 0;
+};
+
+
 //dummy function to comly with wiringPi not being present in windows
 void digitalWrite(int pin, int value) {
 	static std::ofstream outputFile("gpio_output.txt", std::ios::app);

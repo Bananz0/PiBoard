@@ -25,7 +25,6 @@ private:
 public:
     Minerva();
     ~Minerva();
-    QString testConnection();
     void selectDataPin(int pinNumber, int dataModeNum);
     void getServerWindowSize(QSize hermesSize);
     QSize setClentWindowSize();

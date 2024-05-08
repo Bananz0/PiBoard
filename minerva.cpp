@@ -11,25 +11,24 @@
 #define THREADSLEEP 3000000
 
 
-int syncPins[8] = { 2, 3, 4, 17 ,
-                    14, 15, 18, 13 };
+//int syncPins[8] = { 2, 3, 4, 17 ,
+//                    14, 15, 18, 13 };
 
 Minerva::Minerva() {
     //initialize GPIO
     initializeGPIO();
     //set send pins
-    dataPins[0] = 22;
-    dataPins[1] = 26;
-    dataPins[2] = 6;
-    dataPins[3] = 0;
-    //set receive pins
+    dataPins[0] = 17;
+    dataPins[1] = 18;
+    dataPins[2] = 27;
+    dataPins[3] = 22;
     dataPins[4] = 23;
-    dataPins[5] = 20;
-    dataPins[6] = 12;
-    dataPins[7] = 1;
+    dataPins[5] = 3;
+    dataPins[6] = 25;
+    dataPins[7] = 4;
     //set misc pins
-    dataPins[8] = 8;
-    dataPins[9] = 9;
+    //dataPins[8] = 8;
+    //dataPins[9] = 9;
     //set window size
     winSize = QSize(800, 600);
     //initialize drawDataPacket
@@ -75,41 +74,38 @@ void Minerva::initializeGPIO() {
 }
 
 void Minerva::serverMode() {
-    pinMode(22, OUTPUT); //Connected to GPIO 23
-    pinMode(26, OUTPUT); //Connected to GPIO 20
-    pinMode(6, OUTPUT);  //Connected to GPIO 0
-    pinMode(8, OUTPUT);  //connected to GPIO 9
+    //pinMode(22, OUTPUT); //Connected to GPIO 23
+    //pinMode(26, OUTPUT); //Connected to GPIO 20
+    //pinMode(6, OUTPUT);  //Connected to GPIO 0
+    //pinMode(8, OUTPUT);  //connected to GPIO 9
+    //pinMode(2, OUTPUT); //sync - send senderready to GPIO 14
+    //pinMode(3, OUTPUT); //sync - send sendbit() to GPIO 15 - clock to receiver
+    //pinMode(25, INPUT); //sync - receive sendBit from GPIO 24 - clock from receiver
+    //pinMode(4, INPUT); //sync - receive sendBit from GPIO 18
+    //pinMode(17, INPUT);// sync - read receiverready from GPIO 13
 
-    pinMode(2, OUTPUT); //sync - send senderready to GPIO 14
-
-    pinMode(3, OUTPUT); //sync - send sendbit() to GPIO 15 - clock to receiver
-    pinMode(25, INPUT); //sync - receive sendBit from GPIO 24 - clock from receiver
-
-    pinMode(4, INPUT); //sync - receive sendBit from GPIO 18
-    pinMode(17, INPUT);// sync - read receiverready from GPIO 13
-
-    digitalWrite(2, LOW);
-    digitalWrite(3, LOW);
-    digitalWrite(22, LOW);
+    for (int i = 0; i < 8; i++) {
+		pinMode(dataPins[i], OUTPUT);
+	}
+    pinMode(21, OUTPUT);
+    digitalWrite(21, LOW);
 }
 
 void Minerva::clientMode() {
-    pinMode(23, INPUT); //main receiver
-    pinMode(20, INPUT); //receive small packets
-    pinMode(0, INPUT);  //receive small packets
-    pinMode(9, INPUT); // receive small packets
-
-    pinMode(14, INPUT);  //sync receive sendready  from GPIO 2
-
-    pinMode(15, INPUT);  //sync receive sendbit() from GPIO 3 - clock from sender
-    pinMode(24, OUTPUT); //sync send sendBit to GPIO 25 - clock to sender
-
-    pinMode(18, OUTPUT); //sync send sendBit() to GPIO 4 
-    pinMode(13, OUTPUT); //sync send receiverready to GPIO 17
-
-    digitalWrite(24, LOW);
-    digitalWrite(18, LOW);
-    digitalWrite(13, LOW);
+    //https://raspberrypi.stackexchange.com/questions/79111/is-pinmode-necessary-in-wiringpi-programming
+    //Therefore not using pinmode for input pins
+    //pinMode(23, INPUT); //main receiver
+    //pinMode(20, INPUT); //receive small packets
+    //pinMode(0, INPUT);  //receive small packets
+    //pinMode(9, INPUT); // receive small packets
+    //pinMode(14, INPUT);  //sync receive sendready  from GPIO 2
+    //pinMode(15, INPUT);  //sync receive sendbit() from GPIO 3 - clock from sender
+    //pinMode(24, OUTPUT); //sync send sendBit to GPIO 25 - clock to sender
+    //pinMode(18, OUTPUT); //sync send sendBit() to GPIO 4 
+    //pinMode(13, OUTPUT); //sync send receiverready to GPIO 17
+    //digitalWrite(24, LOW);
+    //digitalWrite(18, LOW);
+    //digitalWrite(13, LOW);
 }
 
 //https://doc.qt.io/qt-6/qdatastream.html
@@ -243,43 +239,65 @@ bool Minerva::receiveBit(uint pinNumber) {
 void Minerva::sendData(QByteArray data, uint pinNumber) {
     data.clear();
     data.append(0xAA);
-    digitalWrite(21,HIGH);
+    digitalWrite(21, HIGH);
+
+    //sending bits individually
+    //for (int i = 0; i < data.size(); i++) {
+    //    char byte = data[i]; // Get the byte at index i
+    //    for (int j = 0; j < 8; j++) {
+    //        bool bit = (byte >> j) & 0x01; // Extract the j-th bit from the byte
+    //        sendBit(pinNumber, bit); // Send the bit using the sendBit function
+    //        qDebug() << "Sent Bit:" << bit;
+    //    }
+    //    delayMicroseconds(BYTEDELAY);
+    //}
+   
+
+    //Using digitalWriteByte() to send data
     for (int i = 0; i < data.size(); i++) {
-        char byte = data[i]; // Get the byte at index i
-        for (int j = 0; j < 8; j++) {
-            bool bit = (byte >> j) & 0x01; // Extract the j-th bit from the byte
-            sendBit(pinNumber, bit); // Send the bit using the sendBit function
-            qDebug() << "Sent Bit:" << bit;
-        }
+		char byte = data[i];
+        digitalWriteByte(byte);
         delayMicroseconds(BYTEDELAY);
+
     }
     digitalWrite(21, LOW);
+ 
 }
 
 QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
     QByteArray receivedData;
-    char currentByte = 0;
-    int bitCount = 0;
-    while (digitalRead(21) == HIGH) {
-        for (int i = 0; i < expectedByteSize * 8; i++) {
-            while (digitalRead(syncPins[5]) == LOW) {
-                delayMicroseconds(1);
-            }
-            bool bit = digitalRead(dataPins[pinNumber]);
-            delayMicroseconds(BITDELAY);
-            qDebug() << "Received Bit Custom: " << bit << "Actual Received Bit: " << digitalRead(dataPins[pinNumber]);
-            currentByte = (currentByte << 1) | bit;
-            bitCount++;
+    //char currentByte = 0;
+    //int bitCount = 0;
+    //while (digitalRead(21) == HIGH) {
+    //    for (int i = 0; i < expectedByteSize * 8; i++) {
+    //        while (digitalRead(syncPins[5]) == LOW) {
+    //            delayMicroseconds(1);
+    //        }
+    //        bool bit = digitalRead(dataPins[pinNumber]);
+    //        delayMicroseconds(BITDELAY);
+    //        qDebug() << "Received Bit Custom: " << bit << "Actual Received Bit: " << digitalRead(dataPins[pinNumber]);
+    //        currentByte = (currentByte << 1) | bit;
+    //        bitCount++;
 
-            if (bitCount == 8) {
-                qDebug() << currentByte;
-                receivedData.append(currentByte);
-                currentByte = 0;
-                bitCount = 0;
-            }
-            delayMicroseconds(BYTEDELAY);
-        }
-    }
+    //        if (bitCount == 8) {
+    //            qDebug() << currentByte;
+    //            receivedData.append(currentByte);
+    //            currentByte = 0;
+    //            bitCount = 0;
+    //        }
+    //        delayMicroseconds(BYTEDELAY);
+    //    }
+    //}
+
+    //using digitalReadByte() to receive data
+    while(digitalRead(21) == LOW) {
+		delayMicroseconds(1);
+	}
+
+    while (digitalRead(21) == HIGH) {
+		receivedData.append(digitalReadByte());
+		delayMicroseconds(BYTEDELAY);
+	}
 
     //qDebug() << "Received data size:" << receivedData.size();
     return receivedData;
