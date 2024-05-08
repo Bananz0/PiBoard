@@ -185,9 +185,15 @@ void Minerva::decodeData() {
     //recLock->lock();
     if (USEBIGDATA) {
         if (USEQUEUE) {
+            bool emptyAlert = true;
             if (dataQueue.isEmpty()) {
-                //qDebug() << "Receive Data Queue is empty";
+                //alert empty once and return
+                if (emptyAlert) {
+					qDebug() << "Receive Data Queue is empty";
+					emptyAlert = false;
+				}
                 return;
+
             }
             bigData = dataQueue.dequeue();
         }
@@ -230,7 +236,7 @@ void Minerva::decodeData() {
         sizeStream >> receiveDataPacket->windowSize;
         recLock->unlock();
     }
-    qDebug() << "Receive data queue size is :" << dataQueue.size();
+    //qDebug() << "Receive data queue size is :" << dataQueue.size();
     //recLock->unlock();
 }
 
