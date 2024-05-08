@@ -82,7 +82,7 @@ public:
     void runReceiveThread();
     void startReceiveThread();
     void startSendThread();
-    void testDMA();
+    QString testDMA();
     QString testPins();
     void sendReady(bool value, int pin);
     bool isReceiveReady(int pin);

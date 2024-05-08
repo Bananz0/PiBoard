@@ -36,7 +36,7 @@ private slots:
     void on_receiverButton_clicked();
     void on_allButton_clicked();
     void on_testDMAbutton_clicked();
-    void testDMA();
+    QString testDMA();
     QString testPins();
     void on_pinTestButton_clicked();
 

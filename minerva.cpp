@@ -4,7 +4,7 @@
 
 //Delay times for sending and receiving bits and bytes
 #define BITDELAY 1000000
-#define BYTEDELAY 1000
+#define BYTEDELAY 1000000
 #define USEBIGDATA true
 #define SYNC_TIMEOUT 1000000 
 #define MAX_SYNC_RETRIES 5 
@@ -106,6 +106,20 @@ void Minerva::clientMode() {
     //digitalWrite(24, LOW);
     //digitalWrite(18, LOW);
     //digitalWrite(13, LOW);
+    bool DMAreceived = false;
+    while (!DMAreceived) {
+        DMAreceived = digitalRead(23);
+        delayMicroseconds(1000);
+        if (DMAreceived) {
+			qDebug() << "DMA Received";
+            qDebug() << "Sending back SOL";
+            pinMode(23, OUTPUT);
+			testDMA();
+            delayMicroseconds(1000);
+            qDebug() << "SOL Sent";
+            pinMode(23, INPUT);
+		}
+	}
 }
 
 //https://doc.qt.io/qt-6/qdatastream.html
@@ -276,9 +290,9 @@ void Minerva::sendData(QByteArray data, uint pinNumber) {
         char byte = data[i];
         for (int j = 0; j < 8; j++) {
             bool bit = (byte >> (7 - j)) & 0x01;
-            digitalWrite(dataPins[j], bit);
+            digitalWrite(dataPins[0], bit);
+            delayMicroseconds(BITDELAY);
         }
-        qDebug() << "Sent Byte:" << QString::number(byte, 16);
         delayMicroseconds(BYTEDELAY);
     }
 
@@ -297,9 +311,11 @@ QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
     }
 
     while (digitalRead(21) == HIGH) {
+        delayMicroseconds(BYTEDELAY);
         for (int j = 0; j < 8; j++) {
             bool bit = digitalRead(dataPins[j]);
             currentByte = (currentByte << 1) | bit;
+            delayMicroseconds(BITDELAY);
         }
 
         if (!receiving && currentByte == startMarker) {
@@ -312,12 +328,8 @@ QByteArray Minerva::receiveData(uint pinNumber, int expectedByteSize) {
             receiving = false;
             break;
         }
-
-        currentByte = 0;
         delayMicroseconds(BYTEDELAY);
     }
-
-    digitalWrite(21, LOW); // Set the write enable pin low
 
     return receivedData;
 }
@@ -535,26 +547,43 @@ void Minerva::startSendThread() {
     /*prometheusThread->start();*/
 }
 
-void Minerva::testDMA() {
-    //pinMode(8, OUTPUT);
-    //pinMode(9,INPUT);
+QString Minerva::testDMA() {
+    bool DMAreceived = false;
+    digitalWrite(21, HIGH);
+    qDebug() << "DMA Test Sent";
+    delayMicroseconds(BITDELAY);
+    digitalWrite(21, LOW);
+    delayMicroseconds(BITDELAY);
+    delayMicroseconds(4000);
+    //timeout
+    for (int i = 0; i < 10; i++) {
+		DMAreceived = digitalRead(23);
+        if (DMAreceived) {
+			break;
+		}
+		delayMicroseconds(1000);
+        qDebug() << "Timeout after " << i << " seconds";
+	}
+    QString dataText = DMAreceived ? "DMA Test successfull" : "DMA Test failed";
+    qDebug() << "DMA Test Received: " << DMAreceived;
+    return dataText;
 }
 
 QString Minerva::testPins() {
-    bool sent = true;
-    bool rec = false;
-    int dataCount = 0;
-    for (int i = 0; i < 40; i++) {
-        int output = i % 4;
-        int input = output + 4;
-        digitalWrite(output, sent);
-        rec = digitalRead(input);
-        dataCount += rec;
-        qDebug() << "Send Pin: " << output << "Receive Pin: " << input << "Data Received: " << dataCount;
-        rec = false;
-    }
-    QString dataText = dataCount == 40 ? "Data connection test successfull " : "Data connection test failed";
-    return dataText;
+    //bool sent = true;
+    //bool rec = false;
+    //int dataCount = 0;
+    //for (int i = 0; i < 40; i++) {
+    //    int output = i % 4;
+    //    int input = output + 4;
+    //    //digitalWrite(output, sent);
+    //    rec = digitalRead(input);
+    //    dataCount += rec;
+    //    qDebug() << "Send Pin: " << output << "Receive Pin: " << input << "Data Received: " << dataCount;
+    //    rec = false;
+    //}
+    //QString dataText = dataCount == 40 ? "Data connection test successfull " : "Data connection test failed";
+    return "Feature has been deimplemented and reabsorbed into another function. ";
 }
 
 void Minerva::sendReady(bool value, int pin) {

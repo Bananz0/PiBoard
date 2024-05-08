@@ -67,8 +67,9 @@ void Gaia::on_allButton_clicked()
     startClient("Right",0);
 }
 
-void Gaia::testDMA(){
-    minervaIn->testDMA();
+QString Gaia::testDMA(){
+    ui->minervaStatus->append("DMA Test Sent");
+    return minervaIn->testDMA();
 }
 QString Gaia::testPins(){
     return minervaIn->testPins();
@@ -151,8 +152,8 @@ void Gaia::on_testDMAbutton_clicked()
     bool rec = false;
     minervaOut->sendBitUnclocked(22,sent);
     ui->minervaStatus->append("Data has been sent on pin");
-    rec = minervaIn->receiveBitUnclocked(23);
-    ui->minervaStatus->append(rec ?"The boolean value has been changed on the pin" : "The boolean value has not been changed on the pin");
+    
+    ui->minervaStatus->append(testDMA());
 }
 
 
