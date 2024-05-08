@@ -256,34 +256,6 @@ void Minerva::decodeData() {
 //}
 
 void Minerva::sendData(QByteArray data, uint pinNumber) {
-    //sending bits individually
-    //for (int i = 0; i < data.size(); i++) {
-    //    char byte = data[i]; // Get the byte at index i
-    //    for (int j = 0; j < 8; j++) {
-    //        bool bit = (byte >> j) & 0x01; // Extract the j-th bit from the byte
-    //        sendBit(pinNumber, bit); // Send the bit using the sendBit function
-    //        qDebug() << "Sent Bit:" << bit;
-    //    }
-    //    delayMicroseconds(BYTEDELAY);
-    //}
-
-
-    ////Using digitalWriteByte() to send data
-    //for (int i = 0; i < data.size(); i++) {
-    //    char byte = data[i];
-    //    digitalWriteByte(byte);
-    //    delayMicroseconds(BYTEDELAY);
-
-    //}
-    //digitalWrite(21, LOW);
-
-    //reimplementing individual sendbits
-    data.clear();
-    data.append(0xAA); //start marker
-    data.append(0x01); //dummy data
-    data.append(0x02);
-    data.append(0xBB); //end marker
-
     digitalWrite(21, HIGH); // Set the write enable pin high
 
     for (int i = 0; i < data.size(); i++) {
@@ -295,38 +267,23 @@ void Minerva::sendData(QByteArray data, uint pinNumber) {
         }
         delayMicroseconds(BYTEDELAY);
     }
-
     digitalWrite(21, LOW); // Set the write enable pin low
 }
 
 QByteArray Minerva::receiveData(uint pinNumber) {
     QByteArray receivedData;
     char currentByte = 0;
-    bool receiving = false;
-    const char startMarker = 0xAA; //data start marker
-    const char endMarker = 0xBB; //data end marker
 
     while (digitalRead(21) == LOW) {
-        delayMicroseconds(1); // Wait until the write enable pin goes high
+        delayMicroseconds(1); 
     }
 
     while (digitalRead(21) == HIGH) {
         delayMicroseconds(BYTEDELAY);
         for (int j = 0; j < 8; j++) {
-            bool bit = digitalRead(dataPins[j]);
+            bool bit = digitalRead(dataPins[0]);
             currentByte = (currentByte << 1) | bit;
             delayMicroseconds(BITDELAY);
-        }
-
-        if (!receiving && currentByte == startMarker) {
-            receiving = true;
-        }
-        else if (receiving && currentByte != endMarker) {
-            receivedData.append(currentByte);
-        }
-        else if (receiving && currentByte == endMarker) {
-            receiving = false;
-            break;
         }
         delayMicroseconds(BYTEDELAY);
     }
