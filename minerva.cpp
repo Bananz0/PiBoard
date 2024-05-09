@@ -3,12 +3,12 @@
 #include <thread>
 
 //Delay times for sending and receiving bits and bytes
-#define BITDELAY 10000
-#define BYTEDELAY 20000
+#define BITDELAY 1000
+#define BYTEDELAY 1500
 #define USEBIGDATA true
 #define SYNC_TIMEOUT 1000000
 #define MAX_SYNC_RETRIES 5
-#define THREADSLEEP 01 //1500000
+#define THREADSLEEP 15000
 #define USEQUEUE false //queue for receiving data locally
 
 //int syncPins[8] = { 2, 3, 4, 17 ,
@@ -142,7 +142,7 @@ void Minerva::encodeData() {
         //Lock data when sending
         sendLock->lock();
         bigStreamSender << sendDataPacket->startPoint;
-        bigStreamSender << sendDataPacket->movingPoint;
+        //bigStreamSender << sendDataPacket->movingPoint;
         bigStreamSender << sendDataPacket->endPoint;
         bigStreamSender << sendDataPacket->clearCanvasFlag;
         bigStreamSender << sendDataPacket->drawMode;
@@ -207,7 +207,7 @@ void Minerva::decodeData() {
         recLock->lock();
         QDataStream bigStream(&bigData, QDataStream::ReadOnly);
         bigStream >> receiveDataPacket->startPoint;
-        bigStream >> receiveDataPacket->movingPoint;
+        //bigStream >> receiveDataPacket->movingPoint;
         bigStream >> receiveDataPacket->endPoint;
         bigStream >> receiveDataPacket->clearCanvasFlag;
         bigStream >> receiveDataPacket->drawMode;
@@ -270,6 +270,14 @@ void Minerva::sendData(QByteArray data, uint pinNumber) {
     bool readByte = false;
     bool recReady = false;
 
+    //    QByteArray dataStart = QByteArray(1, 0x9D);
+    //    QByteArray dataEnd = QByteArray(1, 0x9E);
+    QByteArray startPattern = QByteArray::fromHex("9D");
+    QByteArray endPattern = QByteArray::fromHex("9E");
+    data.prepend(startPattern);
+    data.append(endPattern);
+
+
     digitalWrite(21, HIGH); // Set the write data enable pin high
     for (int i = 0; i < data.size(); i++) {
         digitalWrite(dataPins[3], HIGH); //set the byte write enable pin high
@@ -331,6 +339,7 @@ QByteArray Minerva::receiveData(uint pinNumber) {
     bool sent = false;
     bool writeByte = false;
     bool clock_b = false;
+    bool firstByte = true;
 
     pinMode(dataPins[5], OUTPUT);
     pinMode(dataPins[6], OUTPUT);
@@ -380,7 +389,7 @@ QByteArray Minerva::receiveData(uint pinNumber) {
             bool bit = digitalRead(dataPins[0]);
             currentByte = (currentByte << 1) | bit;
             qDebug() << "rec bit: " << bit;
-
+            delayMicroseconds(10000);
             pinMode(dataPins[5], OUTPUT);
             pinMode(dataPins[6], OUTPUT);
             digitalWrite(dataPins[5], LOW); //clear the clock signal
@@ -392,13 +401,21 @@ QByteArray Minerva::receiveData(uint pinNumber) {
             digitalWrite(dataPins[4], HIGH); //set the byte read pin high
             delayMicroseconds(BITDELAY);
         }
-
-        receivedData.append(currentByte);
+        if (currentByte == 0x9E) {
+            break;
+        }
+        if (firstByte) {
+            firstByte = false;
+        }
+        else {
+            receivedData.append(currentByte);
+        }
         pinMode(dataPins[6], OUTPUT);
         digitalWrite(dataPins[6], LOW); //clear the clock signal
         delayMicroseconds(BITDELAY);
     }
     qDebug() << "Received Data Size: " << receivedData.size();
+    qDebug() << receivedData;
     return receivedData;
 }
 
