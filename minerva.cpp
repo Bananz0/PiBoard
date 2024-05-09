@@ -4,7 +4,7 @@
 
 //Delay times for sending and receiving bits and bytes
 #define BITDELAY 100
-#define BYTEDELAY 200
+#define BYTEDELAY 6000
 #define USEBIGDATA true
 #define SYNC_TIMEOUT 1000000
 #define MAX_SYNC_RETRIES 5
@@ -266,43 +266,72 @@ void Minerva::decodeData() {
 
 void Minerva::sendData(QByteArray data, uint pinNumber) {
     digitalWrite(21, HIGH); // Set the write enable pin high
-
+    bool clock = false;
     for (int i = 0; i < data.size(); i++) {
+        //byte write enable
+        bool readByte = false;
+        digitalWrite(dataPins[3], HIGH); //set the byte write enable pin high
         char byte = data[i];
+
+
         for (int j = 0; j < 8; j++) {
             bool bit = (byte >> (7 - j)) & 0x01;
             bool read = false;
+            while (clock) {
+				clock = digitalRead(dataPins[5]); //read the clock signal
+				delayMicroseconds(100);
+			}
             digitalWrite(dataPins[0], bit);
             qDebug() << "sent bit: " << bit;  
             delayMicroseconds(BITDELAY);
             digitalWrite(dataPins[1], HIGH); // send the sent flag
+
+            pinMode(dataPins[5], OUTPUT);
+            digitalWrite(dataPins[5], HIGH); //send the clock signal
+            pinMode(dataPins[5], INPUT);
+
             delayMicroseconds(100);
-            while (!read) {            
-                delayMicroseconds(1);
+
+            while (!read) {
                 read = digitalRead(dataPins[2]); //read flag
+                delayMicroseconds(10);                
             }
             if (read) {
 				digitalWrite(dataPins[1], LOW); //clear the sent flag
                 delayMicroseconds(100);
             }
         }
+        digitalWrite(dataPins[3], LOW); //clear the byte write enable pin
         delayMicroseconds(BYTEDELAY);
+        if (!readByte) {
+            readByte = digitalRead(dataPins[4]); //read byte flag
+            delayMicroseconds(10);
+        }
+       
     }
     digitalWrite(21, LOW); // Set the write enable pin low
 }
 
 QByteArray Minerva::receiveData(uint pinNumber) {
     QByteArray receivedData;
+    bool clock = false;
     char currentByte = 0;
     bool sent = false;
-
+    bool sentByte = false;
     while (digitalRead(21) == LOW) {
         delayMicroseconds(1);
     }
 
     while (digitalRead(21) == HIGH) {
         delayMicroseconds(BYTEDELAY);
+        //byte read enable
+        digitalWrite(dataPins[4], HIGH); //set the byte read enable pin high
         for (int j = 0; j < 8; j++) {
+            while (!clock) {
+                delayMicroseconds(50);
+                pinMode(dataPins[5], INPUT);
+                clock = digitalRead(dataPins[5]); //read the clock signal
+            }
             while (!sent) {
 				sent = digitalRead(dataPins[1]); //sent flag
                 digitalWrite(dataPins[2], LOW); //clear the read flag
@@ -314,11 +343,16 @@ QByteArray Minerva::receiveData(uint pinNumber) {
             digitalWrite(dataPins[2], HIGH); //receive flag
             delayMicroseconds(100);
             delayMicroseconds(BITDELAY);
+            digitalWrite(dataPins[4], HIGH); //set the byte read pin high
+            delayMicroseconds(100);
+            pinMode(dataPins[5], OUTPUT);
+            digitalWrite(dataPins[5], LOW); //clear the clock signal
         }
         receivedData.append(currentByte);
+        dataPins[4] = LOW; //clear the byte read enable pin
         delayMicroseconds(BYTEDELAY);
     }
-
+    qDebug() << "Received Data Size: " << receivedData.size();
     return receivedData;
 }
 
