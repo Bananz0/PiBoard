@@ -26,6 +26,7 @@ Minerva::Minerva() {
     dataPins[5] = 3;
     dataPins[6] = 25;
     dataPins[7] = 4;
+    pinMode(3, INPUT);
     //set misc pins
     //dataPins[8] = 8;
     //dataPins[9] = 9;
@@ -389,7 +390,7 @@ QByteArray Minerva::receiveData(uint pinNumber) {
             bool bit = digitalRead(dataPins[0]);
             currentByte = (currentByte << 1) | bit;
             qDebug() << "rec bit: " << bit;
-            delayMicroseconds(10000);
+            delayMicroseconds(100000);
             pinMode(dataPins[5], OUTPUT);
             pinMode(dataPins[6], OUTPUT);
             digitalWrite(dataPins[5], LOW); //clear the clock signal
@@ -656,20 +657,21 @@ QString Minerva::testDMA() {
 }
 
 QString Minerva::testPins() {
-    //bool sent = true;
-    //bool rec = false;
-    //int dataCount = 0;
-    //for (int i = 0; i < 40; i++) {
-    //    int output = i % 4;
-    //    int input = output + 4;
-    //    //digitalWrite(output, sent);
-    //    rec = digitalRead(input);
-    //    dataCount += rec;
-    //    qDebug() << "Send Pin: " << output << "Receive Pin: " << input << "Data Received: " << dataCount;
-    //    rec = false;
-    //}
-    //QString dataText = dataCount == 40 ? "Data connection test successfull " : "Data connection test failed";
-    return "Feature has been deimplemented and reabsorbed into another function. ";
+    bool sent = true;
+    bool rec = false;
+    int dataCount = 0;
+    for (int i = 0; i < 40; i++) {
+        int output = dataPins[7];
+        int input = 2;
+        digitalWrite(output, sent);
+        rec = digitalRead(input);
+        dataCount += rec;
+        qDebug() << "Send Pin: " << output << "Receive Pin: " << input << "Data Received: " << dataCount;
+        rec = false;
+        digitalWrite(output, false);
+    }
+    QString dataText = dataCount == 40 ? "Data connection test successfull " : "Data connection test failed";
+    return dataText;
 }
 
 void Minerva::sendReady(bool value, int pin) {
