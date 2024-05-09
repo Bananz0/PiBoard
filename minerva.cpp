@@ -3,8 +3,8 @@
 #include <thread>
 
 //Delay times for sending and receiving bits and bytes
-#define BITDELAY 100
-#define BYTEDELAY 6000
+#define BITDELAY 10000
+#define BYTEDELAY 20000
 #define USEBIGDATA true
 #define SYNC_TIMEOUT 1000000
 #define MAX_SYNC_RETRIES 5
@@ -105,7 +105,7 @@ void Minerva::clientMode() {
     //pinMode(24, OUTPUT); //sync send sendBit to GPIO 25 - clock to sender
     //pinMode(18, OUTPUT); //sync send sendBit() to GPIO 4
     //pinMode(13, OUTPUT); //sync send receiverready to GPIO 17
-    
+
     //digitalWrite(24, LOW);
     //digitalWrite(18, LOW);
     //digitalWrite(13, LOW);
@@ -146,8 +146,8 @@ void Minerva::encodeData() {
         bigStreamSender << sendDataPacket->endPoint;
         bigStreamSender << sendDataPacket->clearCanvasFlag;
         bigStreamSender << sendDataPacket->drawMode;
- //     bigStreamSender << sendDataPacket->pen;
- //     bigStreamSender << sendDataPacket->windowSize;
+        //     bigStreamSender << sendDataPacket->pen;
+        //     bigStreamSender << sendDataPacket->windowSize;
         sendLock->unlock();
         //unlock data when sending
         //Queueing big packet
@@ -167,8 +167,8 @@ void Minerva::encodeData() {
         posStreamSender << sendDataPacket->endPoint;
         flagsStreamSender << sendDataPacket->clearCanvasFlag;
         flagsStreamSender << sendDataPacket->drawMode;
-//      penStreamSender << sendDataPacket->pen;
- //     sizeStreamSender << sendDataPacket->windowSize;
+        //      penStreamSender << sendDataPacket->pen;
+         //     sizeStreamSender << sendDataPacket->windowSize;
         sendLock->unlock();
         //Queueing data to send over multiple wires
         posQueue.enqueue(posData);
@@ -211,8 +211,8 @@ void Minerva::decodeData() {
         bigStream >> receiveDataPacket->endPoint;
         bigStream >> receiveDataPacket->clearCanvasFlag;
         bigStream >> receiveDataPacket->drawMode;
- //     bigStream >> receiveDataPacket->pen;
- //     bigStream >> receiveDataPacket->windowSize;
+        //     bigStream >> receiveDataPacket->pen;
+        //     bigStream >> receiveDataPacket->windowSize;
         recLock->unlock();
     }
     else if (!USEBIGDATA) {
@@ -235,8 +235,8 @@ void Minerva::decodeData() {
         posStream >> receiveDataPacket->endPoint;
         flagsStream >> receiveDataPacket->clearCanvasFlag;
         flagsStream >> receiveDataPacket->drawMode;
- //     penStream >> receiveDataPacket->pen;
- //     sizeStream >> receiveDataPacket->windowSize;
+        //     penStream >> receiveDataPacket->pen;
+        //     sizeStream >> receiveDataPacket->windowSize;
         recLock->unlock();
     }
     //qDebug() << "Receive data queue size is :" << dataQueue.size();
@@ -265,51 +265,63 @@ void Minerva::decodeData() {
 //}
 
 void Minerva::sendData(QByteArray data, uint pinNumber) {
-    digitalWrite(21, HIGH); // Set the write enable pin high
     bool clock = false;
+    bool clock_b = false;
+    bool readByte = false;
+    bool recReady = false;
+
+    digitalWrite(21, HIGH); // Set the write data enable pin high
     for (int i = 0; i < data.size(); i++) {
-        //byte write enable
-        bool readByte = false;
         digitalWrite(dataPins[3], HIGH); //set the byte write enable pin high
+        delayMicroseconds(BITDELAY);
+        pinMode(dataPins[6], INPUT);
+        while (clock_b) {
+            clock = digitalRead(dataPins[6]); //read the clock signal
+            delayMicroseconds(1);
+        }
         char byte = data[i];
-
-
         for (int j = 0; j < 8; j++) {
             bool bit = (byte >> (7 - j)) & 0x01;
             bool read = false;
+            pinMode(dataPins[5], INPUT);
             while (clock) {
-				clock = digitalRead(dataPins[5]); //read the clock signal
-				delayMicroseconds(100);
-			}
+                clock = digitalRead(dataPins[5]); //read the clock signal
+                delayMicroseconds(1);
+            }
+
             digitalWrite(dataPins[0], bit);
-            qDebug() << "sent bit: " << bit;  
+            qDebug() << "sent bit: " << bit;
             delayMicroseconds(BITDELAY);
             digitalWrite(dataPins[1], HIGH); // send the sent flag
-
+            delayMicroseconds(BITDELAY);
             pinMode(dataPins[5], OUTPUT);
             digitalWrite(dataPins[5], HIGH); //send the clock signal
-            pinMode(dataPins[5], INPUT);
-
-            delayMicroseconds(100);
+            delayMicroseconds(BITDELAY);
+            pinMode(dataPins[6], OUTPUT);
+            digitalWrite(dataPins[6], HIGH); //send the clock_b signal
+            delayMicroseconds(BITDELAY);
 
             while (!read) {
                 read = digitalRead(dataPins[2]); //read flag
-                delayMicroseconds(10);                
-            }
-            if (read) {
-				digitalWrite(dataPins[1], LOW); //clear the sent flag
-                delayMicroseconds(100);
+                delayMicroseconds(1);
+                if (read) {
+                    digitalWrite(dataPins[1], LOW); //clear the sent flag
+                    digitalWrite(dataPins[3], LOW); //clear the byte write enable pin
+                    delayMicroseconds(BITDELAY);
+                }
             }
         }
-        digitalWrite(dataPins[3], LOW); //clear the byte write enable pin
+
         delayMicroseconds(BYTEDELAY);
+
         if (!readByte) {
             readByte = digitalRead(dataPins[4]); //read byte flag
-            delayMicroseconds(10);
+            delayMicroseconds(BITDELAY);
         }
-       
     }
     digitalWrite(21, LOW); // Set the write enable pin low
+    delayMicroseconds(BITDELAY);
+
 }
 
 QByteArray Minerva::receiveData(uint pinNumber) {
@@ -317,40 +329,74 @@ QByteArray Minerva::receiveData(uint pinNumber) {
     bool clock = false;
     char currentByte = 0;
     bool sent = false;
-    bool sentByte = false;
+    bool writeByte = false;
+    bool clock_b = false;
+
+    pinMode(dataPins[5], OUTPUT);
+    pinMode(dataPins[6], OUTPUT);
+
+    digitalWrite(dataPins[4], LOW); //clear the byte read flag
+    digitalWrite(dataPins[2], LOW); //clear the read flag
+    digitalWrite(dataPins[5], LOW); //clear the clock signal
+    digitalWrite(dataPins[6], LOW); //clear the clock_b signal
+
     while (digitalRead(21) == LOW) {
-        delayMicroseconds(1);
+        delayMicroseconds(1); //wait for the write data enable pin to go high
     }
 
+
     while (digitalRead(21) == HIGH) {
-        delayMicroseconds(BYTEDELAY);
+
         //byte read enable
-        digitalWrite(dataPins[4], HIGH); //set the byte read enable pin high
+        digitalWrite(dataPins[4], HIGH); //set the byte read enable pin high (reading the byte)
+
+        while (!writeByte) {
+            writeByte = digitalRead(dataPins[3]); //byte write enable pin
+            delayMicroseconds(1);
+        }
+
+        while (!clock_b) {
+            pinMode(dataPins[6], INPUT);
+            clock_b = digitalRead(dataPins[6]); //read the clock signal
+            delayMicroseconds(1);
+        }
+
+        digitalWrite(dataPins[6], LOW); //clear the clock_b signal
+
         for (int j = 0; j < 8; j++) {
-            while (!clock) {
-                delayMicroseconds(50);
+            pinMode(dataPins[5], OUTPUT);
+            digitalWrite(dataPins[4], LOW); //clear the byte read flag
+            digitalWrite(dataPins[2], LOW); //clear the read flag
+            digitalWrite(dataPins[5], LOW); //clear the clock signal
+
+
+            while (!clock && !sent) {
                 pinMode(dataPins[5], INPUT);
+                sent = digitalRead(dataPins[1]); //sent flag
                 clock = digitalRead(dataPins[5]); //read the clock signal
+                delayMicroseconds(1);
             }
-            while (!sent) {
-				sent = digitalRead(dataPins[1]); //sent flag
-                digitalWrite(dataPins[2], LOW); //clear the read flag
-                delayMicroseconds(100);
-			}
+
             bool bit = digitalRead(dataPins[0]);
             currentByte = (currentByte << 1) | bit;
             qDebug() << "rec bit: " << bit;
+
+            pinMode(dataPins[5], OUTPUT);
+            pinMode(dataPins[6], OUTPUT);
+            digitalWrite(dataPins[5], LOW); //clear the clock signal
+            delayMicroseconds(BITDELAY);
+            digitalWrite(dataPins[6], LOW); //clear the clock_b signal
+            delayMicroseconds(BITDELAY);
             digitalWrite(dataPins[2], HIGH); //receive flag
-            delayMicroseconds(100);
             delayMicroseconds(BITDELAY);
             digitalWrite(dataPins[4], HIGH); //set the byte read pin high
-            delayMicroseconds(100);
-            pinMode(dataPins[5], OUTPUT);
-            digitalWrite(dataPins[5], LOW); //clear the clock signal
+            delayMicroseconds(BITDELAY);
         }
+
         receivedData.append(currentByte);
-        dataPins[4] = LOW; //clear the byte read enable pin
-        delayMicroseconds(BYTEDELAY);
+        pinMode(dataPins[6], OUTPUT);
+        digitalWrite(dataPins[6], LOW); //clear the clock signal
+        delayMicroseconds(BITDELAY);
     }
     qDebug() << "Received Data Size: " << receivedData.size();
     return receivedData;
