@@ -143,12 +143,12 @@ void Minerva::encodeData() {
         //Lock data when sending
         sendLock->lock();
         bigStreamSender << sendDataPacket->startPoint;
-        //bigStreamSender << sendDataPacket->movingPoint;
+        bigStreamSender << sendDataPacket->movingPoint;
         bigStreamSender << sendDataPacket->endPoint;
         bigStreamSender << sendDataPacket->clearCanvasFlag;
         bigStreamSender << sendDataPacket->drawMode;
-        //     bigStreamSender << sendDataPacket->pen;
-        //     bigStreamSender << sendDataPacket->windowSize;
+             bigStreamSender << sendDataPacket->pen;
+             bigStreamSender << sendDataPacket->windowSize;
         sendLock->unlock();
         //unlock data when sending
         //Queueing big packet
@@ -168,8 +168,8 @@ void Minerva::encodeData() {
         posStreamSender << sendDataPacket->endPoint;
         flagsStreamSender << sendDataPacket->clearCanvasFlag;
         flagsStreamSender << sendDataPacket->drawMode;
-        //      penStreamSender << sendDataPacket->pen;
-         //     sizeStreamSender << sendDataPacket->windowSize;
+        penStreamSender << sendDataPacket->pen;
+        sizeStreamSender << sendDataPacket->windowSize;
         sendLock->unlock();
         //Queueing data to send over multiple wires
         posQueue.enqueue(posData);
@@ -208,12 +208,12 @@ void Minerva::decodeData() {
         recLock->lock();
         QDataStream bigStream(&bigData, QDataStream::ReadOnly);
         bigStream >> receiveDataPacket->startPoint;
-        //bigStream >> receiveDataPacket->movingPoint;
+        bigStream >> receiveDataPacket->movingPoint;
         bigStream >> receiveDataPacket->endPoint;
         bigStream >> receiveDataPacket->clearCanvasFlag;
         bigStream >> receiveDataPacket->drawMode;
-        //     bigStream >> receiveDataPacket->pen;
-        //     bigStream >> receiveDataPacket->windowSize;
+        bigStream >> receiveDataPacket->pen;
+        bigStream >> receiveDataPacket->windowSize;
         recLock->unlock();
     }
     else if (!USEBIGDATA) {
@@ -445,14 +445,9 @@ void Minerva::receiveBigData() {
     else if (!USEGPIO) {
         QFile bigFile("bigData.dat");
         bigFile.open(QIODevice::ReadOnly);
-        if (USEQUEUE) {
-            dataQueue.enqueue(bigFile.readAll());
-        }
-        else {
-            bigData_raw = bigFile.readAll();
-        }
+        bigData_raw = bigFile.readAll();
+        bigData = bigFile.readAll();
     }
-
 }
 
 void Minerva::sendMultipleData() {
@@ -610,14 +605,14 @@ void Minerva::receiveGPIO() {
 void Minerva::runSendThread() {
     while (true) {
         send();
-        std::this_thread::sleep_for(std::chrono::nanoseconds(THREADSLEEP));
+        //std::this_thread::sleep_for(std::chrono::nanoseconds(THREADSLEEP));
     }
 }
 
 void Minerva::runReceiveThread() {
     while (true) {
         receive();
-        std::this_thread::sleep_for(std::chrono::nanoseconds(THREADSLEEP));
+       // std::this_thread::sleep_for(std::chrono::nanoseconds(THREADSLEEP));
     }
 }
 
