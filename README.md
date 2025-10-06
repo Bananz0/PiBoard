@@ -1,4 +1,4 @@
-# Lab P20: Advanced Programming Design Exercise - PiBoard
+#PiBoard -  A Concept on Communication over Serial using a custom-implmemented protocol
 
 This repository contains the code and documentation for PiBoard, a whiteboard chat application for the Raspberry Pi, developed as part of Lab P20. The application allows users to draw on a canvas and share their drawings with others in real-time.
 
